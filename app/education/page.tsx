@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   BookOpen, Info, AlertCircle, Wind, 
-  ShieldCheck, Thermometer, Droplets, Zap 
+  ShieldCheck, Thermometer, Droplets, Zap,
+  Cpu, Radio, HardDrive 
 } from 'lucide-react';
 
 export default function EducationPage() {
@@ -27,6 +28,25 @@ export default function EducationPage() {
       desc: "Organic chemicals that evaporate easily, found in paints, sprays, and new furniture.",
       safety: "Optimal: < 0.3 mg/m³ | High: > 3 mg/m³",
       impact: "Long-term exposure is linked to various health issues including allergies."
+    }
+  ];
+
+  // --- NEW HARDWARE DATA ---
+  const hardware = [
+    {
+      name: "ESP32 Microcontroller",
+      icon: <Cpu size={24} className="text-emerald-400" />,
+      desc: "The brain of the system. A powerful dual-core MCU with built-in Wi-Fi that processes sensor data and handles cloud synchronization."
+    },
+    {
+      name: "DHT22 Sensor",
+      icon: <HardDrive size={24} className="text-orange-400" />,
+      desc: "A high-precision digital sensor providing accurate readings for temperature and humidity, essential for indoor climate control."
+    },
+    {
+      name: "MQ-Series Sensors",
+      icon: <Radio size={24} className="text-blue-400" />,
+      desc: "Electrochemical sensors used to detect air pollutants like CO2 and Ammonia by measuring changes in gas concentration."
     }
   ];
 
@@ -83,6 +103,23 @@ export default function EducationPage() {
           ))}
         </div>
 
+        {/* --- ADDED: HARDWARE STACK SECTION --- */}
+        <div className="space-y-6 pt-6">
+          <div className="flex items-center gap-3 px-4">
+             <Cpu size={20} className="text-emerald-400" />
+             <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-500">Hardware Infrastructure</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {hardware.map((h, i) => (
+              <div key={i} className="bg-slate-900/20 border border-slate-800/40 p-8 rounded-[2rem] hover:bg-slate-800/30 transition-all">
+                <div className="mb-4">{h.icon}</div>
+                <h4 className="text-white font-bold uppercase tracking-tight mb-2">{h.name}</h4>
+                <p className="text-slate-500 text-xs leading-relaxed">{h.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Climate Standards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-orange-500/5 border border-orange-500/20 p-8 rounded-[2.5rem] flex items-center gap-6">
@@ -100,6 +137,11 @@ export default function EducationPage() {
             </div>
           </div>
         </div>
+
+        {/* Footer Attribution */}
+        <p className="text-center text-slate-800 text-[10px] font-black uppercase tracking-[0.5em] pt-10">
+          SkyWatch Architecture • Group 4 Polinema
+        </p>
       </div>
     </main>
   );
