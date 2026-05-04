@@ -1,209 +1,265 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { 
-  Download, Thermometer, Wind, Archive, 
-  FileText, Activity, ShieldCheck, AlertCircle, 
-  CheckCircle2, Settings2, X 
-} from "lucide-react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { FileBarChart, RefreshCw, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
+const T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
+
+interface SensorRow {
+  co2: number;
+  nh3: number;
+  temp?: number;
+  temperature?: number;
+  hum?: number;
+  humidity?: number;
+  created_at?: string;
+  timestamp?: string;
+}
+
+function avg(arr: number[]) {
+  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+}
+function maxVal(arr: number[]) { return arr.length ? Math.max(...arr) : 0; }
+function minVal(arr: number[]) { return arr.length ? Math.min(...arr) : 0; }
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[#0d1425] border border-slate-700/60 rounded-xl px-4 py-3 text-xs shadow-2xl">
+      <p className="text-slate-500 font-bold mb-1 uppercase tracking-wider">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} style={{ color: p.fill }} className="font-bold">
+          {p.name}: <span className="text-white">{p.value?.toFixed(1)}</span>
+        </p>
+      ))}
+    </div>
+  );
+};
 
 export default function ReportsPage() {
-  const [data, setData] = useState<any[]>([]);
+  const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // --- STATE UNTUK PENGATURAN DOWNLOAD ---
-  const [showSettings, setShowSettings] = useState(false);
-  const [exportLimit, setExportLimit] = useState(50); // Default ambil 50 data terakhir
-  const [fileName, setFileName] = useState("SkyWatch_Report_Group4");
+  const [error, setError] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/sensor");
-      const result = await res.json();
-      if (Array.isArray(result)) setData(result);
-    } catch (error) {
-      console.error("Failed to fetch archives");
+      const res = await fetch('/api/sensor');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setRows(Array.isArray(json) ? json : [json]);
+      setError('');
+    } catch (e: any) {
+      setError('Gagal memuat data laporan.');
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
   }, []);
 
-  // --- FUNGSI EKSPOR DENGAN PENGATURAN ---
-  const handleExport = () => {
-    const headers = ["Timestamp,Temp,Hum,CO2,Status\n"];
-    
-    // Filter data berdasarkan limit yang di-set user
-    const filteredData = data.slice(0, exportLimit);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-    const rows = filteredData.map(i => 
-      `${new Date(i.created_at).toLocaleString('en-GB')},${i.temp},${i.hum},${i.co2},${i.is_unhealthy ? 'Unhealthy' : 'Safe'}\n`
-    );
+  const co2s = rows.map(r => r.co2);
+  const nh3s = rows.map(r => r.nh3);
+  const temps = rows.map(r => r.temp ?? r.temperature ?? 0);
+  const hums = rows.map(r => r.hum ?? r.humidity ?? 0);
 
-    const blob = new Blob([...headers, ...rows], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.csv`;
-    a.click();
-    setShowSettings(false); // Tutup modal setelah download
-  };
+  const dangerCount = rows.filter(r => {
+    const t = r.temp ?? r.temperature ?? 0;
+    return r.co2 > T.co2 || r.nh3 > T.nh3 || t > T.temp;
+  }).length;
 
-  const hasData = data.length > 0;
-  const avgTemp = hasData ? data.reduce((a, b) => a + b.temp, 0) / data.length : 0;
-  const peakCO2 = hasData ? Math.max(...data.map(i => i.co2)) : 0;
-  const unhealthyLogs = data.filter(i => i.is_unhealthy === 1).length;
+  const safeRate = rows.length ? (((rows.length - dangerCount) / rows.length) * 100).toFixed(1) : '0';
+
+  const summaryStats = [
+    { label: 'Avg CO₂', value: avg(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2 },
+    { label: 'Max CO₂', value: maxVal(co2s).toFixed(0), unit: 'PPM', color: '#60a5fa', danger: maxVal(co2s) > T.co2 },
+    { label: 'Avg NH₃', value: avg(nh3s).toFixed(2), unit: 'PPM', color: '#f59e0b', danger: avg(nh3s) > T.nh3 },
+    { label: 'Max NH₃', value: maxVal(nh3s).toFixed(2), unit: 'PPM', color: '#fbbf24', danger: maxVal(nh3s) > T.nh3 },
+    { label: 'Avg Temp', value: avg(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp },
+    { label: 'Avg Humidity', value: avg(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum },
+    { label: 'Safe Rate', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80 },
+    { label: 'Total Records', value: rows.length.toString(), unit: 'entries', color: '#94a3b8', danger: false },
+  ];
+
+  // Hourly aggregation for bar chart
+  const hourlyMap: Record<string, { co2: number[]; temp: number[] }> = {};
+  rows.forEach(r => {
+    const ts = r.created_at ?? r.timestamp;
+    if (!ts) return;
+    const hour = new Date(ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    if (!hourlyMap[hour]) hourlyMap[hour] = { co2: [], temp: [] };
+    hourlyMap[hour].co2.push(r.co2);
+    hourlyMap[hour].temp.push(r.temp ?? r.temperature ?? 0);
+  });
+
+  const chartData = Object.entries(hourlyMap)
+    .slice(-15)
+    .map(([time, d]) => ({
+      time,
+      'Avg CO₂': avg(d.co2),
+      'Avg Temp': avg(d.temp),
+    }));
 
   return (
-    <main className="min-h-screen p-6 md:p-12 space-y-10 bg-[#020617] relative">
-      <div className="max-w-6xl mx-auto space-y-10">
-        
-        {/* --- HEADER SECTION --- */}
-        <section className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-blue-600/20 rounded-2xl text-blue-400">
-              <FileText size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter text-white font-bold">Data Archives</h1>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Documentation & Export Hub</p>
-            </div>
-          </div>
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="w-full md:w-auto flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl font-black uppercase text-sm tracking-widest text-white transition-all shadow-lg active:scale-95"
-          >
-            <Settings2 size={20} /> Configure Export
-          </button>
-        </section>
-
-        {/* --- SUMMARY STATS --- */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <StatCard title="Average Temp" value={`${avgTemp.toFixed(1)}°C`} icon={<Thermometer size={20}/>} color="orange" />
-          <StatCard title="Peak CO2" value={`${peakCO2} ppm`} icon={<Wind size={20}/>} color="blue" />
-          <StatCard title="Critical Events" value={unhealthyLogs} icon={<AlertCircle size={20}/>} color="red" />
-          <StatCard title="Total Logs" value={data.length} icon={<Archive size={20}/>} color="emerald" />
+    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-[#020617]/90 backdrop-blur-xl border-b border-slate-800/60 px-6 md:px-10 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-black text-white tracking-tight uppercase" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            Reports
+          </h1>
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
+            Ringkasan Statistik Sensor
+          </p>
         </div>
-
-        {/* --- DATA PREVIEW TABLE --- */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-[2.5rem] overflow-hidden">
-          <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-            <h3 className="font-bold uppercase tracking-widest text-slate-400 text-sm flex items-center gap-2">
-              <Activity size={18} className="text-blue-500" /> Recent Log Preview
-            </h3>
-            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest italic">Live Database Feed</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest">
-                <tr>
-                  <th className="px-8 py-5">Timestamp</th>
-                  <th className="px-6 py-5 text-center">Temperature</th>
-                  <th className="px-6 py-5 text-center">Humidity</th>
-                  <th className="px-6 py-5 text-center">CO2 Level</th>
-                  <th className="px-8 py-5 text-right">Air Health</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {data.slice(0, 10).map((item, i) => (
-                  <tr key={i} className="hover:bg-blue-500/[0.02] transition-colors">
-                    <td className="px-8 py-4 text-xs font-mono text-slate-400">{new Date(item.created_at).toLocaleString('en-GB')}</td>
-                    <td className="px-6 py-4 text-center text-orange-400 font-bold">{item.temp?.toFixed(1)}°C</td>
-                    <td className="px-6 py-4 text-center text-blue-400 font-bold">{item.hum?.toFixed(1)}%</td>
-                    <td className="px-6 py-4 text-center text-white font-bold">{item.co2} <small className="opacity-40">ppm</small></td>
-                    <td className="px-8 py-4 text-right">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black ${item.is_unhealthy ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
-                        {item.is_unhealthy ? "CRITICAL" : "STABLE"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* --- SYSTEM INTEGRITY FOOTER --- */}
-        <div className="bg-blue-600/5 border border-blue-500/10 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 justify-between">
-          <div className="flex items-center gap-4">
-            <ShieldCheck size={40} className="text-blue-500 opacity-50" />
-            <p className="text-slate-400 text-sm italic max-w-md">
-              "This report verifies that Group 4's SkyWatch node has successfully transmitted and archived environmental data."
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Report Generator</p>
-            <p className="text-sm font-bold text-white uppercase tracking-tight">SkyWatch v1.0.4 - stable</p>
-          </div>
-        </div>
+        <button
+          onClick={fetchData}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50"
+        >
+          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
       </div>
 
-      {/* --- EXPORT SETTINGS MODAL --- */}
-      {showSettings && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2rem] p-8 shadow-2xl space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4">
-               <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
-            </div>
-            
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 bg-blue-600/20 rounded-xl text-blue-400"><Download size={24}/></div>
-              <h2 className="text-xl font-black uppercase italic text-white leading-none">Export Settings</h2>
-            </div>
-
-            <div className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">File Name (.csv)</label>
-                <input 
-                  type="text" 
-                  value={fileName}
-                  onChange={(e) => setFileName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Data Limit (Rows)</label>
-                <select 
-                  value={exportLimit}
-                  onChange={(e) => setExportLimit(Number(e.target.value))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-all appearance-none"
-                >
-                  <option value={10}>Latest 10 Logs</option>
-                  <option value={50}>Latest 50 Logs</option>
-                  <option value={100}>Latest 100 Logs</option>
-                  <option value={data.length}>All Logs ({data.length})</option>
-                </select>
-              </div>
-            </div>
-
-            <button 
-              onClick={handleExport}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl uppercase tracking-widest text-sm transition-all shadow-lg shadow-emerald-900/20"
-            >
-              Start Download
-            </button>
+      <div className="px-6 md:px-10 pt-6 max-w-7xl mx-auto space-y-5">
+        {error && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-400 text-sm font-bold">
+            ⚠ {error}
           </div>
-        </div>
-      )}
-    </main>
-  );
-}
+        )}
 
-function StatCard({ title, value, icon, color }: any) {
-  const colorMap: any = {
-    orange: "text-orange-400 bg-orange-500/10",
-    blue: "text-blue-400 bg-blue-500/10",
-    red: "text-red-400 bg-red-500/10",
-    emerald: "text-emerald-400 bg-emerald-500/10"
-  };
-  return (
-    <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl shadow-xl">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${colorMap[color]}`}>{icon}</div>
-      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none">{title}</p>
-      <h2 className="text-2xl font-black text-white tracking-tight leading-none">{value}</h2>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">Loading report data...</p>
+          </div>
+        ) : (
+          <>
+            {/* Summary grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {summaryStats.map(s => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl border border-slate-800/60 bg-slate-900/30 px-5 py-4 hover:bg-slate-800/20 transition-all"
+                >
+                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">{s.label}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className="text-2xl font-black tabular-nums"
+                      style={{
+                        color: s.danger ? '#f87171' : s.color,
+                        fontFamily: "'IBM Plex Mono', monospace",
+                      }}
+                    >
+                      {s.value}
+                    </span>
+                    <span className="text-slate-600 text-xs font-bold">{s.unit}</span>
+                  </div>
+                  <div
+                    className="mt-2 text-[9px] font-black uppercase tracking-widest"
+                    style={{ color: s.danger ? '#f87171' : '#4ade80' }}
+                  >
+                    {s.danger ? '⚠ Above threshold' : '✓ Normal'}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bar Chart */}
+            {chartData.length > 0 && (
+              <div className="rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden">
+                <div className="px-6 py-3.5 border-b border-slate-800/50 flex items-center gap-2">
+                  <FileBarChart size={13} className="text-blue-400" />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">
+                    CO₂ & Temperature per Time Period
+                  </span>
+                </div>
+                <div className="p-6 h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.5} />
+                      <XAxis
+                        dataKey="time"
+                        stroke="#334155"
+                        fontSize={9}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickLine={false}
+                        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                      />
+                      <YAxis stroke="#334155" fontSize={9} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="Avg CO₂" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={entry['Avg CO₂'] > T.co2 ? '#f87171' : '#3b82f6'}
+                            opacity={0.85}
+                          />
+                        ))}
+                      </Bar>
+                      <Bar dataKey="Avg Temp" fill="#f97316" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={entry['Avg Temp'] > T.temp ? '#ef4444' : '#f97316'}
+                            opacity={0.85}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Threshold reference table */}
+            <div className="rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden">
+              <div className="px-6 py-3.5 border-b border-slate-800/50">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                  Kitchen Threshold Reference
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-800/40">
+                      {['Parameter', 'Threshold', 'Dataset Average', 'Dataset Max', 'Status'].map(h => (
+                        <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-600 uppercase tracking-[0.25em]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: 'CO₂', threshold: `${T.co2} PPM`, avg: `${avg(co2s).toFixed(0)} PPM`, max: `${maxVal(co2s).toFixed(0)} PPM`, ok: avg(co2s) <= T.co2 },
+                      { name: 'NH₃', threshold: `${T.nh3} PPM`, avg: `${avg(nh3s).toFixed(2)} PPM`, max: `${maxVal(nh3s).toFixed(2)} PPM`, ok: avg(nh3s) <= T.nh3 },
+                      { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
+                      { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
+                    ].map(row => (
+                      <tr key={row.name} className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors">
+                        <td className="px-5 py-3.5 text-slate-300 font-bold text-xs">{row.name}</td>
+                        <td className="px-5 py-3.5 text-slate-500 text-xs font-mono" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{row.threshold}</td>
+                        <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? '#94a3b8' : '#f87171', fontFamily: "'IBM Plex Mono', monospace" }}>{row.avg}</td>
+                        <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? '#94a3b8' : '#fca5a5', fontFamily: "'IBM Plex Mono', monospace" }}>{row.max}</td>
+                        <td className="px-5 py-3.5">
+                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+                            row.ok
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {row.ok ? '✓ Normal' : '⚠ Exceeded'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

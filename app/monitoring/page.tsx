@@ -1,205 +1,242 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { 
-  Server, RefreshCw, ChevronLeft, ChevronRight, 
-  Activity, Radio, Zap, Clock, X, Info, ShieldCheck, 
-  Database, Wind, Thermometer, Droplets
-} from "lucide-react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { Activity, RefreshCw, AlertTriangle, CheckCircle, Download } from 'lucide-react';
 
-export default function MonitoringPage() {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastSync, setLastSync] = useState<string>("--:--:--");
-  const [selectedItem, setSelectedItem] = useState<any>(null); 
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10; 
+const T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/sensor");
-      const result = await res.json();
-      if (Array.isArray(result)) {
-        setData(result);
-        setLastSync(new Date().toLocaleTimeString('en-GB'));
-      }
-    } catch (error) { 
-      console.error("Link Failure:", error); 
-    } finally { 
-      setLoading(false); 
-    }
-  };
+interface SensorRow {
+  id?: number;
+  co2: number;
+  nh3: number;
+  temp?: number;
+  temperature?: number;
+  hum?: number;
+  humidity?: number;
+  voc?: number;
+  is_unhealthy?: number;
+  dominant_pollutant?: string;
+  created_at?: string;
+  timestamp?: string;
+}
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 10000); 
-    return () => clearInterval(interval);
-  }, []);
-
-  const currentRows = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
-
+function StatusDot({ danger }: { danger: boolean }) {
   return (
-    <main className="min-h-screen bg-[#020617] text-slate-100 p-6 md:p-12 relative">
-      <div className="max-w-6xl mx-auto space-y-8 pb-20">
-        
-        {/* --- HEADER --- */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem] shadow-2xl">
-          <div className="flex items-center gap-4">
-             <div className="p-3 bg-blue-600/10 rounded-2xl border border-blue-500/20 text-blue-400 relative">
-                <Server size={28} />
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                </span>
-             </div>
-             <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">Live Stream</h1>
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Node-01 Feed Output</p>
-             </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden md:block mr-4">
-               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">Last Pulse</p>
-               <p className="text-sm font-mono font-bold text-blue-400 leading-none">{lastSync}</p>
-            </div>
-            <button onClick={fetchData} className="group flex items-center gap-2 bg-slate-800 border border-slate-700 hover:border-blue-500/50 px-6 py-3 rounded-2xl transition-all active:scale-95">
-               <RefreshCw size={18} className={loading ? "animate-spin" : "group-hover:rotate-180 transition-all"} />
-               <span className="text-sm font-black uppercase tracking-widest text-white italic">Sync Feed</span>
-            </button>
-          </div>
-        </div>
-
-        {/* --- DATA LOG TABLE --- */}
-        <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-          <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-800/20">
-             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Live Sequence Output</span>
-             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Click row for detail insight</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] border-b border-slate-800/50">
-                  <th className="px-8 py-6 italic">Sequence</th>
-                  <th className="px-6 py-6 text-center">Temp</th>
-                  <th className="px-6 py-6 text-center">Hum</th>
-                  <th className="px-6 py-6 text-center">CO2 Feed</th>
-                  <th className="px-8 py-6 text-right">Node Health</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/30">
-                {currentRows.map((item, i) => (
-                  <tr key={i} onClick={() => setSelectedItem(item)} className="group transition-all cursor-pointer hover:bg-blue-500/[0.05]">
-                    <td className="px-8 py-5 font-mono text-xs text-slate-500 group-hover:text-blue-400 transition-colors">#{new Date(item.created_at).toLocaleTimeString('en-GB')}</td>
-                    <td className="px-6 py-5 text-center text-orange-400 font-black text-lg">{item.temp?.toFixed(1)}°</td>
-                    <td className="px-6 py-5 text-center text-blue-400 font-black text-lg">{item.hum?.toFixed(1)}%</td>
-                    <td className="px-6 py-5 text-center font-bold text-slate-200">{item.co2} <span className="text-[10px] opacity-30">PPM</span></td>
-                    <td className="px-8 py-5 text-right">
-                      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black border ${item.is_unhealthy ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                        {item.is_unhealthy ? "CRITICAL" : "STABLE"}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Pagination Controls */}
-          <div className="p-6 bg-slate-800/10 border-t border-slate-800/50 flex justify-between items-center text-white">
-            <button onClick={() => setCurrentPage(p => Math.max(p-1, 1))} disabled={currentPage === 1} className="p-2.5 border border-slate-700 rounded-xl disabled:opacity-20 hover:bg-slate-800 transition-all"><ChevronLeft size={18} /></button>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Page {currentPage} of {totalPages || 1}</span>
-            <button onClick={() => setCurrentPage(p => Math.min(p+1, totalPages))} disabled={currentPage === totalPages || totalPages === 0} className="p-2.5 border border-slate-700 rounded-xl disabled:opacity-20 hover:bg-slate-800 transition-all"><ChevronRight size={18} /></button>
-          </div>
-        </div>
-
-        {/* --- DETAIL MODAL (PERFECTED) --- */}
-        {selectedItem && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setSelectedItem(null)} />
-            
-            <div className="relative bg-[#020617] border border-slate-800 w-full max-w-4xl rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in duration-300">
-               <div className="p-10 space-y-8">
-                  
-                  {/* Modal Header */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-blue-600/20 rounded-2xl text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]"><Activity size={24} /></div>
-                      <div>
-                        <h2 className="text-3xl font-black uppercase italic text-white tracking-tighter leading-none">Record Insight</h2>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Detailed Sensor Metadata</p>
-                      </div>
-                    </div>
-                    <button onClick={() => setSelectedItem(null)} className="p-3 bg-slate-900 border border-slate-800 rounded-2xl text-slate-500 hover:text-white transition-all shadow-xl active:scale-95"><X size={24} /></button>
-                  </div>
-
-                  {/* Main Metrics (Dashboard Style with barColor) */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <ModalStatBox title="CO2 CONCENTRATION" value={selectedItem.co2} unit="PPM" color="text-blue-400" barColor="#3b82f6" threshold={400} />
-                    <ModalStatBox title="AMMONIA (NH3)" value={selectedItem.nh3 || 0} unit="PPM" color="text-orange-400" barColor="#f59e0b" threshold={5} />
-                    <ModalStatBox title="TOTAL VOCS" value={selectedItem.voc || 0} unit="PPM" color="text-red-400" barColor="#ef4444" threshold={2} />
-                  </div>
-
-                  {/* Climate Info (Fixed floating points with .toFixed(1)) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] flex items-center gap-6 shadow-inner">
-                      <div className="p-6 bg-orange-500/10 text-orange-400 rounded-2xl border border-white/5"><Thermometer size={32}/></div>
-                      <div>
-                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 leading-none">Ambient Temperature</p>
-                        <h2 className="text-4xl font-black text-white leading-none mt-1">
-                          {Number(selectedItem.temp).toFixed(1)}<span className="text-lg text-slate-500 ml-1">°C</span>
-                        </h2>
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] flex items-center gap-6 shadow-inner">
-                      <div className="p-6 bg-blue-500/10 text-blue-400 rounded-2xl border border-white/5"><Droplets size={32}/></div>
-                      <div>
-                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 leading-none">Relative Humidity</p>
-                        <h2 className="text-4xl font-black text-white leading-none mt-1">
-                          {Number(selectedItem.hum).toFixed(1)}<span className="text-lg text-slate-500 ml-1">%</span>
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Tech Details Footer */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                    <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-4">
-                       <Clock size={18} className="text-slate-600" />
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logged: {new Date(selectedItem.created_at).toLocaleString('en-GB')}</span>
-                    </div>
-                    <div className="p-5 bg-blue-600/5 border border-blue-500/10 rounded-2xl flex items-center gap-4">
-                       <ShieldCheck size={18} className="text-blue-500" />
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Node ID: SKY-04-POLINEMA</span>
-                    </div>
-                  </div>
-               </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </main>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+        danger
+          ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+      }`}
+    >
+      {danger ? <AlertTriangle size={9} /> : <CheckCircle size={9} />}
+      {danger ? 'DANGER' : 'SAFE'}
+    </span>
   );
 }
 
-// Sub-component for Modal Stats
-function ModalStatBox({ title, value, unit, color, barColor, threshold }: any) {
-  // Logic to calculate progress bar width
-  const percentage = Math.min((value / (threshold * 2)) * 100, 100);
+function NumCell({ v, threshold, digits = 1 }: { v: number; threshold: number; digits?: number }) {
+  const over = v > threshold;
+  return (
+    <span
+      className="font-bold tabular-nums text-sm"
+      style={{
+        color: over ? '#f87171' : '#94a3b8',
+        fontFamily: "'IBM Plex Mono', monospace",
+      }}
+    >
+      {v?.toFixed(digits)}
+    </span>
+  );
+}
+
+const PER_PAGE = 25;
+
+export default function MonitoringPage() {
+  const [rows, setRows] = useState<SensorRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/sensor');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setRows(Array.isArray(json) ? json : [json]);
+      setError('');
+    } catch (e: any) {
+      setError('Gagal memuat data dari API sensor.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const totalPages = Math.ceil(rows.length / PER_PAGE);
+  const paged = rows.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  const dangerCount = rows.filter(r => {
+    const t = r.temp ?? r.temperature ?? 0;
+    const h = r.hum ?? r.humidity ?? 0;
+    return r.co2 > T.co2 || r.nh3 > T.nh3 || t > T.temp;
+  }).length;
 
   return (
-    <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] relative overflow-hidden shadow-xl">
-      <p className="text-slate-500 font-black text-[10px] uppercase tracking-widest mb-4 leading-none">{title}</p>
-      <div className="flex items-baseline gap-2 relative z-10">
-        <span className={`text-5xl font-black tracking-tighter tabular-nums ${color}`}>{value}</span>
-        <span className="text-slate-500 text-xs font-black uppercase">{unit}</span>
+    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-[#020617]/90 backdrop-blur-xl border-b border-slate-800/60 px-6 md:px-10 py-4 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-black text-white tracking-tight uppercase" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            Data Monitoring
+          </h1>
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
+            Real-time Sensor Log • Kitchen Node
+          </p>
+        </div>
+        <button
+          onClick={fetchData}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50"
+        >
+          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
       </div>
-      <div className="mt-6 w-full bg-slate-800/50 h-2 rounded-full overflow-hidden p-[px]">
-        <div 
-          className="h-full rounded-full transition-all duration-1000 ease-out" 
-          style={{ width: `${percentage || 5}%`, backgroundColor: barColor, boxShadow: `0 0 10px ${barColor}` }} 
-        />
+
+      <div className="px-6 md:px-10 pt-6 space-y-5 max-w-7xl mx-auto">
+
+        {/* Summary bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Total Records', value: rows.length, color: '#3b82f6' },
+            { label: 'Danger Events', value: dangerCount, color: '#f87171' },
+            { label: 'Safe Events', value: rows.length - dangerCount, color: '#4ade80' },
+            { label: 'Latest', value: rows[0]?.created_at ? new Date(rows[0].created_at).toLocaleTimeString('id-ID') : '--', color: '#a78bfa' },
+          ].map(s => (
+            <div
+              key={s.label}
+              className="rounded-2xl border border-slate-800/60 bg-slate-900/30 px-5 py-4"
+            >
+              <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5">{s.label}</p>
+              <p
+                className="text-2xl font-black tabular-nums"
+                style={{ color: s.color, fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                {s.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {error && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-400 text-sm font-bold">
+            ⚠ {error}
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden">
+          <div className="px-6 py-3.5 border-b border-slate-800/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity size={13} className="text-blue-400" />
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">
+                Sensor Log — {rows.length} Records
+              </span>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+              <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">Loading sensor data...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-slate-800/50">
+                    {['#', 'Timestamp', 'CO₂ (PPM)', 'NH₃ (PPM)', 'Temp (°C)', 'Hum (%)', 'VOC', 'Status'].map(h => (
+                      <th
+                        key={h}
+                        className="text-left px-5 py-3 text-[9px] font-black text-slate-600 uppercase tracking-[0.25em] whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {paged.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-14 text-slate-700 text-sm font-bold uppercase tracking-widest">
+                        No sensor data available
+                      </td>
+                    </tr>
+                  ) : paged.map((row, i) => {
+                    const t = row.temp ?? row.temperature ?? 0;
+                    const h = row.hum ?? row.humidity ?? 0;
+                    const isDanger = row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+                    const ts = row.created_at ?? row.timestamp;
+                    return (
+                      <tr
+                        key={row.id ?? i}
+                        className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors"
+                        style={{ background: isDanger ? 'rgba(239,68,68,0.03)' : undefined }}
+                      >
+                        <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
+                          {(page - 1) * PER_PAGE + i + 1}
+                        </td>
+                        <td
+                          className="px-5 py-3.5 text-slate-500 text-xs whitespace-nowrap"
+                          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                        >
+                          {ts ? new Date(ts).toLocaleString('id-ID') : '—'}
+                        </td>
+                        <td className="px-5 py-3.5"><NumCell v={row.co2} threshold={T.co2} digits={0} /></td>
+                        <td className="px-5 py-3.5"><NumCell v={row.nh3} threshold={T.nh3} digits={2} /></td>
+                        <td className="px-5 py-3.5"><NumCell v={t} threshold={T.temp} /></td>
+                        <td className="px-5 py-3.5"><NumCell v={h} threshold={T.hum} digits={0} /></td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-slate-600 font-mono text-xs" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                            {row.voc?.toFixed(2) ?? '—'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5"><StatusDot danger={isDanger} /></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-slate-800/40 flex items-center justify-between">
+              <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                Page {page} / {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-1.5 rounded-xl text-xs font-bold border border-slate-700/60 bg-slate-800/40 text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                >
+                  ← Prev
+                </button>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-4 py-1.5 rounded-xl text-xs font-bold border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 transition-all"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,275 +1,594 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { 
-  Wind, AlertTriangle, CheckCircle, Activity, 
-  Thermometer, Droplets, ShieldCheck, Cpu, Users, ArrowUpRight, Info
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Wind, AlertTriangle, CheckCircle, Activity,
+  Thermometer, Droplets, ArrowUpRight, RefreshCw,
+  Cpu, Zap, TrendingUp
 } from 'lucide-react';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, Legend 
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Area, AreaChart
 } from 'recharts';
 
+// ─── THRESHOLDS (Dapur) ──────────────────────────────────────────────────────
+const T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
+
+// ─── CUSTOM TOOLTIP ──────────────────────────────────────────────────────────
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[#0d1425] border border-slate-700/60 rounded-2xl px-4 py-3 shadow-2xl text-xs">
+      <p className="text-slate-400 font-bold mb-2 uppercase tracking-wider">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} className="font-bold" style={{ color: p.color }}>
+          {p.name}: <span className="text-white">{p.value?.toFixed(1)}</span>
+        </p>
+      ))}
+    </div>
+  );
+};
+
+// ─── STAT HEADER CARD ────────────────────────────────────────────────────────
+function StatHeaderCard({
+  label, value, unit, delta, color, danger
+}: {
+  label: string; value: string; unit: string;
+  delta?: string; color: string; danger: boolean;
+}) {
+  return (
+    <div
+      className="flex-1 min-w-0 px-6 py-5 border-r border-slate-800/50 last:border-r-0 group cursor-default transition-all duration-300 hover:bg-slate-800/20"
+    >
+      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-2 leading-none">
+        {label}
+      </p>
+      <div className="flex items-baseline gap-1.5 mb-1">
+        <span
+          className="text-3xl font-black tracking-tighter tabular-nums"
+          style={{
+            color: danger ? '#f87171' : 'white',
+            fontFamily: "'IBM Plex Mono', monospace",
+          }}
+        >
+          {value}
+        </span>
+        <span className="text-xs text-slate-500 font-bold">{unit}</span>
+      </div>
+      {delta && (
+        <div className="flex items-center gap-1 mt-1">
+          <TrendingUp size={10} style={{ color }} />
+          <span className="text-[10px] font-bold" style={{ color }}>{delta}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MAIN DASHBOARD ──────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [lastSync, setLastSync] = useState('');
   const [mounted, setMounted] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/sensor');
       const result = await res.json();
-      
       if (Array.isArray(result) && result.length > 0) {
-        setData(result[0]); 
-        const formattedHistory = result.map((item: any) => ({
-          ...item,
-          time: new Date(item.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-        })).reverse();
-        setHistory(formattedHistory);
-      } else {
-        const mockNow = new Date().toISOString();
-        const dummy = { id: "OFFLINE", co2: 415, nh3: 2.5, voc: 0.4, temp: 28.2, hum: 87.7, is_unhealthy: 0, dominant_pollutant: "None", created_at: mockNow };
-        setData(dummy);
-        setHistory([
-          { ...dummy, time: "12:00 PM", co2: 405, temp: 27 },
-          { ...dummy, time: "02:00 PM", co2: 430, temp: 28 },
-          { ...dummy, time: "04:00 PM", co2: 415, temp: 27.5 }
-        ]);
+        setData(result[0]);
+        const formatted = result
+          .slice(0, 20)
+          .map((item: any) => ({
+            ...item,
+            time: new Date(item.created_at).toLocaleTimeString('id-ID', {
+              hour: '2-digit', minute: '2-digit'
+            }),
+          }))
+          .reverse();
+        setHistory(formatted);
+        setLastSync(new Date().toLocaleTimeString('id-ID'));
       }
     } catch (e) {
-      console.error("Failed to sync SkyWatch data");
+      console.error('SkyWatch fetch error', e);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
     fetchData();
-    const interval = setInterval(fetchData, 5000); 
-    return () => clearInterval(interval);
-  }, []);
+    const iv = setInterval(fetchData, 10000);
+    return () => clearInterval(iv);
+  }, [fetchData]);
 
-  if (!mounted || !data) return (
-    <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center font-mono">
-      <Wind size={48} className="text-blue-500 animate-spin mb-4" />
-      <p className="text-slate-400 animate-pulse uppercase tracking-[0.3em] text-xs font-bold">SkyWatch: Initializing System...</p>
-    </div>
-  );
-
-  return (
-    <main className="min-h-screen bg-[#020617] text-slate-100 p-4 md:p-12 relative">
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto space-y-10 relative z-10 pb-20">
-
-        {/* --- SECTION: ABOUT PROGRAM & PHILOSOPHY --- */}
-        <section className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-          <div className="absolute -top-12 -right-12 p-10 opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-1000 rotate-12 group-hover:rotate-0">
-            <Wind size={300} />
-          </div>
-
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-500/30 text-blue-400">
-                  <Info size={24} />
-                </div>
-                <div>
-                  <h2 className="text-xs font-black text-blue-500 uppercase tracking-[0.3em] mb-1">Project Philosophy</h2>
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter">SkyWatch Analytics</h3>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-slate-300 leading-relaxed italic border-l-4 border-blue-600 pl-6 text-xl font-medium text-pretty">
-                  "SkyWatch represents vigilance toward air quality. 
-                  'Sky' symbolizes the atmospheric environment, while 'Watch' 
-                  embodies our system's commitment to real-time health monitoring."
-                </p>
-                <p className="text-slate-400 text-sm leading-relaxed max-w-2xl">
-                  This Smart Air Quality Monitoring System is an IoT-based solution 
-                  integrating <strong>ESP32</strong> hardware with <strong>MQ Series</strong> gas sensors and 
-                  <strong>DHT22</strong>. Designed for continuous tracking of CO₂, NH3, VOCs, 
-                  temperature, and humidity levels.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-4 pt-4">
-                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50 uppercase">
-                  <Cpu size={14} className="text-emerald-500" />
-                  <span>Architecture: Sensors → ESP32 → REST API → MySQL → Dashboard</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Team Card */}
-            <div className="bg-gradient-to-br from-blue-600/10 to-transparent backdrop-blur-md p-8 rounded-[2rem] border border-blue-500/20 flex flex-col justify-center items-center text-center shadow-inner relative overflow-hidden">
-                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                 <Users size={40} className="text-blue-400 mb-4" />
-                 <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mb-1">Developed By</p>
-                 <p className="text-4xl font-black text-white uppercase tracking-tight leading-none mb-3 text-nowrap">Group 4</p>
-                 <div className="h-[1px] w-12 bg-slate-800 mb-3"></div>
-                 <p className="text-[11px] text-blue-400/80 font-mono font-bold">State Polytechnic of Malang</p>
-                 <p className="text-[9px] text-slate-500 mt-1 uppercase tracking-widest">IT Department Project</p>
-            </div>
-          </div>
-        </section>
-
-        {/* --- SECTION: LIVE MONITORING HEADER --- */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-center md:text-left">
-            <h1 className="text-5xl font-black bg-gradient-to-r from-blue-400 via-emerald-400 to-blue-600 bg-clip-text text-transparent tracking-tight">
-              Environmental Insights
-            </h1>
-            <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
-              <p className="text-slate-500 text-xs font-black uppercase tracking-[0.2em]">Real-time Sensor Stream</p>
-            </div>
-          </div>
-
-          <div className={`px-10 py-5 rounded-[2.5rem] flex items-center gap-5 border-2 transition-all duration-700 shadow-2xl ${
-            data.is_unhealthy 
-              ? 'bg-red-500/10 border-red-500/40 text-red-400 shadow-red-500/5' 
-              : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-emerald-500/5'
-          }`}>
-            <div className={`p-3 rounded-2xl ${data.is_unhealthy ? 'bg-red-500/20' : 'bg-emerald-500/20'}`}>
-              {data.is_unhealthy ? <AlertTriangle size={36} /> : <CheckCircle size={36} />}
-            </div>
-            <div>
-              <p className="text-[10px] uppercase font-black opacity-50 tracking-widest mb-1 leading-none text-nowrap">Environmental Health</p>
-              <span className="font-black text-2xl tracking-tight leading-none uppercase">
-                {data.is_unhealthy ? "Unhealthy Air" : "Optimal & Safe"}
-              </span>
-            </div>
-          </div>
+  if (!mounted || !data) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
+        <div className="relative">
+          <Wind size={40} className="text-blue-500 animate-spin" />
+          <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
         </div>
-
-        {/* --- SENSOR METRICS --- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <MetricCard title="CO2 Concentration" value={data.co2} unit="ppm" color="#3b82f6" threshold={400} />
-          <MetricCard title="Ammonia (NH3)" value={data.nh3} unit="ppm" color="#f59e0b" threshold={5} />
-          <MetricCard title="Total VOCs" value={data.voc} unit="ppm" color="#ef4444" threshold={2} />
-        </div>
-
-        {/* --- CLIMATE METRICS --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ClimateCard title="Ambient Temperature" value={data.temp} unit="°C" icon={<Thermometer size={36}/>} color="orange" />
-          <ClimateCard title="Relative Humidity" value={data.hum} unit="%" icon={<Droplets size={36}/>} color="blue" />
-        </div>
-
-        {/* --- CHART & INTELLIGENCE --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-10 rounded-[3rem] shadow-2xl overflow-hidden">
-            <h3 className="flex items-center gap-3 mb-10 font-black text-slate-300 uppercase tracking-widest text-sm text-center md:text-left">
-              <Activity size={20} className="text-blue-500" /> Statistical Air Trends
-            </h3>
-            <div className="w-full aspect-[2/1] min-h-[350px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.5} />
-                  <XAxis dataKey="time" stroke="#475569" fontSize={11} tickMargin={15} axisLine={false} tickLine={false} />
-                  <YAxis stroke="#475569" fontSize={11} axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '20px', padding: '15px' }} 
-                    itemStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
-                  />
-                  <Legend iconType="circle" verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: '20px' }} />
-                  <Line name="CO2 Level" type="monotone" dataKey="co2" stroke="#3b82f6" strokeWidth={4} dot={false} animationDuration={2000} />
-                  <Line name="Temperature" type="monotone" dataKey="temp" stroke="#f97316" strokeWidth={4} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-8">
-             {/* Pollutant Card */}
-            <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-8 rounded-[2.5rem] shadow-xl text-center group">
-              <h3 className="text-slate-500 text-[10px] uppercase font-black tracking-[0.2em] mb-4">Dominant Pollutant</h3>
-              <div className="py-6 px-4 bg-slate-800/50 rounded-[2rem] border border-blue-500/20 group-hover:border-blue-500/40 transition-all">
-                <p className="text-3xl font-black text-blue-400 leading-none tracking-tight uppercase">
-                  {data.dominant_pollutant === "None" ? "Clean Air" : data.dominant_pollutant}
-                </p>
-              </div>
-            </div>
-
-            {/* AI Recommendation Card */}
-            <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-8 rounded-[2.5rem] shadow-xl flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className="text-slate-500 text-[10px] uppercase font-black tracking-[0.2em] mb-4">SkyWatch Recommendation</h3>
-                <div className="p-6 bg-slate-800/30 rounded-[2rem] border border-slate-700/50 group hover:border-blue-500/20 transition-all duration-500">
-                  <p className="text-slate-200 italic text-sm leading-relaxed">
-                    {data.is_unhealthy 
-                      ? "⚠️ Air quality is declining. Please increase ventilation or activate air purifiers immediately." 
-                      : "✨ Conditions are currently optimal. Ensure fresh air circulation to maintain this healthy state."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-slate-800/50 flex items-center justify-between">
-                 <div>
-                   <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest leading-none mb-1 text-nowrap">Cloud Sync Status</p>
-                   <p className="text-xs text-blue-400 font-mono font-bold leading-none uppercase">
-                    ONLINE • {new Date(data.created_at).toLocaleTimeString('en-US')}
-                   </p>
-                 </div>
-                 <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700">
-                    <Activity size={18} className="text-slate-500" />
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Branding Footer */}
-        <p className="text-center text-slate-700 text-[9px] uppercase font-black tracking-[0.5em] pt-10">
-          Integrated SkyWatch System — Group 4 Polinema IT
+        <p
+          className="text-slate-500 text-xs font-black uppercase tracking-[0.4em] animate-pulse"
+          style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+        >
+          Initializing SkyWatch...
         </p>
       </div>
-    </main>
-  );
-}
+    );
+  }
 
-// Sub-components
-function MetricCard({ title, value, unit, color, threshold }: any) {
-  const percentage = Math.min((value / (threshold * 2)) * 100, 100);
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-8 rounded-[2.5rem] hover:border-blue-500/30 transition-all shadow-2xl group relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-all" />
-      <div className="flex justify-between items-start mb-6">
-        <p className="text-slate-500 font-black text-[10px] uppercase tracking-widest leading-none">{title}</p>
-        <ArrowUpRight size={16} className="text-slate-700 group-hover:text-blue-400 transition-colors" />
-      </div>
-      <div className="flex items-baseline gap-2 mb-8 relative z-10">
-        <span className="text-6xl font-black tracking-tighter text-white tabular-nums drop-shadow-xl">{value?.toFixed(0)}</span>
-        <span className="text-slate-500 text-xs font-black uppercase">{unit}</span>
-      </div>
-      <div className="w-full bg-slate-800/50 h-3 rounded-full overflow-hidden border border-slate-700/30 shadow-inner">
-        <div 
-          className="h-full rounded-full transition-all duration-1000 ease-out" 
-          style={{ width: `${percentage}%`, backgroundColor: color, boxShadow: `0 0 15px ${color}` }} 
-        />
-      </div>
-    </div>
-  );
-}
+  const isDanger =
+    data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
 
-function ClimateCard({ title, value, unit, icon, color }: any) {
-  const bgColor = color === 'orange' ? 'bg-orange-500/10' : 'bg-blue-500/10';
-  const textColor = color === 'orange' ? 'text-orange-400' : 'text-blue-400';
-  const borderColor = color === 'orange' ? 'group-hover:border-orange-500/30' : 'group-hover:border-blue-500/30';
+  const dangerLabels: string[] = [];
+  if (data.co2 > T.co2) dangerLabels.push('CO₂');
+  if (data.nh3 > T.nh3) dangerLabels.push('NH₃');
+  if (data.temp > T.temp) dangerLabels.push('TEMP');
+
   return (
-    <div className={`bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-10 rounded-[2.5rem] flex items-center gap-10 shadow-xl group transition-all ${borderColor}`}>
-      <div className={`p-8 ${bgColor} ${textColor} rounded-[2rem] border border-white/5 group-hover:scale-110 transition-all duration-500 shadow-lg`}>
-        {icon}
+    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20">
+      {/* ── PAGE HEADER ─────────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-10 bg-[#020617]/90 backdrop-blur-xl border-b border-slate-800/60 px-6 md:px-10 py-4 flex items-center justify-between gap-4">
+        <div>
+          <h1
+            className="text-lg font-black text-white tracking-tight uppercase"
+            style={{ fontFamily: "'Outfit', sans-serif" }}
+          >
+            Environmental Dashboard
+          </h1>
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
+            Kitchen Sensor Node • Real-time Stream
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Status Pill */}
+          <div
+            className={`hidden sm:flex items-center gap-2.5 px-4 py-2 rounded-xl border text-xs font-black uppercase tracking-widest transition-all duration-500 ${
+              isDanger
+                ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${isDanger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`}
+            />
+            {isDanger ? `⚠ ${dangerLabels.join(' • ')} DANGER` : '✓ Optimal & Safe'}
+          </div>
+
+          {/* Refresh */}
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-slate-400 hover:text-white hover:border-slate-600 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline">{loading ? 'Syncing...' : 'Refresh'}</span>
+          </button>
+        </div>
       </div>
-      <div>
-        <p className="text-slate-500 text-xs font-black uppercase tracking-[0.2em] mb-2 leading-none text-nowrap">{title}</p>
-        <h2 className="text-5xl font-black text-white tracking-tighter leading-none tabular-nums uppercase">
-          {value?.toFixed(1)}<span className="text-2xl text-slate-500 ml-1 font-bold">{unit}</span>
-        </h2>
+
+      <div className="px-6 md:px-10 pt-6 space-y-5 max-w-7xl mx-auto">
+
+        {/* ── TOP STATS BAR (Salesforce-style) ──────────────────────────────── */}
+        <div
+          className="rounded-2xl border border-slate-800/60 bg-slate-900/30 backdrop-blur-sm overflow-hidden"
+          style={{ boxShadow: '0 4px 40px rgba(0,0,0,0.4)' }}
+        >
+          {/* Sub-header */}
+          <div className="px-6 py-3 border-b border-slate-800/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Cpu size={12} className="text-slate-500" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                Live Sensor Metrics
+              </span>
+            </div>
+            {lastSync && (
+              <span
+                className="text-[10px] text-slate-600 font-mono"
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                Last sync {lastSync}
+              </span>
+            )}
+          </div>
+
+          {/* Metric columns — horizontal scroll on mobile */}
+          <div className="flex overflow-x-auto divide-x divide-slate-800/50">
+            <StatHeaderCard
+              label="CO₂ Concentration"
+              value={data.co2?.toFixed(0) ?? '--'}
+              unit="PPM"
+              delta={data.co2 > T.co2 ? `+${(data.co2 - T.co2).toFixed(0)} above threshold` : 'Within threshold'}
+              color={data.co2 > T.co2 ? '#f87171' : '#4ade80'}
+              danger={data.co2 > T.co2}
+            />
+            <StatHeaderCard
+              label="Ammonia NH₃"
+              value={data.nh3?.toFixed(2) ?? '--'}
+              unit="PPM"
+              delta={data.nh3 > T.nh3 ? 'Elevated — ventilate now' : 'Normal range'}
+              color={data.nh3 > T.nh3 ? '#f87171' : '#4ade80'}
+              danger={data.nh3 > T.nh3}
+            />
+            <StatHeaderCard
+              label="Temperature"
+              value={data.temp?.toFixed(1) ?? '--'}
+              unit="°C"
+              delta={data.temp > T.temp ? 'Above comfort zone' : 'Comfortable'}
+              color={data.temp > T.temp ? '#f87171' : '#4ade80'}
+              danger={data.temp > T.temp}
+            />
+            <StatHeaderCard
+              label="Humidity"
+              value={data.hum?.toFixed(0) ?? '--'}
+              unit="%"
+              delta={data.hum > T.hum ? 'High — check ventilation' : 'Optimal range'}
+              color={data.hum > T.hum ? '#f87171' : '#4ade80'}
+              danger={data.hum > T.hum}
+            />
+            {data.voc !== undefined && (
+              <StatHeaderCard
+                label="VOC"
+                value={data.voc?.toFixed(2) ?? '--'}
+                unit="PPM"
+                delta="Volatile organics"
+                color="#60a5fa"
+                danger={false}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* ── STATUS ALERT BANNER ──────────────────────────────────────────── */}
+        <div
+          className={`rounded-2xl border px-6 py-4 flex items-center justify-between gap-4 transition-all duration-700 ${
+            isDanger
+              ? 'bg-red-500/8 border-red-500/30'
+              : 'bg-emerald-500/8 border-emerald-500/20'
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={`p-3 rounded-xl flex-shrink-0 ${isDanger ? 'bg-red-500/15' : 'bg-emerald-500/15'}`}
+            >
+              {isDanger
+                ? <AlertTriangle size={22} className="text-red-400" />
+                : <CheckCircle size={22} className="text-emerald-400" />
+              }
+            </div>
+            <div>
+              <p
+                className={`font-black text-base uppercase tracking-wide ${isDanger ? 'text-red-400' : 'text-emerald-400'}`}
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                {isDanger
+                  ? `DANGER DETECTED: ${dangerLabels.join(', ')} EXCEEDED`
+                  : 'ENVIRONMENTAL HEALTH: OPTIMAL & SAFE'}
+              </p>
+              <p className="text-slate-500 text-xs mt-0.5">
+                {isDanger
+                  ? 'Segera buka ventilasi dapur dan aktifkan exhaust fan.'
+                  : 'Semua parameter sensor berada dalam batas aman. Dapur aman digunakan.'}
+              </p>
+            </div>
+          </div>
+          <div
+            className={`hidden lg:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border flex-shrink-0 ${
+              isDanger
+                ? 'text-red-500 border-red-500/30 bg-red-500/10 animate-pulse'
+                : 'text-emerald-500 border-emerald-500/20 bg-emerald-500/8'
+            }`}
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            <Zap size={11} />
+            {isDanger ? 'ACTION REQUIRED' : 'ALL SYSTEMS GO'}
+          </div>
+        </div>
+
+        {/* ── CHART + SIDE CARDS ────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Chart */}
+          <div
+            className="lg:col-span-2 rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden"
+            style={{ boxShadow: '0 4px 30px rgba(0,0,0,0.3)' }}
+          >
+            <div className="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Activity size={14} className="text-blue-400" />
+                <span className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">
+                  Air Quality Trend
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-blue-500 rounded inline-block" />
+                  CO₂
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-orange-400 rounded inline-block" />
+                  Temp
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-emerald-400 rounded inline-block" />
+                  NH₃
+                </span>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={history} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradCO2" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradTemp" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.6} />
+                    <XAxis
+                      dataKey="time"
+                      stroke="#334155"
+                      fontSize={10}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickLine={false}
+                      style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                    />
+                    <YAxis
+                      stroke="#334155"
+                      fontSize={10}
+                      axisLine={false}
+                      tickLine={false}
+                      style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area
+                      name="CO₂"
+                      type="monotone"
+                      dataKey="co2"
+                      stroke="#3b82f6"
+                      strokeWidth={2.5}
+                      fill="url(#gradCO2)"
+                      dot={false}
+                    />
+                    <Area
+                      name="Temp"
+                      type="monotone"
+                      dataKey="temp"
+                      stroke="#f97316"
+                      strokeWidth={2.5}
+                      fill="url(#gradTemp)"
+                      dot={false}
+                    />
+                    <Line
+                      name="NH₃"
+                      type="monotone"
+                      dataKey="nh3"
+                      stroke="#4ade80"
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="4 4"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Side cards */}
+          <div className="flex flex-col gap-5">
+            {/* Temperature card */}
+            <div
+              className="flex-1 rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden"
+              style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}
+            >
+              <div className="px-5 py-3.5 border-b border-slate-800/50 flex items-center gap-2">
+                <Thermometer size={13} className="text-orange-400" />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                  Ambient Temperature
+                </span>
+              </div>
+              <div className="px-5 py-5">
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span
+                    className="font-black text-5xl tabular-nums"
+                    style={{
+                      color: data.temp > T.temp ? '#f87171' : '#fb923c',
+                      fontFamily: "'IBM Plex Mono', monospace",
+                    }}
+                  >
+                    {data.temp?.toFixed(1)}
+                  </span>
+                  <span className="text-slate-500 font-bold text-lg">°C</span>
+                </div>
+                {/* Gauge bar */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                    <span>0°C</span>
+                    <span>Threshold {T.temp}°C</span>
+                  </div>
+                  <div className="h-2 bg-slate-800/60 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${Math.min((data.temp / (T.temp * 1.4)) * 100, 100)}%`,
+                        background: data.temp > T.temp
+                          ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                          : 'linear-gradient(90deg, #3b82f6, #fb923c)',
+                        boxShadow: data.temp > T.temp ? '0 0 10px #ef444460' : '0 0 10px #fb923c60',
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Humidity card */}
+            <div
+              className="flex-1 rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden"
+              style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}
+            >
+              <div className="px-5 py-3.5 border-b border-slate-800/50 flex items-center gap-2">
+                <Droplets size={13} className="text-blue-400" />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                  Relative Humidity
+                </span>
+              </div>
+              <div className="px-5 py-5">
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span
+                    className="font-black text-5xl tabular-nums"
+                    style={{
+                      color: data.hum > T.hum ? '#f87171' : '#60a5fa',
+                      fontFamily: "'IBM Plex Mono', monospace",
+                    }}
+                  >
+                    {data.hum?.toFixed(0)}
+                  </span>
+                  <span className="text-slate-500 font-bold text-lg">%</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                    <span>0%</span>
+                    <span>Threshold {T.hum}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-800/60 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${Math.min((data.hum / 100) * 100, 100)}%`,
+                        background: data.hum > T.hum
+                          ? 'linear-gradient(90deg, #a855f7, #ef4444)'
+                          : 'linear-gradient(90deg, #06b6d4, #3b82f6)',
+                        boxShadow: data.hum > T.hum ? '0 0 10px #ef444460' : '0 0 10px #3b82f660',
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── BOTTOM: Dominant Pollutant + Recommendation ───────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Dominant pollutant */}
+          <div
+            className="rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden"
+            style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}
+          >
+            <div className="px-6 py-3.5 border-b border-slate-800/50 flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                Dominant Pollutant
+              </span>
+              <ArrowUpRight size={14} className="text-slate-700" />
+            </div>
+            <div className="px-6 py-6 flex items-center justify-between">
+              <div>
+                <p
+                  className="text-4xl font-black uppercase tracking-tight"
+                  style={{
+                    color: data.dominant_pollutant === 'None' ? '#4ade80' : '#f87171',
+                    fontFamily: "'IBM Plex Mono', monospace",
+                  }}
+                >
+                  {data.dominant_pollutant === 'None' ? 'Clean Air' : data.dominant_pollutant}
+                </p>
+                <p className="text-slate-600 text-xs font-bold mt-1 uppercase tracking-widest">
+                  {data.dominant_pollutant === 'None'
+                    ? 'No pollutants detected'
+                    : 'Primary contaminant detected'}
+                </p>
+              </div>
+              <div
+                className={`p-4 rounded-2xl ${
+                  data.dominant_pollutant === 'None'
+                    ? 'bg-emerald-500/10 border border-emerald-500/20'
+                    : 'bg-red-500/10 border border-red-500/20'
+                }`}
+              >
+                {data.dominant_pollutant === 'None'
+                  ? <CheckCircle size={32} className="text-emerald-400" />
+                  : <AlertTriangle size={32} className="text-red-400" />
+                }
+              </div>
+            </div>
+          </div>
+
+          {/* SkyWatch Recommendation */}
+          <div
+            className="rounded-2xl border border-slate-800/60 bg-slate-900/30 overflow-hidden"
+            style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}
+          >
+            <div className="px-6 py-3.5 border-b border-slate-800/50 flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                SkyWatch Recommendation
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-[9px] text-blue-500 font-black uppercase tracking-widest">AI</span>
+              </div>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-slate-300 text-sm leading-relaxed mb-5">
+                {isDanger
+                  ? `⚠️ Kadar ${dangerLabels.join(', ')} melebihi ambang batas. Segera tingkatkan ventilasi atau aktifkan exhaust fan. Jauhkan dari area ini hingga kondisi aman.`
+                  : '✨ Kondisi saat ini optimal. Pastikan sirkulasi udara segar tetap terjaga untuk mempertahankan kualitas udara yang sehat di dapur.'}
+              </p>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-800/50">
+                <div>
+                  <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Cloud Sync</p>
+                  <p
+                    className="text-[10px] text-blue-400 font-bold mt-0.5"
+                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                  >
+                    LIVE • {data.created_at ? new Date(data.created_at).toLocaleTimeString('id-ID') : '--:--'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                  <Activity size={11} className="text-blue-400" />
+                  <span className="text-[9px] text-blue-400 font-black uppercase tracking-wider">Online</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SYSTEM ARCHITECTURE INFO BAR ─────────────────────────────────── */}
+        <div
+          className="rounded-2xl border border-slate-800/40 bg-slate-900/20 px-6 py-4 flex flex-wrap items-center gap-3 overflow-hidden"
+        >
+          <div className="flex items-center gap-2 text-[10px] font-black text-slate-600 uppercase tracking-widest">
+            <Cpu size={12} className="text-slate-600" />
+            Architecture:
+          </div>
+          {['MQ Sensors', '→', 'ESP32', '→', 'REST API', '→', 'MySQL (Aiven)', '→', 'SkyWatch UI'].map((node, i) => (
+            <span
+              key={i}
+              className={`text-[10px] font-bold uppercase tracking-wider ${
+                node === '→'
+                  ? 'text-slate-700'
+                  : 'text-slate-500 bg-slate-800/50 px-3 py-1 rounded-lg border border-slate-700/40'
+              }`}
+            >
+              {node}
+            </span>
+          ))}
+          <span className="ml-auto text-[9px] text-slate-700 font-black uppercase tracking-widest hidden md:block">
+            Group 4 • Polinema IT
+          </span>
+        </div>
+
       </div>
     </div>
   );
