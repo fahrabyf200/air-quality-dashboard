@@ -1,10 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Memberitahu Tailwind v4 untuk menggunakan class .dark sebagai pemicu */
+  /* Konfigurasi tema bawaan Anda */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* Pastikan ini ada agar utilitas dark: aktif saat class .dark ada di html */
+/* Pemicu mode gelap */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Menambahkan utilitas kustom sesuai standar Tailwind v4 */
+@utility no-scrollbar {
+  -ms-overflow-style: none; /* IE dan Edge */
+  scrollbar-width: none;    /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none;          /* Chrome, Safari, dan Opera */
+  }
+}
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
