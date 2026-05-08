@@ -12,10 +12,26 @@ import {
 import { useThresholds } from '@/app/hooks/useThresholds';
 
 const SENSOR_INFO = {
-  co2: "Karbon Dioksida hasil pembakaran & respirasi. Di dapur bisa meningkat drastis saat kompor gas aktif.",
-  nh3: "Amonia berbau tajam dari produk pembersih, kebocoran kulkas, atau pembusukan bahan organik.",
-  temp: "Suhu tinggi memengaruhi kenyamanan kerja dan mempercepat pertumbuhan bakteri pada makanan.",
-  hum: "Kelembapan tinggi mendorong pertumbuhan jamur & bakteri serta menciptakan lingkungan tidak nyaman."
+  co2: {
+    general: "Karbon Dioksida (CO2) adalah udara pengap sisa pembakaran kompor gas.",
+    safe: "Kondisi saat ini: Udara di dapur segar dan sirkulasi lancar.",
+    danger: "Kondisi saat ini: Awas! Udara pengap karena CO2 tinggi. Segera buka jendela dan nyalakan kipas penyedot (exhaust)."
+  },
+  nh3: {
+    general: "Amonia (NH3) adalah gas berbau dari pembersih atau kebocoran kulkas.",
+    safe: "Kondisi saat ini: Udara aman dan tidak tercium bau gas menyengat.",
+    danger: "Kondisi saat ini: Bahaya! Bau gas menyengat terdeteksi. Jangan nyalakan api, buka semua pintu dan jendela segera."
+  },
+  temp: {
+    general: "Suhu dapur mempengaruhi kenyamanan dan seberapa cepat bakteri tumbuh di makanan basah.",
+    safe: "Kondisi saat ini: Suhu dapur sangat pas dan nyaman.",
+    danger: "Kondisi saat ini: Sangat panas! Dapur tidak nyaman dan makanan cepat basi. Segera nyalakan kipas angin atau ventilasi."
+  },
+  hum: {
+    general: "Kelembapan adalah tingkat uap air di udara yang bisa memicu tumbuhnya jamur dan bakteri.",
+    safe: "Kondisi saat ini: Kelembapan pas, jamur dan bakteri sulit untuk tumbuh.",
+    danger: "Kondisi saat ini: Udara terlalu lembap dan basah! Lap area basah dan biarkan udara luar masuk."
+  }
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -81,7 +97,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
         </div>
         <div className="bg-slate-50 dark:bg-white/3 rounded-2xl px-5 py-4 border border-slate-200 dark:border-white/5 mb-4">
           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Penjelasan</p>
-          <p className="text-sm text-slate-300 leading-relaxed">{description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
         <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs font-black uppercase tracking-wider ${
           danger ? 'bg-red-500/8 border-red-500/20 text-red-400' : 'bg-emerald-500/8 border-emerald-500/20 text-emerald-400'
@@ -177,7 +193,7 @@ function SensorCard({
           </div>
 
           {/* Description snippet — always visible */}
-          <p className="mt-2 text-[11px] text-slate-600 leading-relaxed line-clamp-2">
+          <p className="mt-2 text-[11px] text-slate-600 leading-relaxed line-clamp-3">
             {description}
           </p>
         </div>
@@ -295,42 +311,42 @@ export default function Dashboard() {
 
   const isDanger = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
   const dangerLabels: string[] = [];
-  if (data.co2 > T.co2) dangerLabels.push('CO₂');
-  if (data.nh3 > T.nh3) dangerLabels.push('NH₃');
+  if (data.co2 > T.co2) dangerLabels.push('CO2');
+  if (data.nh3 > T.nh3) dangerLabels.push('NH3');
   if (data.temp > T.temp) dangerLabels.push('TEMP');
 
   const sensors = [
     {
       key: 'co2' as const,
-      label: 'CO₂', value: data.co2?.toFixed(0) ?? '--', unit: 'PPM',
+      label: 'CO2', value: data.co2?.toFixed(0) ?? '--', unit: 'PPM',
       danger: data.co2 > T.co2, color: '#3b82f6', bgColor: '#3b82f610',
-      delta: data.co2 > T.co2 ? 'Elevated' : 'Normal',
+      delta: data.co2 > T.co2 ? 'Tinggi' : 'Normal',
       icon: Zap, threshold: T.co2, infoKey: 'co2' as const,
-      description: SENSOR_INFO.co2,
+      description: SENSOR_INFO.co2.general + '\n' + (data.co2 > T.co2 ? SENSOR_INFO.co2.danger : SENSOR_INFO.co2.safe),
     },
     {
       key: 'nh3' as const,
-      label: 'NH₃', value: data.nh3?.toFixed(2) ?? '--', unit: 'PPM',
+      label: 'NH3', value: data.nh3?.toFixed(2) ?? '--', unit: 'PPM',
       danger: data.nh3 > T.nh3, color: '#a78bfa', bgColor: '#a78bfa10',
-      delta: data.nh3 > T.nh3 ? 'High' : 'Safe',
+      delta: data.nh3 > T.nh3 ? 'Bahaya' : 'Aman',
       icon: Wind, threshold: T.nh3, infoKey: 'nh3' as const,
-      description: SENSOR_INFO.nh3,
+      description: SENSOR_INFO.nh3.general + '\n' + (data.nh3 > T.nh3 ? SENSOR_INFO.nh3.danger : SENSOR_INFO.nh3.safe),
     },
     {
       key: 'temp' as const,
       label: 'Temperature', value: data.temp?.toFixed(1) ?? '--', unit: '°C',
       danger: data.temp > T.temp, color: '#f97316', bgColor: '#f9731610',
-      delta: data.temp > T.temp ? 'Hot' : 'Normal',
+      delta: data.temp > T.temp ? 'Panas' : 'Normal',
       icon: Flame, threshold: T.temp, infoKey: 'temp' as const,
-      description: SENSOR_INFO.temp,
+      description: SENSOR_INFO.temp.general + '\n' + (data.temp > T.temp ? SENSOR_INFO.temp.danger : SENSOR_INFO.temp.safe),
     },
     {
       key: 'hum' as const,
       label: 'Humidity', value: data.hum?.toFixed(0) ?? '--', unit: '%',
       danger: data.hum > T.hum, color: '#38bdf8', bgColor: '#38bdf810',
-      delta: data.hum > T.hum ? 'Humid' : 'Ideal',
+      delta: data.hum > T.hum ? 'Lembap' : 'Ideal',
       icon: Droplets, threshold: T.hum, infoKey: 'hum' as const,
-      description: SENSOR_INFO.hum,
+      description: SENSOR_INFO.hum.general + '\n' + (data.hum > T.hum ? SENSOR_INFO.hum.danger : SENSOR_INFO.hum.safe),
     },
   ];
 

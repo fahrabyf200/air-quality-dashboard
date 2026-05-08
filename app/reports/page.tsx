@@ -149,7 +149,23 @@ export default function ReportsPage() {
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('day');
+  const [filterType, setFilterType] = useState<'all' | 'day' | 'week' | 'month'>('day');
+  
+  const getWeekStr = useCallback((d: Date) => {
+    const date = new Date(d.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    const week = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return `${date.getFullYear()}-W${week.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Set default initial values on mount using useEffect to avoid hydration mismatch, or just set them initially
+  // In Next.js client component, using new Date() directly in useState is fine if not SSR'd strictly.
+  // We use standard strings.
+  const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); });
+  const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); });
+  const [filterWeek, setFilterWeek] = useState(() => { return getWeekStr(new Date()); });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -168,17 +184,40 @@ export default function ReportsPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const co2s = rows.map(r => r.co2);
-  const nh3s = rows.map(r => r.nh3);
-  const temps = rows.map(r => r.temp ?? r.temperature ?? 0);
-  const hums = rows.map(r => r.hum ?? r.humidity ?? 0);
+  const filteredRows = rows.filter(r => {
+    if (filterType === 'all') return true;
+    const d = new Date(r.created_at || r.timestamp || new Date());
+    if (isNaN(d.getTime())) return false;
+    
+    // Manual formatting for YYYY-MM-DD
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dStr = `${y}-${m}-${day}`;
+    
+    if (filterType === 'day') {
+      return dStr === filterDate;
+    }
+    if (filterType === 'month') {
+      return `${y}-${m}` === filterMonth;
+    }
+    if (filterType === 'week') {
+      return getWeekStr(d) === filterWeek;
+    }
+    return true;
+  });
 
-  const dangerCount = rows.filter(r => {
+  const co2s = filteredRows.map(r => r.co2);
+  const nh3s = filteredRows.map(r => r.nh3);
+  const temps = filteredRows.map(r => r.temp ?? r.temperature ?? 0);
+  const hums = filteredRows.map(r => r.hum ?? r.humidity ?? 0);
+
+  const dangerCount = filteredRows.filter(r => {
     const t = r.temp ?? r.temperature ?? 0;
     return r.co2 > T.co2 || r.nh3 > T.nh3 || t > T.temp;
   }).length;
 
-  const safeRate = rows.length ? (((rows.length - dangerCount) / rows.length) * 100).toFixed(1) : '0';
+  const safeRate = filteredRows.length ? (((filteredRows.length - dangerCount) / filteredRows.length) * 100).toFixed(1) : '0';
 
   const summaryStats = [
     { label: 'Avg CO₂', value: avg(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2, icon: Wind },
@@ -188,27 +227,23 @@ export default function ReportsPage() {
     { label: 'Avg Temp', value: avg(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp, icon: Thermometer },
     { label: 'Avg Humidity', value: avg(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum, icon: Droplets },
     { label: 'Safe Rate', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
-    { label: 'Total Records', value: rows.length.toString(), unit: 'entries', color: '#94a3b8', danger: false, icon: Database },
+    { label: 'Total Records', value: filteredRows.length.toString(), unit: 'entries', color: '#94a3b8', danger: false, icon: Database },
   ];
 
   const groupedMap: Record<string, { co2: number[]; nh3: number[]; temp: number[]; hum: number[] }> = {};
   
-  rows.forEach(r => {
+  filteredRows.forEach(r => {
     const ts = r.created_at ?? r.timestamp;
     if (!ts) return;
     
     const date = new Date(ts);
     let key = '';
     
-    if (timeRange === 'day') {
+    if (filterType === 'day') {
+      key = date.toLocaleTimeString('id-ID', { hour: '2-digit' }) + ':00';
+    } else if (filterType === 'week' || filterType === 'month') {
       key = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    } else if (timeRange === 'week') {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
-      key = 'Wk ' + monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    } else if (timeRange === 'month') {
+    } else {
       key = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
     }
     
@@ -220,7 +255,7 @@ export default function ReportsPage() {
   });
 
   const chartData = Object.entries(groupedMap)
-    .slice(-15) // Limit to last 15 entries for readability
+    .slice(-30) // Limit to last 30 entries (enough for 24h day or 30d month)
     .map(([time, d]) => ({
       time,
       'Avg CO₂': avg(d.co2),
@@ -250,14 +285,39 @@ export default function ReportsPage() {
             </h1>
             <p className="text-slate-600 text-xs mt-1 font-mono">Ringkasan Statistik Sensor</p>
           </div>
-          <button
-            onClick={fetchData}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-sm dark:shadow-none"
-          >
-            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-2">
+              <select
+                value={filterType}
+                onChange={e => setFilterType(e.target.value as any)}
+                className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none"
+              >
+                <option value="all">Semua Data</option>
+                <option value="day">Harian</option>
+                <option value="week">Mingguan</option>
+                <option value="month">Bulanan</option>
+              </select>
+              
+              {filterType === 'day' && (
+                <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+              )}
+              {filterType === 'week' && (
+                <input type="week" value={filterWeek} onChange={e => setFilterWeek(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+              )}
+              {filterType === 'month' && (
+                <input type="month" value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+              )}
+            </div>
+
+            <button
+              onClick={fetchData}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-sm dark:shadow-none"
+            >
+              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -298,7 +358,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Bar Chart */}
-            {displayChartData.length > 0 && (
+            {displayChartData.length > 0 ? (
               <div className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -323,27 +383,6 @@ export default function ReportsPage() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                  
-                  {/* Time Range Toggle */}
-                  <div className="flex bg-slate-100 dark:bg-[#0d1425] p-1 rounded-xl w-max">
-                    {[
-                      { id: 'day', label: 'Per Hari' },
-                      { id: 'week', label: 'Per Minggu' },
-                      { id: 'month', label: 'Per Bulan' }
-                    ].map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => setTimeRange(t.id as any)}
-                        className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
-                          timeRange === t.id 
-                            ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm' 
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
                   </div>
                 </div>
                 <div className="p-6 h-80">
@@ -405,6 +444,14 @@ export default function ReportsPage() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] flex flex-col items-center justify-center p-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+                  <Database size={24} className="text-slate-400 dark:text-slate-500" />
+                </div>
+                <h3 className="text-sm font-black text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wider">Tidak Ada Data</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Belum ada data sensor yang terekam pada tanggal/periode yang kamu pilih.</p>
               </div>
             )}
 

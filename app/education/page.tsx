@@ -5,51 +5,55 @@ import { BookOpen, ChevronDown, Wind, Thermometer, Droplets, Zap } from 'lucide-
 const topics = [
   {
     id: 'co2',
-    label: 'CO₂ — Carbon Dioxide',
+    label: 'CO2 — Karbon Dioksida',
     icon: <Wind size={16} />,
     color: '#3b82f6',
     threshold: '800 PPM (Dapur)',
     safe: '< 800 PPM',
     danger: '> 800 PPM',
-    desc: 'Karbon Dioksida adalah gas hasil pembakaran bahan bakar dan respirasi manusia. Di dapur, CO₂ dapat meningkat drastis saat menggunakan kompor gas.',
-    symptoms: 'Pusing, mengantuk, sesak napas, penurunan konsentrasi.',
-    tips: 'Buka jendela dapur saat memasak. Gunakan exhaust fan. Periksa kebocoran gas secara berkala.',
+    image: '/co2.png',
+    desc: 'Karbon Dioksida (CO2) adalah gas yang membuat udara terasa pengap. Di dapur, gas ini muncul saat kita menyalakan kompor. Jika terlalu banyak, udara jadi tidak sehat.',
+    symptoms: 'Kepala pusing, mudah mengantuk, dan napas terasa sesak.',
+    tips: 'Selalu buka jendela atau nyalakan kipas penyedot (exhaust) saat memasak agar udara segar bisa masuk.',
   },
   {
     id: 'nh3',
-    label: 'NH₃ — Ammonia',
+    label: 'NH3 — Amonia',
     icon: <Zap size={16} />,
     color: '#f59e0b',
     threshold: '2 PPM (Dapur)',
     safe: '< 2 PPM',
     danger: '> 2 PPM',
-    desc: 'Amonia adalah gas berbau tajam yang bisa berasal dari produk pembersih, kebocoran kulkas, atau pembusukan bahan organik.',
-    symptoms: 'Iritasi mata, hidung, tenggorokan. Paparan tinggi bisa menyebabkan kerusakan paru.',
-    tips: 'Jangan mencampur produk pembersih. Periksa kondisi kompresor kulkas. Ventilasi saat membersihkan.',
+    image: '/nh3.png',
+    desc: 'Amonia (NH3) adalah gas dengan bau yang sangat menyengat. Biasanya berasal dari cairan pembersih lantai atau jika ada kebocoran gas pada kulkas.',
+    symptoms: 'Mata perih, hidung gatal, batuk, dan tenggorokan sakit.',
+    tips: 'Gunakan pembersih alami, jangan mencampur berbagai cairan pembersih, dan rutin periksa kulkas Anda.',
   },
   {
     id: 'temp',
-    label: 'Suhu — Temperature',
+    label: 'Suhu Panas',
     icon: <Thermometer size={16} />,
     color: '#ef4444',
     threshold: '35°C (Dapur)',
     safe: '20°C – 35°C',
     danger: '> 35°C',
-    desc: 'Suhu dapur yang terlalu tinggi memengaruhi kenyamanan kerja, mempercepat pertumbuhan bakteri pada makanan, dan meningkatkan risiko kesehatan.',
-    symptoms: 'Kelelahan panas (heat exhaustion), dehidrasi, gangguan konsentrasi.',
-    tips: 'Gunakan AC atau kipas angin. Simpan makanan di kulkas. Hindari memasak dalam waktu lama tanpa ventilasi.',
+    image: '/temp.png',
+    desc: 'Suhu ruangan yang terlalu panas membuat kita tidak nyaman saat memasak dan menyebabkan bakteri pada makanan basah cepat berkembang biak sehingga makanan cepat basi.',
+    symptoms: 'Badan lemas, dehidrasi (kurang cairan), dan keringat berlebih.',
+    tips: 'Nyalakan kipas angin atau AC jika ada. Simpan sisa makanan langsung ke dalam kulkas.',
   },
   {
     id: 'hum',
-    label: 'Kelembapan — Humidity',
+    label: 'Kelembapan Ruangan',
     icon: <Droplets size={16} />,
     color: '#8b5cf6',
     threshold: '80% (Dapur)',
     safe: '30% – 70%',
     danger: '> 80%',
-    desc: 'Kelembapan tinggi mendorong pertumbuhan jamur dan bakteri, mempercepat korosi peralatan, serta menciptakan lingkungan tidak nyaman.',
-    symptoms: 'Pertumbuhan jamur pada dinding, bau apek, gangguan pernapasan bagi penderita asma.',
-    tips: 'Gunakan dehumidifier. Lap permukaan basah setelah memasak. Pastikan ventilasi lancar.',
+    image: '/hum.png',
+    desc: 'Kelembapan adalah jumlah uap air di udara. Jika terlalu lembap (basah), dinding akan berjamur, berbau apek, dan menjadi sarang bakteri.',
+    symptoms: 'Bau apek yang mengganggu, alergi, dan memicu asma kambuh.',
+    tips: 'Lap permukaan yang basah setelah memasak. Pastikan cahaya matahari bisa masuk ke dapur.',
   },
 ];
 
@@ -127,30 +131,37 @@ export default function EducationPage() {
 
               {isOpen && (
                 <div className="px-6 pb-6 space-y-4 border-t border-slate-200 dark:border-white/5 pt-5 transition-colors">
-                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{topic.desc}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/8 px-4 py-3 transition-colors">
-                      <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5">✓ Safe Level</p>
-                      <p className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">{topic.safe}</p>
+                  <div className="flex flex-col md:flex-row gap-5">
+                    <div className="md:w-1/3 flex-shrink-0">
+                      <img src={topic.image} alt={topic.label} className="w-full h-40 object-cover rounded-xl shadow-sm border border-slate-200 dark:border-white/10" />
                     </div>
-                    <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/8 px-4 py-3 transition-colors">
-                      <p className="text-[9px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-1.5">⚠ Danger Level</p>
-                      <p className="text-red-700 dark:text-red-300 font-bold text-sm">{topic.danger}</p>
-                    </div>
-                    <div
-                      className="rounded-xl border px-4 py-3 transition-colors"
-                      style={{ background: topic.color + '10', borderColor: topic.color + '30' }}
-                    >
-                      <p className="text-[9px] font-black uppercase tracking-widest mb-1.5" style={{ color: topic.color }}>
-                        Symptoms
-                      </p>
-                      <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">{topic.symptoms}</p>
-                    </div>
-                  </div>
-                  <div className="mt-5 space-y-3">
-                    <div className="rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-white/[0.06] px-4 py-3 transition-colors shadow-sm dark:shadow-none">
-                      <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
-                      <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
+                    <div className="md:w-2/3 space-y-4">
+                      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{topic.desc}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="rounded-xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/8 px-4 py-3 transition-colors">
+                          <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1.5">✓ Kondisi Aman</p>
+                          <p className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">{topic.safe}</p>
+                        </div>
+                        <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/8 px-4 py-3 transition-colors">
+                          <p className="text-[9px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-1.5">⚠ Kondisi Bahaya</p>
+                          <p className="text-red-700 dark:text-red-300 font-bold text-sm">{topic.danger}</p>
+                        </div>
+                        <div
+                          className="rounded-xl border px-4 py-3 transition-colors"
+                          style={{ background: topic.color + '10', borderColor: topic.color + '30' }}
+                        >
+                          <p className="text-[9px] font-black uppercase tracking-widest mb-1.5" style={{ color: topic.color }}>
+                            Gejala / Dampak
+                          </p>
+                          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">{topic.symptoms}</p>
+                        </div>
+                      </div>
+                      <div className="mt-5 space-y-3">
+                        <div className="rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-white/[0.06] px-4 py-3 transition-colors shadow-sm dark:shadow-none">
+                          <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
+                          <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

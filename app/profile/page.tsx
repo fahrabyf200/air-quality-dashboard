@@ -10,11 +10,21 @@ import {
   LogOut, 
   ChevronRight,
   UserCircle,
-  RefreshCw
+  RefreshCw,
+  Camera
 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ProfilePage() {
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const url = URL.createObjectURL(e.target.files[0]);
+      setProfilePic(url);
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
@@ -33,11 +43,21 @@ export default function ProfilePage() {
       <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header Profil */}
         <div className="flex flex-col items-center text-center space-y-3 -mt-16 md:-mt-20">
-          <div className="relative group">
-            <div className="w-20 h-20 rounded-[1.5rem] bg-[#a3e635] flex items-center justify-center text-[#0a0f1a] shadow-xl shadow-lime-500/20 transition-transform group-hover:scale-105">
-              <UserCircle size={40} strokeWidth={1.5} />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-50 dark:bg-[#070d1a] rounded-full flex items-center justify-center">
+          <div className="relative group cursor-pointer">
+            <label htmlFor="profile-upload" className="cursor-pointer block relative">
+              <div className="w-20 h-20 rounded-[1.5rem] bg-[#a3e635] flex items-center justify-center text-[#0a0f1a] shadow-xl shadow-lime-500/20 transition-transform group-hover:scale-105 overflow-hidden relative">
+                {profilePic ? (
+                  <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <UserCircle size={40} strokeWidth={1.5} />
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera size={20} className="text-white" />
+                </div>
+              </div>
+            </label>
+            <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-50 dark:bg-[#070d1a] rounded-full flex items-center justify-center pointer-events-none">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
             </div>
           </div>
