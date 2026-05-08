@@ -3,14 +3,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Wind, AlertTriangle, CheckCircle, Activity,
   RefreshCw, TrendingUp, X, Info,
-  Thermometer, Droplets, Flame, Zap
+  Thermometer, Droplets, Flame, Zap, ShieldCheck
 } from 'lucide-react';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, AreaChart
 } from 'recharts';
-
-const T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
+import { useThresholds } from '@/app/hooks/useThresholds';
 
 const SENSOR_INFO = {
   co2: "Karbon Dioksida hasil pembakaran & respirasi. Di dapur bisa meningkat drastis saat kompor gas aktif.",
@@ -197,11 +196,15 @@ function SensorCard({
 
 // --- MAIN DASHBOARD ---
 export default function Dashboard() {
+  const { thresholds: T, isLoaded: thresholdsLoaded } = useThresholds();
   const [data, setData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState('');
   const [mounted, setMounted] = useState(false);
+  
+  // Emergency state
+  const [alarmAcknowledged, setAlarmAcknowledged] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -231,7 +234,50 @@ export default function Dashboard() {
     return () => clearInterval(iv);
   }, [fetchData]);
 
-  if (!mounted || !data) {
+  // Audio Alarm Logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (mounted && data && !alarmAcknowledged) {
+      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
+      if (isDangerNow) {
+        const playAlarm = () => {
+          try {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+          } catch (e) {}
+        };
+        playAlarm(); // Play immediately
+        interval = setInterval(playAlarm, 1000);
+      }
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [mounted, data, alarmAcknowledged, T]);
+
+  // Reset acknowledged if it becomes safe again
+  useEffect(() => {
+    if (data) {
+      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
+      if (!isDangerNow) {
+        setAlarmAcknowledged(false);
+      }
+    }
+  }, [data, T]);
+
+  if (!mounted || !data || !thresholdsLoaded) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
@@ -325,24 +371,70 @@ export default function Dashboard() {
 
       <div className="px-6 md:px-10 xl:px-12 pb-8 space-y-5 w-full">
 
+        {/* EMERGENCY MODAL */}
+        {isDanger && !alarmAcknowledged && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-900/60 backdrop-blur-sm px-4">
+            <div className="bg-white dark:bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
+              <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                <AlertTriangle size={48} className="text-red-500 animate-ping absolute opacity-30" />
+                <AlertTriangle size={48} className="text-red-500 relative z-10" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT!</h2>
+              <p className="text-slate-600 dark:text-slate-300 mb-6 font-bold text-sm md:text-base leading-relaxed">
+                Sensor mendeteksi level kritis pada: <span className="text-red-500 font-black">{dangerLabels.join(', ')}</span>.<br/>Segera amankan area ruangan.
+              </p>
+
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-left">
+                <p className="text-red-500 text-xs font-bold uppercase tracking-wider mb-2">Tindakan Manual yang harus dilakukan:</p>
+                <ul className="text-slate-700 dark:text-slate-300 text-sm list-disc pl-5 space-y-1.5 font-medium">
+                  <li>Segera matikan kompor & sumber api.</li>
+                  <li>Cabut regulator gas jika aman dilakukan.</li>
+                  <li>Buka jendela & pintu lebar-lebar.</li>
+                  <li>Jangan menyalakan/mematikan saklar listrik!</li>
+                </ul>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => setAlarmAcknowledged(true)}
+                  className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-3 shadow-lg shadow-red-500/30"
+                >
+                  <CheckCircle size={20} /> Mengerti & Matikan Suara Alarm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ALERT BANNER */}
-        <div className={`relative rounded-2xl border px-5 py-4 overflow-hidden flex items-center gap-4 transition-all duration-700 ${
+        <div className={`relative rounded-2xl border px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-700 ${
           isDanger ? 'bg-red-500/5 border-red-500/20' : 'bg-emerald-500/5 border-emerald-500/15'
         }`}>
-          <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isDanger ? 'bg-red-500' : 'bg-emerald-500'}`} />
-          <div className={`p-2.5 rounded-xl flex-shrink-0 ${isDanger ? 'bg-red-500/12' : 'bg-emerald-500/12'}`}>
-            {isDanger
-              ? <AlertTriangle size={17} className="text-red-400" />
-              : <CheckCircle size={17} className="text-emerald-400" />}
+          <div className="flex items-center gap-4">
+            <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isDanger ? 'bg-red-500' : 'bg-emerald-500'}`} />
+            <div className={`p-2.5 rounded-xl flex-shrink-0 ${isDanger ? 'bg-red-500/12' : 'bg-emerald-500/12'}`}>
+              {isDanger
+                ? <AlertTriangle size={17} className="text-red-400" />
+                : <CheckCircle size={17} className="text-emerald-400" />}
+            </div>
+            <div>
+              <p className={`font-black text-sm uppercase tracking-wide ${isDanger ? 'text-red-400' : 'text-emerald-400'}`}
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                {isDanger ? `DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS` : 'SYSTEM STATUS — SEMUA SENSOR OPTIMAL'}
+              </p>
+              <p className="text-slate-500 text-xs mt-0.5">
+                {isDanger ? 'Peringatan: Level gas telah melebihi batas aman. Lakukan tindakan darurat manual.' : 'Kondisi dapur aman. Pemantauan aktif setiap 10 detik.'}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className={`font-black text-sm uppercase tracking-wide ${isDanger ? 'text-red-400' : 'text-emerald-400'}`}
-              style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-              {isDanger ? `DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS` : 'SYSTEM STATUS — SEMUA SENSOR OPTIMAL'}
-            </p>
-            <p className="text-slate-500 text-xs mt-0.5">
-              {isDanger ? 'Segera aktifkan exhaust fan dan buka ventilasi dapur.' : 'Kondisi dapur aman. Pemantauan aktif setiap 10 detik.'}
-            </p>
+          
+          {/* Action indicators */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-10 sm:ml-0">
+            {isDanger && alarmAcknowledged && (
+              <span className="text-[10px] font-black bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20">
+                Alarm Dimatikan
+              </span>
+            )}
           </div>
         </div>
 
@@ -357,7 +449,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Area Chart */}
           <div
-            className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+            className="lg:col-span-2 flex flex-col rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
           >
             <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-white/5">
               <div>
@@ -368,107 +460,119 @@ export default function Dashboard() {
                 <p className="text-[10px] text-slate-700 font-mono">20 pembacaan terakhir</p>
               </div>
               <div className="flex items-center gap-2">
-                {[{ color: '#3b82f6', label: 'CO₂' }, { color: '#f97316', label: 'Temp' }].map(l => (
-                  <div key={l.label} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 border"
-                    style={{ background: `${l.color}10`, borderColor: `${l.color}25` }}>
-                    <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
-                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: l.color }}>{l.label}</span>
+                {[
+                  { k: 'CO₂', c: 'bg-blue-500' },
+                  { k: 'NH₃', c: 'bg-yellow-500' },
+                  { k: 'TEMP', c: 'bg-orange-500' },
+                  { k: 'HUM', c: 'bg-purple-500' }
+                ].map(i => (
+                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded border border-slate-200 dark:border-white/10">
+                    <span className={`w-2 h-2 rounded-full ${i.c}`} />
+                    <span className="text-[9px] font-black uppercase text-slate-500">{i.k}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="px-2 pb-5 pt-2 h-[260px]">
+            <div className="px-2 pb-5 pt-2 flex-1 min-h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={history} margin={{ top: 4, right: 12, left: -20, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="gradCO2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.22} />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                    <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="gradTemp" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f97316" stopOpacity={0.18} />
-                      <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                    <linearGradient id="colorNh3" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#eab308" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff07" vertical={false} />
-                  <XAxis dataKey="time" stroke="#1e293b" fontSize={10} tickMargin={10} axisLine={false} tickLine={false}
-                    style={{ fontFamily: "'IBM Plex Mono', monospace" }} />
-                  <YAxis stroke="#1e293b" fontSize={10} axisLine={false} tickLine={false}
-                    style={{ fontFamily: "'IBM Plex Mono', monospace" }} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#ffffff10', strokeWidth: 1 }} />
-                  <Area name="CO₂" type="monotone" dataKey="co2" stroke="#3b82f6" strokeWidth={2}
-                    fill="url(#gradCO2)" dot={false} activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
-                  <Area name="Temp" type="monotone" dataKey="temp" stroke="#f97316" strokeWidth={2}
-                    fill="url(#gradTemp)" dot={false} activeDot={{ r: 4, fill: '#f97316', strokeWidth: 0 }} />
+                  <XAxis dataKey="time" stroke="#94a3b8" fontSize={10} tickMargin={10} axisLine={false} tickLine={false} />
+                  <YAxis yAxisId="left" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area yAxisId="left" type="monotone" dataKey="co2" stroke="#3b82f6" strokeWidth={3} fill="url(#colorCo2)" />
+                  <Area yAxisId="left" type="monotone" dataKey="nh3" stroke="#eab308" strokeWidth={3} fill="url(#colorNh3)" />
+                  <Area yAxisId="right" type="monotone" dataKey="temp" stroke="#f97316" strokeWidth={3} fill="url(#colorTemp)" />
+                  <Area yAxisId="right" type="monotone" dataKey="hum" stroke="#a855f7" strokeWidth={3} fill="url(#colorHum)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Side — Temp & Humidity gauges */}
-          <div className="flex flex-col gap-4">
-            <div className="flex-1 rounded-2xl border border-slate-200 dark:border-white/15 p-5 relative overflow-hidden bg-white dark:bg-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+          {/* Side — Device Info & Safety Summary */}
+          <div className="flex flex-col gap-5 h-full">
+            {/* Device Status Card */}
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 p-5 relative overflow-hidden bg-white dark:bg-white/[0.04] shadow-sm">
               <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
-                style={{ background: 'linear-gradient(90deg, transparent, #f97316, transparent)' }} />
-              <div className="flex items-center justify-between mb-4">
+                style={{ background: 'linear-gradient(90deg, transparent, #a3e635, transparent)' }} />
+              
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Thermometer size={13} className="text-orange-400" />
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">Temperature</span>
+                  <Activity size={14} className="text-[#a3e635]" />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">IoT Node Status</span>
                 </div>
-                <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
-                  data.temp > T.temp ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-                }`}>{data.temp > T.temp ? 'Hot' : 'Normal'}</span>
+                <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Online
+                </span>
               </div>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-4xl font-black tabular-nums text-slate-900 dark:text-white"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{data.temp?.toFixed(1)}</span>
-                <span className="text-slate-500 font-bold text-lg">°C</span>
-              </div>
-              {/* Segmented bar */}
-              <div className="flex gap-0.5 mb-2">
-                {Array.from({ length: 20 }).map((_, i) => {
-                  const filled = i < Math.round((data.temp / 50) * 20);
-                  return (
-                    <div key={i} className="flex-1 h-1.5 rounded-sm transition-all duration-700"
-                      style={{ background: filled ? (data.temp > T.temp ? '#ef4444' : '#f97316') : 'rgba(255,255,255,0.05)' }} />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between text-[9px] font-mono text-slate-700">
-                <span>0°C</span><span>25°C</span><span>50°C</span>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">Device ID</span>
+                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">NODE-KITCHEN-01</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">Sensors</span>
+                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">MQ135, DHT22</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">Network</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">WiFi</span>
+                    <div className="flex gap-0.5 items-end h-3">
+                      <div className="w-1 h-1.5 bg-slate-800 dark:bg-slate-300 rounded-sm"/>
+                      <div className="w-1 h-2 bg-slate-800 dark:bg-slate-300 rounded-sm"/>
+                      <div className="w-1 h-full bg-slate-800 dark:bg-slate-300 rounded-sm"/>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">Last Sync</span>
+                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">{lastSync || '--:--:--'}</span>
+                </div>
               </div>
             </div>
 
-            {/* Humidity gauge */}
-            <div className="flex-1 rounded-2xl border border-slate-200 dark:border-white/8 p-5 relative overflow-hidden bg-white dark:bg-white/[0.025]">
-              <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
-                style={{ background: 'linear-gradient(90deg, transparent, #38bdf8, transparent)' }} />
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Droplets size={13} className="text-sky-400" />
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">Humidity</span>
-                </div>
-                <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
-                  data.hum > T.hum ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-                }`}>{data.hum > T.hum ? 'Humid' : 'Ideal'}</span>
+            {/* Safety Advice Card */}
+            <div className={`rounded-2xl border p-5 relative overflow-hidden transition-colors flex-1 flex flex-col justify-center ${
+              isDanger 
+                ? 'bg-red-500/5 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.1)]' 
+                : 'bg-emerald-500/5 border-emerald-500/15 shadow-[0_0_30px_rgba(16,185,129,0.05)]'
+            }`}>
+              <div className="flex items-center gap-2 mb-4">
+                {isDanger ? <AlertTriangle size={14} className="text-red-500" /> : <ShieldCheck size={14} className="text-emerald-500" />}
+                <span className={`text-[10px] font-black uppercase tracking-[0.25em] ${isDanger ? 'text-red-500' : 'text-emerald-500'}`}>
+                  Rekomendasi Sistem
+                </span>
               </div>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-4xl font-black tabular-nums text-slate-900 dark:text-white"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{data.hum?.toFixed(0)}</span>
-                <span className="text-slate-500 font-bold text-lg">%</span>
-              </div>
-              <div className="flex gap-0.5 mb-2">
-                {Array.from({ length: 20 }).map((_, i) => {
-                  const filled = i < Math.round((data.hum / 100) * 20);
-                  return (
-                    <div key={i} className="flex-1 h-1.5 rounded-sm transition-all duration-700"
-                      style={{ background: filled ? (data.hum > T.hum ? '#ef4444' : '#38bdf8') : 'rgba(255,255,255,0.05)' }} />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between text-[9px] font-mono text-slate-700">
-                <span>0%</span><span>50%</span><span>100%</span>
-              </div>
+              
+              <h3 className={`text-lg font-black mb-2 leading-tight ${isDanger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                {isDanger ? 'Tindakan Evakuasi Diperlukan!' : 'Udara Dapur Terjaga Baik'}
+              </h3>
+              
+              <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                {isDanger 
+                  ? 'Kadar gas telah melewati batas aman yang ditentukan. Segera cabut regulator gas, buka jendela lebar-lebar, dan jangan sentuh saklar listrik.' 
+                  : 'Sirkulasi udara dan kadar gas saat ini terpantau berada dalam rentang normal. Tidak ada tindakan khusus yang diperlukan.'}
+              </p>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useThresholds } from '@/app/hooks/useThresholds';
 import { 
   User, 
   Mail, 
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePage() {
+  const { thresholds, saveThresholds, isLoaded } = useThresholds();
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
@@ -64,6 +66,39 @@ export default function ProfilePage() {
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Perangkat Aktif</p>
             <p className="text-sm font-bold text-slate-900 dark:text-white">ESP32 - SkyWatch v1.0</p>
           </div>
+        </div>
+      </div>
+
+      {/* Pengaturan Ambang Batas (Threshold) */}
+      <div className="space-y-3">
+        <p className="px-2 text-[10px] font-black text-slate-400 dark:text-[#2a3a55] uppercase tracking-[0.3em]">Pengaturan Ambang Batas (Threshold)</p>
+        
+        <div className="bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/15 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">Atur nilai ambang batas (threshold) untuk menentukan status aman atau bahaya pada masing-masing sensor.</p>
+          {isLoaded ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {Object.entries(thresholds).map(([key, val]) => (
+                <div key={key} className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    Batas Maksimal {key === 'hum' ? 'Humidity' : key === 'temp' ? 'Temperature' : key.toUpperCase()}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={val}
+                      onChange={(e) => saveThresholds({ ...thresholds, [key]: Number(e.target.value) })}
+                      className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl pl-4 pr-12 py-3 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#a3e635] transition-colors"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase tracking-widest pointer-events-none">
+                      {key === 'co2' || key === 'nh3' ? 'PPM' : key === 'temp' ? '°C' : '%'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500 flex items-center justify-center py-4 animate-pulse">Memuat pengaturan...</div>
+          )}
         </div>
       </div>
 

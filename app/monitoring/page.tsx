@@ -10,9 +10,10 @@ import {
   ShieldCheck,
   Clock3,
   TrendingUp,
+  CheckCircle,
 } from "lucide-react";
 
-const T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
+import { useThresholds } from '@/app/hooks/useThresholds';
 
 interface SensorRow {
   id?: number;
@@ -154,6 +155,7 @@ function SummaryCard({
 const PER_PAGE = 25;
 
 export default function MonitoringPage() {
+  const { thresholds: T, isLoaded: thresholdsLoaded } = useThresholds();
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -307,7 +309,7 @@ export default function MonitoringPage() {
           </div>
 
           {/* LOADING */}
-          {loading ? (
+          {loading || !thresholdsLoaded ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="relative">
                 <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
