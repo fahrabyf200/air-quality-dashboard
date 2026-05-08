@@ -22,7 +22,7 @@ const SENSOR_INFO = {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#0a1020]/95 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-2xl text-xs">
+    <div className="bg-white/95 dark:bg-[#0a1020]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 shadow-2xl text-xs">
       <p className="text-slate-600 font-bold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
       <div className="flex flex-col gap-1.5">
         {payload.map((p: any) => (
@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
               <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
               <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider">{p.name}</span>
             </div>
-            <span className="font-black tabular-nums text-white text-[11px]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+            <span className="font-black tabular-nums text-slate-900 dark:text-white text-[11px]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
               {p.value?.toFixed(p.dataKey === 'nh3' ? 2 : 1)}
               <span className="text-slate-600 font-normal ml-0.5 text-[9px]">
                 {p.dataKey === 'co2' || p.dataKey === 'nh3' ? ' PPM' : p.dataKey === 'temp' ? '°C' : '%'}
@@ -55,15 +55,15 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
     <>
       <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t border-white/10 px-6 pt-4 pb-10"
-        style={{ background: '#0d1525', animation: 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)' }}
+        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t border-slate-200 dark:border-white/10 px-6 pt-4 pb-10 bg-white dark:bg-[#0d1525]"
+        style={{ animation: 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)' }}
       >
-        <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-slate-300 dark:bg-white/15 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-5">
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
             <Info size={12} /> Detail Sensor
           </span>
-          <button onClick={onClose} className="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white border border-white/8">
+          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/8">
             <X size={13} />
           </button>
         </div>
@@ -80,7 +80,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
             </div>
           )}
         </div>
-        <div className="bg-white/3 rounded-2xl px-5 py-4 border border-white/5 mb-4">
+        <div className="bg-slate-50 dark:bg-white/3 rounded-2xl px-5 py-4 border border-slate-200 dark:border-white/5 mb-4">
           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Penjelasan</p>
           <p className="text-sm text-slate-300 leading-relaxed">{description}</p>
         </div>
@@ -113,20 +113,19 @@ function SensorCard({
     <>
       <div
         onClick={() => setDrawerOpen(true)}
-        className="relative rounded-2xl border border-white/8 overflow-hidden cursor-pointer group transition-all duration-300 hover:border-white/18 hover:scale-[1.015] active:scale-[0.99]"
-        style={{ background: 'rgba(255,255,255,0.025)' }}
+        className="relative rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden cursor-pointer group transition-all duration-300 hover:border-slate-300 dark:hover:border-white/25 hover:scale-[1.015] active:scale-[0.99] bg-white dark:bg-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
       >
         {/* Top color line */}
-        <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${color}70, transparent)` }} />
+        <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
 
         {/* Glow bg */}
-        <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"
+        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-25 dark:opacity-10 group-hover:opacity-40 dark:group-hover:opacity-20 transition-opacity pointer-events-none"
           style={{ background: color }} />
 
         <div className="px-5 py-5">
           {/* Row 1 — icon + status badge */}
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 rounded-xl border border-white/8" style={{ background: `${color}12` }}>
+            <div className="p-2 rounded-xl border border-slate-200 dark:border-white/8" style={{ background: `${color}12` }}>
               <Icon size={15} style={{ color }} />
             </div>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
@@ -144,7 +143,7 @@ function SensorCard({
 
           {/* Row 3 — value */}
           <div className="flex items-baseline gap-1.5 mb-1">
-            <span className="text-3xl font-black tabular-nums text-white transition-colors"
+            <span className="text-3xl font-black tabular-nums text-slate-900 dark:text-white transition-colors"
               style={{ fontFamily: "'IBM Plex Mono', monospace", color: danger ? '#f87171' : undefined }}>
               {value}
             </span>
@@ -158,7 +157,7 @@ function SensorCard({
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden mb-3">
             <div className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${pct}%`,
@@ -234,7 +233,7 @@ export default function Dashboard() {
 
   if (!mounted || !data) {
     return (
-      <div className="min-h-screen bg-[#070d1a] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
           <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center">
             <Wind size={22} className="text-[#a3e635] animate-spin" />
@@ -290,13 +289,13 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070d1a] text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex items-start justify-between gap-4 w-full">
           <div>
             <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Kitchen Sensor Node</p>
-            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               My Dashboard
             </h1>
             {lastSync && (
@@ -315,7 +314,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={fetchData}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/8 bg-white/[0.04] text-slate-400 hover:text-white hover:border-white/20 transition-all text-[11px] font-bold uppercase tracking-wider"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-bold uppercase tracking-wider shadow-sm dark:shadow-none"
             >
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
               <span className="hidden sm:inline">Refresh</span>
@@ -358,10 +357,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Area Chart */}
           <div
-            className="lg:col-span-2 rounded-2xl border border-white/8 overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.02)' }}
+            className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
           >
-            <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-white/5">
+            <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-white/5">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <Activity size={12} className="text-blue-400" />
@@ -409,11 +407,9 @@ export default function Dashboard() {
 
           {/* Side — Temp & Humidity gauges */}
           <div className="flex flex-col gap-4">
-            {/* Temperature gauge */}
-            <div className="flex-1 rounded-2xl border border-white/8 p-5 relative overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.025)' }}>
-              <div className="absolute inset-x-0 top-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, #f9731660, transparent)' }} />
+            <div className="flex-1 rounded-2xl border border-slate-200 dark:border-white/15 p-5 relative overflow-hidden bg-white dark:bg-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+              <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
+                style={{ background: 'linear-gradient(90deg, transparent, #f97316, transparent)' }} />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Thermometer size={13} className="text-orange-400" />
@@ -424,7 +420,7 @@ export default function Dashboard() {
                 }`}>{data.temp > T.temp ? 'Hot' : 'Normal'}</span>
               </div>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-4xl font-black tabular-nums text-white"
+                <span className="text-4xl font-black tabular-nums text-slate-900 dark:text-white"
                   style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{data.temp?.toFixed(1)}</span>
                 <span className="text-slate-500 font-bold text-lg">°C</span>
               </div>
@@ -444,10 +440,9 @@ export default function Dashboard() {
             </div>
 
             {/* Humidity gauge */}
-            <div className="flex-1 rounded-2xl border border-white/8 p-5 relative overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.025)' }}>
-              <div className="absolute inset-x-0 top-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, #38bdf860, transparent)' }} />
+            <div className="flex-1 rounded-2xl border border-slate-200 dark:border-white/8 p-5 relative overflow-hidden bg-white dark:bg-white/[0.025]">
+              <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
+                style={{ background: 'linear-gradient(90deg, transparent, #38bdf8, transparent)' }} />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Droplets size={13} className="text-sky-400" />
@@ -458,7 +453,7 @@ export default function Dashboard() {
                 }`}>{data.hum > T.hum ? 'Humid' : 'Ideal'}</span>
               </div>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-4xl font-black tabular-nums text-white"
+                <span className="text-4xl font-black tabular-nums text-slate-900 dark:text-white"
                   style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{data.hum?.toFixed(0)}</span>
                 <span className="text-slate-500 font-bold text-lg">%</span>
               </div>

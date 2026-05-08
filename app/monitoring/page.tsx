@@ -62,7 +62,7 @@ function NumCell({
   return (
     <span
       className={`font-black tabular-nums text-sm ${
-        over ? "text-red-400" : "text-slate-200"
+        over ? "text-red-400" : "text-slate-900 dark:text-slate-200"
       }`}
       style={{ fontFamily: "'IBM Plex Mono', monospace" }}
     >
@@ -84,11 +84,7 @@ function SummaryCard({
 }) {
   return (
     <div
-      className="relative rounded-2xl md:rounded-3xl border border-white/8 overflow-hidden group transition-all duration-300"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
-      }}
+      className="relative rounded-2xl md:rounded-3xl border border-slate-200 dark:border-white/15 overflow-hidden group transition-all duration-300 bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
     >
       {/* glow desktop only */}
       <div
@@ -104,7 +100,7 @@ function SummaryCard({
         }}
       />
 
-      <div className="p-4 md:p-6">
+      <div className="p-4 md:p-5">
         {/* MOBILE */}
         <div className="flex md:hidden items-center justify-between">
           <div>
@@ -113,7 +109,7 @@ function SummaryCard({
             </p>
 
             <h2
-              className="text-2xl font-black text-white leading-none tabular-nums"
+              className="text-2xl font-black text-slate-900 dark:text-white leading-none tabular-nums"
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
             >
               {value}
@@ -121,7 +117,7 @@ function SummaryCard({
           </div>
 
           <div
-            className="w-10 h-10 rounded-xl border border-white/8 flex items-center justify-center"
+            className="w-10 h-10 rounded-xl border border-slate-200 dark:border-white/8 flex items-center justify-center"
             style={{ background: `${color}15` }}
           >
             <Icon size={16} style={{ color }} />
@@ -130,12 +126,12 @@ function SummaryCard({
 
         {/* DESKTOP */}
         <div className="hidden md:block">
-          <div className="flex items-start justify-between mb-10">
+          <div className="flex items-start justify-between mb-4">
             <div
-              className="w-12 h-12 rounded-2xl border border-white/8 flex items-center justify-center"
+              className="w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/8 flex items-center justify-center"
               style={{ background: `${color}15` }}
             >
-              <Icon size={18} style={{ color }} />
+              <Icon size={16} style={{ color }} />
             </div>
           </div>
 
@@ -144,7 +140,7 @@ function SummaryCard({
           </p>
 
           <h2
-            className="text-5xl xl:text-6xl font-black text-white leading-none tabular-nums"
+            className="text-3xl xl:text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums"
             style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
             {value}
@@ -200,7 +196,7 @@ export default function MonitoringPage() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-[#070d1a] text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* HEADER */}
       <div className="px-4 sm:px-5 md:px-8 xl:px-10 pt-7 pb-5">
         <div className="max-w-[1700px] mx-auto flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -224,7 +220,7 @@ export default function MonitoringPage() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-white/8 bg-white/[0.04] text-slate-400 hover:text-white hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-sm dark:shadow-none"
           >
             <RefreshCw
               size={13}
@@ -289,14 +285,10 @@ export default function MonitoringPage() {
 
         {/* TABLE */}
         <div
-          className="rounded-3xl border border-white/8 overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
-          }}
+          className="rounded-3xl border border-slate-200 dark:border-white/15 overflow-hidden bg-white dark:bg-white/[0.04] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
         >
           {/* TABLE HEADER */}
-          <div className="px-4 sm:px-6 py-5 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="px-4 sm:px-6 py-5 border-b border-slate-200 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                 <Activity size={15} className="text-blue-400" />
@@ -333,129 +325,163 @@ export default function MonitoringPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
-              <table className="w-full min-w-[850px] md:min-w-[1000px]">
-                <thead>
-                  <tr className="border-b border-white/5">
-                    {[
-                      "#",
-                      "Timestamp",
-                      "CO₂",
-                      "NH₃",
-                      "Temperature",
-                      "Humidity",
-                      "VOC",
-                      "Status",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 whitespace-nowrap"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-white/[0.03]">
-                  {paged.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="text-center py-20 text-slate-600 text-sm font-black uppercase tracking-[0.3em]"
-                      >
-                        No sensor data available
-                      </td>
-                    </tr>
-                  ) : (
-                    paged.map((row, i) => {
-                      const t = row.temp ?? row.temperature ?? 0;
-
-                      const h = row.hum ?? row.humidity ?? 0;
-
-                      const isDanger =
-                        row.co2 > T.co2 ||
-                        row.nh3 > T.nh3 ||
-                        t > T.temp;
-
-                      const ts =
-                        row.created_at ?? row.timestamp;
-
-                      return (
-                        <tr
-                          key={row.id ?? i}
-                          className={`transition-all hover:bg-white/[0.03] ${
-                            isDanger ? "bg-red-500/[0.03]" : ""
-                          }`}
+            <div className="flex flex-col">
+              {/* DESKTOP TABLE */}
+              <div className="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
+                <table className="w-full min-w-[850px] md:min-w-[1000px]">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-white/5">
+                      {[
+                        "#",
+                        "Timestamp",
+                        "CO₂",
+                        "NH₃",
+                        "Temperature",
+                        "Humidity",
+                        "VOC",
+                        "Status",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="text-left px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 whitespace-nowrap"
                         >
-                          <td className="px-6 py-4 text-slate-600 font-mono text-xs">
-                            {(page - 1) * PER_PAGE + i + 1}
-                          </td>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-white/[0.03]">
+                    {paged.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="text-center py-20 text-slate-600 text-sm font-black uppercase tracking-[0.3em]"
+                        >
+                          No sensor data available
+                        </td>
+                      </tr>
+                    ) : (
+                      paged.map((row, i) => {
+                        const t = row.temp ?? row.temperature ?? 0;
+                        const h = row.hum ?? row.humidity ?? 0;
+                        const isDanger =
+                          row.co2 > T.co2 ||
+                          row.nh3 > T.nh3 ||
+                          t > T.temp;
+                        const ts = row.created_at ?? row.timestamp;
 
-                          <td
-                            className="px-6 py-4 text-slate-400 text-xs whitespace-nowrap"
-                            style={{
-                              fontFamily:
-                                "'IBM Plex Mono', monospace",
-                            }}
+                        return (
+                          <tr
+                            key={row.id ?? i}
+                            className={`transition-all hover:bg-slate-50 dark:hover:bg-white/[0.03] ${
+                              isDanger ? "bg-red-500/[0.03]" : ""
+                            }`}
                           >
-                            {ts
-                              ? new Date(ts).toLocaleString(
-                                  "id-ID"
-                                )
-                              : "—"}
-                          </td>
+                            <td className="px-6 py-4 text-slate-600 font-mono text-xs">
+                              {(page - 1) * PER_PAGE + i + 1}
+                            </td>
+                            <td
+                              className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap"
+                              style={{
+                                fontFamily: "'IBM Plex Mono', monospace",
+                              }}
+                            >
+                              {ts
+                                ? new Date(ts).toLocaleString("id-ID")
+                                : "—"}
+                            </td>
+                            <td className="px-6 py-4">
+                              <NumCell v={row.co2} threshold={T.co2} digits={0} />
+                            </td>
+                            <td className="px-6 py-4">
+                              <NumCell v={row.nh3} threshold={T.nh3} digits={2} />
+                            </td>
+                            <td className="px-6 py-4">
+                              <NumCell v={t} threshold={T.temp} digits={1} />
+                            </td>
+                            <td className="px-6 py-4">
+                              <NumCell v={h} threshold={T.hum} digits={0} />
+                            </td>
+                            <td className="px-6 py-4 text-slate-600 dark:text-slate-500 text-xs font-mono">
+                              {row.voc?.toFixed(2) ?? "—"}
+                            </td>
+                            <td className="px-6 py-4">
+                              <StatusDot danger={isDanger} />
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-                          <td className="px-6 py-4">
-                            <NumCell
-                              v={row.co2}
-                              threshold={T.co2}
-                              digits={0}
-                            />
-                          </td>
+              {/* MOBILE CARDS */}
+              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-white/5">
+                {paged.length === 0 ? (
+                  <div className="text-center py-20 text-slate-600 text-sm font-black uppercase tracking-[0.3em]">
+                    No sensor data available
+                  </div>
+                ) : (
+                  paged.map((row, i) => {
+                    const t = row.temp ?? row.temperature ?? 0;
+                    const h = row.hum ?? row.humidity ?? 0;
+                    const isDanger =
+                      row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+                    const ts = row.created_at ?? row.timestamp;
 
-                          <td className="px-6 py-4">
-                            <NumCell
-                              v={row.nh3}
-                              threshold={T.nh3}
-                              digits={2}
-                            />
-                          </td>
+                    return (
+                      <div key={row.id ?? i} className="p-5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
+                              #{(page - 1) * PER_PAGE + i + 1}
+                            </span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                              {ts ? new Date(ts).toLocaleString("id-ID") : "—"}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
+                              isDanger
+                                ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            }`}
+                          >
+                            {isDanger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
+                            {isDanger ? "Danger" : "Safe"}
+                          </span>
+                        </div>
 
-                          <td className="px-6 py-4">
-                            <NumCell
-                              v={t}
-                              threshold={T.temp}
-                            />
-                          </td>
-
-                          <td className="px-6 py-4">
-                            <NumCell
-                              v={h}
-                              threshold={T.hum}
-                              digits={0}
-                            />
-                          </td>
-
-                          <td className="px-6 py-4 text-slate-500 text-xs font-mono">
-                            {row.voc?.toFixed(2) ?? "—"}
-                          </td>
-
-                          <td className="px-6 py-4">
-                            <StatusDot danger={isDanger} />
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+                        <div className="grid grid-cols-4 gap-2">
+                          <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">CO₂</p>
+                            <NumCell v={row.co2} threshold={T.co2} digits={0} />
+                          </div>
+                          <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">NH₃</p>
+                            <NumCell v={row.nh3} threshold={T.nh3} digits={2} />
+                          </div>
+                          <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">TEMP</p>
+                            <NumCell v={t} threshold={T.temp} digits={1} />
+                          </div>
+                          <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">HUM</p>
+                            <NumCell v={h} threshold={T.hum} digits={0} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           )}
 
           {/* PAGINATION */}
           {totalPages > 1 && (
-            <div className="px-4 sm:px-6 py-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="px-4 sm:px-6 py-5 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-600">
                 Page {page} / {totalPages}
               </span>
@@ -466,7 +492,7 @@ export default function MonitoringPage() {
                     setPage((p) => Math.max(1, p - 1))
                   }
                   disabled={page === 1}
-                  className="px-4 py-2 rounded-xl border border-white/8 bg-white/[0.03] text-slate-400 hover:text-white hover:border-white/15 disabled:opacity-30 transition-all text-xs font-black uppercase tracking-wider"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.03] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/15 disabled:opacity-30 transition-all text-xs font-black uppercase tracking-wider shadow-sm dark:shadow-none"
                 >
                   ← Prev
                 </button>

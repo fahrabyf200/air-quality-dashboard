@@ -100,28 +100,29 @@ export default function ReportsPage() {
     }));
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#020617] text-slate-900 dark:text-slate-100 pb-20 transition-colors duration-300">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/90 dark:bg-[#020617]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 px-6 md:px-10 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-black tracking-tight uppercase" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            Reports
-          </h1>
-          <p className="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest mt-0.5">
-            Ringkasan Statistik Sensor
-          </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+      {/* PAGE HEADER */}
+      <div className="px-6 md:px-8 pt-7 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
+          <div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Kitchen Sensor Node</p>
+            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              Reports
+            </h1>
+            <p className="text-slate-600 text-xs mt-1 font-mono">Ringkasan Statistik Sensor</p>
+          </div>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-sm dark:shadow-none"
+          >
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
         </div>
-        <button
-          onClick={fetchData}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50"
-        >
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-          <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Refresh</span>
-        </button>
       </div>
 
-      <div className="px-6 md:px-10 pt-6 max-w-7xl mx-auto space-y-5">
+      <div className="px-6 md:px-10 xl:px-12 pb-8 space-y-5 w-full">
         {error && (
           <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-600 dark:text-red-400 text-sm font-bold uppercase tracking-widest">
             ⚠ {error}
@@ -129,9 +130,16 @@ export default function ReportsPage() {
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-            <p className="text-slate-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">Loading report data...</p>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <RefreshCw size={24} className="text-blue-400 animate-spin" />
+              </div>
+              <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl animate-pulse" />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-600">
+              Loading report data...
+            </p>
           </div>
         ) : (
           <>
@@ -140,7 +148,7 @@ export default function ReportsPage() {
               {summaryStats.map(s => (
                 <div
                   key={s.label}
-                  className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-900/30 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all duration-300 shadow-sm"
+                  className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.06] px-5 py-4 hover:border-slate-300 dark:hover:border-white/25 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
                 >
                   <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">{s.label}</p>
                   <div className="flex items-baseline gap-1">
@@ -167,8 +175,8 @@ export default function ReportsPage() {
 
             {/* Bar Chart */}
             {chartData.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-900/30 overflow-hidden shadow-sm transition-colors duration-300">
-                <div className="px-6 py-3.5 border-b border-slate-100 dark:border-slate-800/50 flex items-center gap-2">
+              <div className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-white/5 flex items-center gap-2">
                   <FileBarChart size={13} className="text-blue-500" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">
                     CO₂ & Temperature per Time Period
@@ -214,35 +222,36 @@ export default function ReportsPage() {
             )}
 
             {/* Threshold reference table */}
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-900/30 overflow-hidden shadow-sm transition-colors duration-300">
-              <div className="px-6 py-3.5 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="rounded-3xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
+              <div className="px-6 py-5 border-b border-slate-200 dark:border-white/5">
                 <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em]">
                   Kitchen Threshold Reference
                 </span>
               </div>
-              <div className="overflow-x-auto">
+              {/* DESKTOP TABLE */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 dark:border-slate-800/40">
+                    <tr className="border-b border-slate-200 dark:border-white/5">
                       {['Parameter', 'Threshold', 'Dataset Average', 'Dataset Max', 'Status'].map(h => (
                         <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em]">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800/30">
+                  <tbody className="divide-y divide-slate-200 dark:divide-white/[0.03]">
                     {[
                       { name: 'CO₂', threshold: `${T.co2} PPM`, avg: `${avg(co2s).toFixed(0)} PPM`, max: `${maxVal(co2s).toFixed(0)} PPM`, ok: avg(co2s) <= T.co2 },
                       { name: 'NH₃', threshold: `${T.nh3} PPM`, avg: `${avg(nh3s).toFixed(2)} PPM`, max: `${maxVal(nh3s).toFixed(2)} PPM`, ok: avg(nh3s) <= T.nh3 },
                       { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
                       { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                     ].map(row => (
-                      <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                      <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
                         <td className="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-tight">{row.name}</td>
                         <td className="px-5 py-3.5 text-slate-400 dark:text-slate-500 text-xs font-mono" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{row.threshold}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#f87171', fontFamily: "'IBM Plex Mono', monospace" }}>{row.avg}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#fca5a5', fontFamily: "'IBM Plex Mono', monospace" }}>{row.max}</td>
                         <td className="px-5 py-3.5">
-                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors ${
+                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 w-max ${
                             row.ok
                               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                               : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
@@ -254,6 +263,44 @@ export default function ReportsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* MOBILE CARDS */}
+              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-white/[0.03]">
+                {[
+                  { name: 'CO₂', threshold: `${T.co2} PPM`, avg: `${avg(co2s).toFixed(0)} PPM`, max: `${maxVal(co2s).toFixed(0)} PPM`, ok: avg(co2s) <= T.co2 },
+                  { name: 'NH₃', threshold: `${T.nh3} PPM`, avg: `${avg(nh3s).toFixed(2)} PPM`, max: `${maxVal(nh3s).toFixed(2)} PPM`, ok: avg(nh3s) <= T.nh3 },
+                  { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
+                  { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
+                ].map(row => (
+                  <div key={row.name} className="p-5 space-y-4 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">{row.name}</span>
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
+                        row.ok
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                          : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                      }`}>
+                        {row.ok ? '✓ Normal' : '⚠ Exceeded'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Threshold</p>
+                        <p className="text-xs font-bold text-slate-600 dark:text-slate-400 font-mono">{row.threshold}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Average</p>
+                        <p className="text-xs font-bold font-mono" style={{ color: row.ok ? undefined : '#f87171' }}>{row.avg}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Max</p>
+                        <p className="text-xs font-bold font-mono" style={{ color: row.ok ? undefined : '#fca5a5' }}>{row.max}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </>

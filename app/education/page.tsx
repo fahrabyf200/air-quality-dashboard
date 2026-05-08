@@ -57,22 +57,25 @@ export default function EducationPage() {
   const [open, setOpen] = useState<string | null>('co2');
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#020617] text-slate-900 dark:text-slate-100 pb-20 transition-colors duration-300">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/90 dark:bg-[#020617]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 px-6 md:px-10 py-4 transition-colors">
-        <h1 className="text-lg font-black tracking-tight uppercase" style={{ fontFamily: "'Outfit', sans-serif" }}>
-          Education Center
-        </h1>
-        <p className="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest mt-0.5">
-          Panduan Kualitas Udara Dapur
-        </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+      {/* PAGE HEADER */}
+      <div className="px-6 md:px-8 pt-7 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
+          <div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Knowledge Base</p>
+            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              Education Center
+            </h1>
+            <p className="text-slate-600 text-xs mt-1 font-mono">Panduan Kualitas Udara Dapur</p>
+          </div>
+        </div>
       </div>
 
-      <div className="px-6 md:px-10 pt-6 max-w-4xl mx-auto space-y-3">
+      <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-5xl mx-auto space-y-3">
 
         {/* Intro card */}
-        <div className="rounded-2xl border border-blue-500/20 bg-blue-50 dark:bg-blue-500/5 px-6 py-5 flex items-start gap-4 mb-6 transition-colors">
-          <div className="p-2.5 bg-blue-100 dark:bg-blue-500/15 rounded-xl border border-blue-200 dark:border-blue-500/20 flex-shrink-0">
+        <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 px-6 py-5 flex items-start gap-4 mb-6 transition-colors">
+          <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20 flex-shrink-0">
             <BookOpen size={18} className="text-blue-600 dark:text-blue-400" />
           </div>
           <div>
@@ -89,11 +92,11 @@ export default function EducationPage() {
           return (
             <div
               key={topic.id}
-              className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
-                isOpen 
-                  ? 'shadow-lg shadow-black/5 dark:shadow-none' 
-                  : 'border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-900/30'
-              }`}
+                className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
+                  isOpen 
+                  ? 'border-blue-500/30 dark:border-blue-500/50 bg-white dark:bg-[#070d1a] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(59,130,246,0.1)]' 
+                  : 'border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:border-slate-300 dark:hover:border-white/25'
+                }`}
               style={{
                 borderColor: isOpen ? topic.color + '60' : undefined,
                 backgroundColor: isOpen ? topic.color + '08' : undefined,
@@ -123,7 +126,7 @@ export default function EducationPage() {
               </button>
 
               {isOpen && (
-                <div className="px-6 pb-6 space-y-4 border-t border-slate-200 dark:border-slate-800/40 pt-5 transition-colors">
+                <div className="px-6 pb-6 space-y-4 border-t border-slate-200 dark:border-white/5 pt-5 transition-colors">
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{topic.desc}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="rounded-xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/8 px-4 py-3 transition-colors">
@@ -144,9 +147,11 @@ export default function EducationPage() {
                       <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">{topic.symptoms}</p>
                     </div>
                   </div>
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-700/40 bg-slate-100 dark:bg-slate-800/30 px-4 py-3 transition-colors">
-                    <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
+                  <div className="mt-5 space-y-3">
+                    <div className="rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-white/[0.06] px-4 py-3 transition-colors shadow-sm dark:shadow-none">
+                      <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
+                      <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
+                    </div>
                   </div>
                 </div>
               )}

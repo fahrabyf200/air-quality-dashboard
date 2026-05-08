@@ -39,7 +39,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="w-10 h-10 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-slate-400 hover:text-white hover:border-white/20 transition-all duration-200"
+      className="w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all duration-200 shadow-sm dark:shadow-none"
     >
       {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
     </button>
@@ -48,7 +48,7 @@ function ThemeToggle() {
 
 function DesktopNav({ pathname }: { pathname: string }) {
   return (
-    <header className="hidden lg:flex h-[72px] items-center justify-between px-8 border-b border-white/5 bg-[#070d1a]/95 backdrop-blur-xl sticky top-0 z-40">
+    <header className="hidden lg:flex h-[72px] items-center justify-between px-8 border-b border-slate-200 dark:border-white/5 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl sticky top-0 z-40 transition-colors duration-300">
       {/* LEFT */}
       <div className="flex items-center gap-3">
         <div className="relative">
@@ -60,7 +60,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
         </div>
 
         <div>
-          <h1 className="text-white font-black text-[15px] tracking-tight">
+          <h1 className="text-slate-900 dark:text-white font-black text-[15px] tracking-tight">
             SkyWatch
           </h1>
 
@@ -71,7 +71,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
       </div>
 
       {/* CENTER */}
-      <nav className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] p-1.5 rounded-2xl">
+      <nav className="flex items-center gap-2 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] p-1.5 rounded-2xl transition-colors duration-300">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.path;
@@ -82,8 +82,8 @@ function DesktopNav({ pathname }: { pathname: string }) {
               href={item.path}
               className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 active
-                  ? "bg-[#a3e635] text-[#0a0f1a]"
-                  : "text-slate-500 hover:text-white hover:bg-white/[0.04]"
+                  ? "bg-[#a3e635] text-[#0a0f1a] shadow-sm dark:shadow-none"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/[0.04]"
               }`}
             >
               <Icon size={15} strokeWidth={active ? 2.6 : 2.2} />
@@ -95,7 +95,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
 
       {/* RIGHT */}
       <div className="flex items-center gap-3">
-        <button className="relative w-10 h-10 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-slate-400 hover:text-white hover:border-white/20 transition-all">
+        <button className="relative w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-sm dark:shadow-none">
           <Bell size={16} />
 
           <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#a3e635]" />
@@ -103,15 +103,15 @@ function DesktopNav({ pathname }: { pathname: string }) {
 
         <ThemeToggle />
 
-        <div className="w-px h-6 bg-white/10" />
+        <div className="w-px h-6 bg-slate-200 dark:bg-white/10 transition-colors duration-300" />
 
-        <div className="flex items-center gap-3 border border-white/10 bg-white/[0.04] rounded-2xl px-2 py-1.5">
+        <div className="flex items-center gap-3 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] rounded-2xl px-2 py-1.5 shadow-sm dark:shadow-none transition-colors duration-300">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#a3e635] to-lime-600 flex items-center justify-center text-[#0a0f1a] font-black text-sm">
             A
           </div>
 
           <div className="leading-none">
-            <p className="text-sm font-bold text-white">
+            <p className="text-sm font-bold text-slate-900 dark:text-white">
               Agna Putra
             </p>
 
@@ -127,14 +127,14 @@ function DesktopNav({ pathname }: { pathname: string }) {
 
 function MobileHeader() {
   return (
-    <header className="lg:hidden sticky top-0 z-40 h-14 px-4 flex items-center justify-between border-b border-white/5 bg-[#070d1a]/95 backdrop-blur-xl">
+    <header className="lg:hidden sticky top-0 z-40 h-14 px-4 flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl transition-colors duration-300">
       <div className="flex items-center gap-2.5">
         <div className="w-9 h-9 rounded-2xl bg-[#a3e635] flex items-center justify-center">
           <Wind size={16} className="text-[#0a0f1a]" strokeWidth={2.8} />
         </div>
 
         <div>
-          <h1 className="text-white font-black text-[14px]">
+          <h1 className="text-slate-900 dark:text-white font-black text-[14px]">
             SkyWatch
           </h1>
 
@@ -145,7 +145,7 @@ function MobileHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="relative w-10 h-10 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-slate-400">
+        <button className="relative w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 shadow-sm dark:shadow-none">
           <Bell size={15} />
 
           <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-[#a3e635]" />
@@ -161,12 +161,7 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(16px,env(safe-area-inset-bottom))]">
       <nav
-        className="relative h-[72px] rounded-3xl border border-white/10 overflow-hidden"
-        style={{
-          background: "rgba(10,16,30,0.88)",
-          backdropFilter: "blur(22px)",
-          boxShadow: "0 -10px 40px rgba(0,0,0,0.45)",
-        }}
+        className="relative h-[72px] rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white/90 dark:bg-[#0a101e]/90 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300"
       >
         {/* glow */}
         <div
@@ -230,7 +225,7 @@ export default function RootLayout({
 
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className="bg-[#070d1a] text-white antialiased">
+      <body className="bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white antialiased transition-colors duration-300">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
