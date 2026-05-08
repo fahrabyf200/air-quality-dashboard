@@ -9,7 +9,8 @@ import {
   Smartphone, 
   LogOut, 
   ChevronRight,
-  UserCircle
+  UserCircle,
+  RefreshCw
 } from 'lucide-react';
 
 export default function ProfilePage() {
