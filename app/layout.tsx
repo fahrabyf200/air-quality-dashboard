@@ -46,7 +46,7 @@ function ThemeToggle() {
   );
 }
 
-function DesktopNav({ pathname }: { pathname: string }) {
+function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
   return (
     <header className="hidden lg:flex h-[72px] items-center justify-between px-8 border-b border-slate-200 dark:border-white/5 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl sticky top-0 z-40 transition-colors duration-300">
       {/* LEFT */}
@@ -106,17 +106,17 @@ function DesktopNav({ pathname }: { pathname: string }) {
         <div className="w-px h-6 bg-slate-200 dark:bg-white/10 transition-colors duration-300" />
 
         <div className="flex items-center gap-3 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] rounded-2xl px-2 py-1.5 shadow-sm dark:shadow-none transition-colors duration-300">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#a3e635] to-lime-600 flex items-center justify-center text-[#0a0f1a] font-black text-sm">
-            A
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#a3e635] to-lime-600 flex items-center justify-center text-[#0a0f1a] font-black text-sm uppercase">
+            {user?.name ? user.name.charAt(0) : 'U'}
           </div>
 
           <div className="leading-none">
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
-              Agna Putra
+            <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">
+              {user?.name || 'Loading...'}
             </p>
 
             <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">
-              Operator
+              User
             </p>
           </div>
         </div>
@@ -222,6 +222,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!isAuthPage) {
+      fetch('/api/auth/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) setUser(data.user);
+        })
+        .catch(err => console.error(err));
+    }
+  }, [isAuthPage]);
 
   return (
     <html lang="id" suppressHydrationWarning>
@@ -232,15 +245,14 @@ export default function RootLayout({
           enableSystem={false}
         >
           <div className="min-h-screen flex flex-col">
-            <DesktopNav pathname={pathname} />
-
-            <MobileHeader />
+            {!isAuthPage && <DesktopNav pathname={pathname} user={user} />}
+            {!isAuthPage && <MobileHeader />}
 
             <main className="flex-1 overflow-y-auto pb-28 lg:pb-0">
               {children}
             </main>
 
-            <MobileBottomNav pathname={pathname} />
+            {!isAuthPage && <MobileBottomNav pathname={pathname} />}
           </div>
         </ThemeProvider>
       </body>
