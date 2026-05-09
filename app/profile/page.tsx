@@ -7,23 +7,40 @@ import {
   ShieldCheck, 
   Bell, 
   Smartphone, 
-  LogOut, 
+  LogOut,
   ChevronRight,
   UserCircle,
   RefreshCw,
   Camera
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) setUser(data.user);
+      });
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const url = URL.createObjectURL(e.target.files[0]);
       setProfilePic(url);
     }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
   };
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
@@ -62,9 +79,11 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>Agna Putra</h1>
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white capitalize tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              {user?.name || 'Loading...'}
+            </h1>
             <p className="text-slate-500 dark:text-slate-400 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-              NIM: 2341720065 • Mahasiswa
+              Level Akses: User
             </p>
           </div>
         </div>
@@ -77,7 +96,9 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Email Terdaftar</p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">agna@student.polinema.ac.id</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
+              {user?.email || 'Loading...'}
+            </p>
           </div>
         </div>
         
@@ -169,7 +190,10 @@ export default function ProfilePage() {
       </div>
 
       {/* Logout Button */}
-      <button className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-5 rounded-3xl flex items-center justify-center gap-3 transition-all group shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none mt-8">
+      <button 
+        onClick={handleLogout}
+        className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-5 rounded-3xl flex items-center justify-center gap-3 transition-all group shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none mt-8"
+      >
         <LogOut size={20} className="text-red-500 group-hover:-translate-x-1 transition-transform" />
         <span className="text-sm font-black text-red-500 uppercase tracking-widest">Keluar Akun</span>
       </button>
