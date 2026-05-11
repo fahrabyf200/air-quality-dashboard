@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Users, Crown, UserCircle, Search, RefreshCw, Plus,
   UserPlus, Pencil, Trash2, Eye, X, Check, AlertTriangle,
-  UserX, Database, ShieldAlert
+  UserX, Database, ShieldAlert, Zap
 } from 'lucide-react';
 
 interface UserRow {
@@ -16,6 +16,10 @@ interface UserRow {
   device_id?: string;
   sensor_count?: number;
   created_at?: string;
+  subscription_status?: string;
+  subscription_end_date?: string;
+  invited_by_name?: string;
+  invited_by_email?: string;
 }
 
 function RoleBadge({ role }: { role: string }) {
@@ -28,6 +32,43 @@ function RoleBadge({ role }: { role: string }) {
     }`}>
       <span className={`w-1.5 h-1.5 rounded-full ${isAdm ? 'bg-purple-500' : 'bg-blue-500'}`} />
       {role}
+    </span>
+  );
+}
+
+function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string; endDate?: string; invitedByName?: string }) {
+  const isActive = status === 'active' && endDate && new Date(endDate) > new Date();
+  const daysLeft = endDate ? Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+  
+  if (invitedByName) {
+    return (
+      <div className="text-left">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Pegawai
+        </span>
+        <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 truncate max-w-[125px]" title={`Diundang oleh: ${invitedByName}`}>
+          Oleh: {invitedByName}
+        </p>
+      </div>
+    );
+  }
+
+  if (isActive) {
+    return (
+      <div className="text-left">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-[#a3e635]/10 text-[#6b9c1a] dark:text-[#a3e635] border-[#a3e635]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+          Premium
+        </span>
+        <p className="text-[10px] text-slate-400 font-mono mt-1">{daysLeft}h lagi</p>
+      </div>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-slate-100 dark:bg-white/5 text-slate-500 border-slate-200 dark:border-white/10">
+      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+      Free
     </span>
   );
 }
@@ -69,7 +110,23 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [search, setSearch] = useState('');
+  const [subLoading, setSubLoading] = useState<number | null>(null);
 
+  const handleSubscription = async (userId: number, action: string) => {
+    setSubLoading(userId);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId, subscription_action: action }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error); return; }
+      await fetchUsers();
+      showSuccess(data.message);
+    } catch { setError('Gagal mengubah status langganan.'); }
+    finally { setSubLoading(null); }
+  };
   // Modal states
   const [createModal, setCreateModal] = useState(false);
   const [editUser, setEditUser] = useState<UserRow | null>(null);
@@ -168,6 +225,8 @@ export default function AdminUsersPage() {
 
   const adminCount = users.filter(u => u.role === 'admin').length;
   const userCount = users.length - adminCount;
+  const premiumCount = users.filter(u => u.subscription_status === 'active' && u.subscription_end_date && new Date(u.subscription_end_date) > new Date()).length;
+  const freeCount = users.filter(u => u.role !== 'admin').length - premiumCount;
 
   return (
     <div className="p-6 md:p-8 space-y-6">
@@ -261,11 +320,12 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Pengguna', value: users.length, color: '#8b5cf6', icon: Users },
           { label: 'Administrator', value: adminCount, color: '#f59e0b', icon: Crown },
-          { label: 'User Biasa', value: userCount, color: '#3b82f6', icon: UserCircle },
+          { label: 'Premium Active', value: premiumCount, color: '#a3e635', icon: ShieldAlert },
+          { label: 'Free Member', value: freeCount, color: '#64748b', icon: UserCircle },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] p-4 overflow-hidden shadow-sm dark:shadow-none">
             <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-2xl opacity-20 pointer-events-none" style={{ background: s.color }} />
@@ -329,7 +389,7 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
-                    {['#', 'Pengguna', 'Email', 'Role', 'Data Sensor', 'Bergabung', 'Aksi'].map(h => (
+                    {['#', 'Pengguna', 'Email', 'Role', 'Langganan', 'Data Sensor', 'Bergabung', 'Aksi'].map(h => (
                       <th key={h} className="text-left px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-600">{h}</th>
                     ))}
                   </tr>
@@ -348,11 +408,18 @@ export default function AdminUsersPage() {
                           <div>
                             <p className="font-bold text-sm text-slate-900 dark:text-white capitalize leading-tight">{u.name}</p>
                             {u.id === session?.id && <p className="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-wider mt-0.5">Akun Anda</p>}
+                            {u.invited_by_name && (
+                              <p className="text-[8px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider mt-1.5 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md w-fit">
+                                <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                                Pegawai {u.invited_by_name}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-4 text-slate-500 text-xs font-mono">{u.email}</td>
                       <td className="px-5 py-4"><RoleBadge role={u.role} /></td>
+                      <td className="px-5 py-4"><SubscriptionBadge status={u.subscription_status} endDate={u.subscription_end_date} invitedByName={u.invited_by_name} /></td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 text-slate-500">
                           <Database size={11} className="text-slate-400" />
@@ -364,7 +431,39 @@ export default function AdminUsersPage() {
                         {u.created_at ? new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                       </td>
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {/* Subscription Controls — hanya untuk non-admin */}
+                          {u.role !== 'admin' && (
+                            <>
+                              <button
+                                onClick={() => handleSubscription(u.id, 'activate_1month')}
+                                disabled={subLoading === u.id}
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#a3e635]/10 text-[#5a8a0a] dark:text-[#a3e635] border border-[#a3e635]/30 hover:bg-[#a3e635]/20 transition-all disabled:opacity-50 whitespace-nowrap"
+                                title="Aktifkan Premium 1 Bulan"
+                              >
+                                {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />}
+                                1 Bln
+                              </button>
+                              <button
+                                onClick={() => handleSubscription(u.id, 'activate_1year')}
+                                disabled={subLoading === u.id}
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all disabled:opacity-50 whitespace-nowrap"
+                                title="Aktifkan Premium 1 Tahun"
+                              >
+                                {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Crown size={9} />}
+                                1 Thn
+                              </button>
+                              <button
+                                onClick={() => handleSubscription(u.id, 'deactivate')}
+                                disabled={subLoading === u.id}
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
+                                title="Nonaktifkan Premium"
+                              >
+                                {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <ShieldAlert size={9} />}
+                                Off
+                              </button>
+                            </>
+                          )}
                           {/* View Detail */}
                           <button onClick={() => router.push(`/admin/users/${u.id}`)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all" title="Lihat Detail">
@@ -402,14 +501,40 @@ export default function AdminUsersPage() {
                       <div>
                         <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">{u.name}</p>
                         <p className="text-xs text-slate-500 font-mono">{u.email}</p>
+                        {u.invited_by_name && (
+                          <p className="text-[8px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider mt-1 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md w-fit">
+                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                            Pegawai {u.invited_by_name}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <RoleBadge role={u.role} />
+                    <div className="flex flex-col items-end gap-1">
+                      <RoleBadge role={u.role} />
+                      <SubscriptionBadge status={u.subscription_status} endDate={u.subscription_end_date} invitedByName={u.invited_by_name} />
+                    </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-slate-500 mb-3">
                     <Database size={10} />
                     <span className="text-[11px] font-mono text-slate-700 dark:text-slate-300">{u.sensor_count ?? 0} rekaman sensor</span>
                   </div>
+                  {/* Subscription Buttons (mobile) */}
+                  {u.role !== 'admin' && (
+                    <div className="flex gap-2 mb-2">
+                      <button onClick={() => handleSubscription(u.id, 'activate_1month')} disabled={subLoading === u.id}
+                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#a3e635]/10 text-[#5a8a0a] dark:text-[#a3e635] border border-[#a3e635]/30 disabled:opacity-50">
+                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />} 1 Bln
+                      </button>
+                      <button onClick={() => handleSubscription(u.id, 'activate_1year')} disabled={subLoading === u.id}
+                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 disabled:opacity-50">
+                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Crown size={9} />} 1 Thn
+                      </button>
+                      <button onClick={() => handleSubscription(u.id, 'deactivate')} disabled={subLoading === u.id}
+                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 disabled:opacity-50">
+                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <ShieldAlert size={9} />} Off
+                      </button>
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <button onClick={() => router.push(`/admin/users/${u.id}`)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">

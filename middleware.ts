@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const userRoutes = ['/', '/reports', '/monitoring', '/education', '/profile'];
+const userRoutes = ['/', '/reports', '/monitoring', '/education', '/profile', '/complaints'];
 
 export function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value;

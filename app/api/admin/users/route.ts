@@ -14,17 +14,29 @@ export async function GET() {
   try {
     const [users] = await db.query(
       `SELECT u.id, u.name, u.email, u.role, u.device_id, u.created_at,
-        COUNT(s.id) as sensor_count
+        u.subscription_status, u.subscription_end_date,
+        COUNT(s.id) as sensor_count,
+        owner.name as invited_by_name,
+        owner.email as invited_by_email
        FROM users u
        LEFT JOIN sensor_data s ON s.user_id = u.id
-       GROUP BY u.id
+       LEFT JOIN device_shares ds ON ds.member_email = u.email
+       LEFT JOIN users owner ON ds.owner_id = owner.id
+       GROUP BY u.id, ds.id
        ORDER BY u.created_at DESC`
     );
     return NextResponse.json({ users });
   } catch {
     // Fallback jika user_id belum ada di sensor_data
     const [users] = await db.query(
-      'SELECT id, name, email, role, device_id, created_at FROM users ORDER BY created_at DESC'
+      `SELECT u.id, u.name, u.email, u.role, u.device_id, u.created_at,
+        u.subscription_status, u.subscription_end_date,
+        owner.name as invited_by_name,
+        owner.email as invited_by_email
+       FROM users u
+       LEFT JOIN device_shares ds ON ds.member_email = u.email
+       LEFT JOIN users owner ON ds.owner_id = owner.id
+       ORDER BY u.created_at DESC`
     );
     return NextResponse.json({ users });
   }
@@ -55,17 +67,44 @@ export async function POST(req: Request) {
   return NextResponse.json({ message: 'User berhasil dibuat' }, { status: 201 });
 }
 
-// PATCH: Update user (name, email, role)
+// PATCH: Update user (name, email, role, subscription)
 export async function PATCH(req: Request) {
   const session = await getSession();
   if (!session || (session as any).role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { id, name, email, role } = await req.json();
+  const body = await req.json();
+  const { id, name, email, role, subscription_action } = body;
   if (!id) return NextResponse.json({ error: 'ID diperlukan' }, { status: 400 });
 
-  // Jika hanya update role
+  // --- Kelola Subscription Premium ---
+  if (subscription_action) {
+    if (subscription_action === 'activate_1month') {
+      await db.query(
+        `UPDATE users SET subscription_status = 'active', subscription_end_date = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE id = ?`,
+        [id]
+      );
+      return NextResponse.json({ message: 'Premium 1 Bulan berhasil diaktifkan!' });
+    }
+    if (subscription_action === 'activate_1year') {
+      await db.query(
+        `UPDATE users SET subscription_status = 'active', subscription_end_date = DATE_ADD(NOW(), INTERVAL 365 DAY) WHERE id = ?`,
+        [id]
+      );
+      return NextResponse.json({ message: 'Premium 1 Tahun berhasil diaktifkan!' });
+    }
+    if (subscription_action === 'deactivate') {
+      await db.query(
+        `UPDATE users SET subscription_status = 'free', subscription_end_date = NULL WHERE id = ?`,
+        [id]
+      );
+      return NextResponse.json({ message: 'Akses premium berhasil dinonaktifkan.' });
+    }
+    return NextResponse.json({ error: 'Aksi subscription tidak valid' }, { status: 400 });
+  }
+
+  // --- Update Role Saja ---
   if (role && !name && !email) {
     if (!['admin', 'user'].includes(role)) {
       return NextResponse.json({ error: 'Role tidak valid' }, { status: 400 });
@@ -74,7 +113,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ message: 'Role berhasil diupdate' });
   }
 
-  // Update full profile
+  // --- Update Full Profile ---
   if (email) {
     const [existing]: any = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id]);
     if ((existing as any[]).length > 0) {

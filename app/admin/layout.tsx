@@ -17,6 +17,8 @@ import {
   X,
   ChevronRight,
   Bell,
+  MessageSquareWarning,
+  DollarSign,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -24,6 +26,8 @@ const adminMenu = [
   { name: "Overview", icon: LayoutDashboard, path: "/admin" },
   { name: "Kelola User", icon: Users, path: "/admin/users" },
   { name: "Data Sensor", icon: Database, path: "/admin/sensor" },
+  { name: "Pengaduan", icon: MessageSquareWarning, path: "/admin/complaints" },
+  { name: "Penjualan", icon: DollarSign, path: "/admin/sales" },
   { name: "Aktivitas Log", icon: Activity, path: "/admin/logs" },
 ];
 

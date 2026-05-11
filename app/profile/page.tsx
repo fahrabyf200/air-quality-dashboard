@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useThresholds } from '@/app/hooks/useThresholds';
 import { 
   User, Mail, ShieldCheck, Bell, Smartphone, LogOut,
-  ChevronRight, UserCircle, RefreshCw, Camera, Check, AlertTriangle
+  ChevronRight, UserCircle, RefreshCw, Camera, Check, AlertTriangle,
+  Crown, Zap, MessageCircle, UserPlus, Trash2, Copy
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -19,6 +20,33 @@ export default function ProfilePage() {
   const [pwForm, setPwForm] = useState({ old: '', new: '' });
   const [pwStatus, setPwStatus] = useState({ type: '', text: '' });
   const [savingPw, setSavingPw] = useState(false);
+  
+  // States sharing alat (invite pegawai)
+  const [shares, setShares] = useState<any[]>([]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviting, setInviting] = useState(false);
+  const [sharesLoading, setSharesLoading] = useState(false);
+  const [shareStatus, setShareStatus] = useState({ type: '', text: '' });
+
+  // States multi-device (banyak sensor)
+  const [devices, setDevices] = useState<any[]>([]);
+  const [newDeviceId, setNewDeviceId] = useState('');
+  const [newDeviceName, setNewDeviceName] = useState('');
+  const [addingDevice, setAddingDevice] = useState(false);
+  const [devicesLoading, setDevicesLoading] = useState(false);
+  const [deviceStatus, setDeviceStatus] = useState({ type: '', text: '' });
+  
+  // State copy link pegawai
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleCopyLink = (shareId: number, email: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+    const link = `${origin}/register?email=${encodeURIComponent(email)}&invited=1`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(shareId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -62,6 +90,110 @@ export default function ProfilePage() {
     }
   };
 
+  const fetchShares = async () => {
+    setSharesLoading(true);
+    try {
+      const res = await fetch('/api/shares');
+      const data = await res.json();
+      setShares(data.shares || []);
+    } catch {}
+    finally { setSharesLoading(false); }
+  };
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteEmail) return;
+    setInviting(true);
+    setShareStatus({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/shares', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setShareStatus({ type: 'success', text: data.message });
+        setInviteEmail('');
+        fetchShares();
+      } else {
+        setShareStatus({ type: 'error', text: data.error || 'Gagal mengirim undangan' });
+      }
+    } catch {
+      setShareStatus({ type: 'error', text: 'Terjadi kesalahan sistem' });
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleRevoke = async (id: number) => {
+    if (!confirm('Cabut akses untuk pengguna ini?')) return;
+    try {
+      const res = await fetch('/api/shares', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fetchShares();
+      }
+    } catch {}
+  };
+
+  const fetchDevices = async () => {
+    setDevicesLoading(true);
+    try {
+      const res = await fetch('/api/devices');
+      const data = await res.json();
+      setDevices(data.devices || []);
+    } catch {}
+    finally { setDevicesLoading(false); }
+  };
+
+  const handleAddDevice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDeviceId || !newDeviceName) return;
+    setAddingDevice(true);
+    setDeviceStatus({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/devices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: newDeviceId, device_name: newDeviceName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDeviceStatus({ type: 'success', text: data.message });
+        setNewDeviceId('');
+        setNewDeviceName('');
+        fetchDevices();
+        await fetchProfile();
+      } else {
+        setDeviceStatus({ type: 'error', text: data.error || 'Gagal memasangkan sensor' });
+      }
+    } catch {
+      setDeviceStatus({ type: 'error', text: 'Terjadi kesalahan sistem' });
+    } finally {
+      setAddingDevice(false);
+    }
+  };
+
+  const handleRemoveDevice = async (id: number, deviceId: string) => {
+    if (!confirm(`Putuskan hubungan sensor ini (${deviceId})?`)) return;
+    try {
+      const res = await fetch('/api/devices', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, device_id: deviceId })
+      });
+      if (res.ok) {
+        fetchDevices();
+        await fetchProfile();
+      }
+    } catch {}
+  };
+
   const fetchProfile = async () => {
     try {
       const res = await fetch('/api/auth/me');
@@ -75,6 +207,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchProfile();
+    fetchShares();
+    fetchDevices();
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,59 +311,296 @@ export default function ProfilePage() {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
-            <div className="p-3.5 bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400">
+          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors w-full">
+            <div className="p-3.5 bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400 flex-shrink-0">
               <Smartphone size={20} />
             </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Kode Unik Alat</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
-                {user?.device_id || 'Belum dihubungkan'}
-              </p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Kode Unik Alat</p>
+              {devices.length === 0 ? (
+                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
+                  Belum dihubungkan
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {devices.map((d: any) => (
+                    <span 
+                      key={d.id} 
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400"
+                      title={d.device_name}
+                    >
+                      <span className="w-1 h-1 rounded-full bg-purple-400 dark:bg-purple-500" />
+                      {d.device_id} <span className="opacity-60 font-sans font-normal">({d.device_name})</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Form Pemasangan Alat */}
+        {/* === KARTU STATUS LANGGANAN === */}
+        {user?.role !== 'admin' && (
+          <div className="mt-2">
+            {user?.is_invited ? (
+              // --- PEGAWAI / UNDANGAN ACTIVE ---
+              <div className="relative rounded-3xl overflow-hidden border border-[#a3e635]/30 bg-white dark:bg-[#0d1a08]/60 p-6 shadow-lg shadow-[#a3e635]/10 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+                <div className="absolute inset-0 bg-[#a3e635]/5" />
+                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#a3e635]/10 blur-2xl pointer-events-none" />
+                <div className="relative flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 bg-[#a3e635]/40 blur-xl rounded-2xl" />
+                      <div className="relative p-3.5 bg-[#a3e635]/10 border border-[#a3e635]/30 rounded-2xl">
+                        <UserPlus size={22} className="text-[#a3e635]" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#a3e635]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+                          PEGAWAI / UNDANGAN AKTIF
+                        </span>
+                      </div>
+                      <p className="text-base font-black text-slate-900 dark:text-white">
+                        Akses Monitoring Penuh
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-1">
+                        Hubungan Akun: Pegawai dari <span className="text-[#a3e635]">{user.invited_by_name}</span> ({user.invited_by_email})
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
+              // --- PREMIUM ACTIVE ---
+              <div className="relative rounded-3xl overflow-hidden border border-[#a3e635]/30 bg-white dark:bg-[#0d1a08]/60 p-6 shadow-lg shadow-[#a3e635]/10 text-left">
+                <div className="absolute inset-0 bg-[#a3e635]/5" />
+                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#a3e635]/10 blur-2xl pointer-events-none" />
+                <div className="relative flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 bg-[#a3e635]/40 blur-xl rounded-2xl" />
+                      <div className="relative p-3.5 bg-[#a3e635]/10 border border-[#a3e635]/30 rounded-2xl">
+                        <Crown size={22} className="text-[#a3e635]" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#a3e635]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+                          PREMIUM ACTIVE
+                        </span>
+                      </div>
+                      <p className="text-base font-black text-slate-900 dark:text-white">
+                        {Math.max(0, Math.ceil((new Date(user.subscription_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Hari Tersisa
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                        Berakhir: {new Date(user.subscription_end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // --- FREE MEMBER ---
+              <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 md:p-8 shadow-sm space-y-6 text-left">
+                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-slate-200/30 dark:bg-white/5 blur-2xl pointer-events-none" />
+                
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-slate-200 dark:border-white/5 pb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl">
+                      <Crown size={22} className="text-slate-400 dark:text-slate-500" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                          FREE MEMBER
+                        </span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Akses Terbatas (Dasbor Terkunci)</p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                        Pilih salah satu opsi paket di bawah untuk mengaktifkan seluruh fitur monitoring dan multi-device sharing
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grid Paket Langganan */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  
+                  {/* Paket 1 Bulan — Bundle Alat + Web */}
+                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
+                    <div className="space-y-3">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
+                      </div>
+                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+                        <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
+                        <li className="flex items-center gap-1.5">✓ Multi-device & Invite Pegawai</li>
+                        <li className="flex items-center gap-1.5">✓ Notifikasi & Laporan Real-time</li>
+                      </ul>
+                    </div>
+                    <a
+                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Bulan* (Bundle Alat + Web Monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
+                    >
+                      Pilih Paket
+                    </a>
+                  </div>
+
+                  {/* Paket 1 Tahun — Bundle Best Value */}
+                  <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-sm">
+                    <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
+                    <div className="space-y-3">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
+                      </div>
+                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                        <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
+                        <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
+                        <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
+                        <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
+                      </ul>
+                    </div>
+                    <a
+                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Tahun* (Bundle Alat + Web Monitoring - Best Value).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#a3e635]/20"
+                    >
+                      Pilih Paket
+                    </a>
+                  </div>
+
+                  {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
+                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
+                    <div className="space-y-3">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
+                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+                      </div>
+                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
+                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik & Laporan Online</li>
+                        <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
+                      </ul>
+                    </div>
+                    <a
+                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya ingin *Hanya Membeli Alat Sensor* saja (tanpa langganan web monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan alat. Terima kasih!`)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-center font-black text-[10px] uppercase tracking-wider transition-all"
+                    >
+                      Beli Alat Saja
+                    </a>
+                  </div>
+
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Form Pemasangan Alat (Multi-Device) */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 px-2">
             <div className="w-1.5 h-4 bg-purple-500 rounded-full" />
-            <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Hubungkan Alat (Device Pairing)</h2>
+            <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Hubungkan Alat (Multi-Device Pairing)</h2>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              Masukkan **Device ID** alat ESP32 Anda untuk menghubungkannya ke akun ini. Jika Anda menggunakan satu alat bersama-sama untuk demo, beberapa user bisa mendaftarkan ID alat yang sama.
+          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors space-y-6">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Daftarkan satu atau **beberapa sensor ESP32 sekaligus** ke akun ini. Anda dapat memantau, memberi nama, dan beralih di antara sensor-sensor ini secara langsung dari halaman Dasbor Utama.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input 
-                type="text" 
-                placeholder="Contoh: ESP32_SKY_01"
-                value={deviceIdInput}
-                onChange={e => setDeviceIdInput(e.target.value)}
-                className="flex-1 bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-              />
-              <button 
-                onClick={handleSaveDevice}
-                disabled={savingDevice}
-                className="px-6 py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {savingDevice ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
-                Simpan Alat
-              </button>
-            </div>
+            {/* Form Tambah Alat */}
+            <form onSubmit={handleAddDevice} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Perangkat (Device ID)</label>
+                  <input 
+                    type="text" 
+                    placeholder="Contoh: ESP32_SKY_01"
+                    value={newDeviceId}
+                    onChange={e => setNewDeviceId(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Lokasi/Sensor</label>
+                  <input 
+                    type="text" 
+                    placeholder="Contoh: Restoran Area Depan"
+                    value={newDeviceName}
+                    onChange={e => setNewDeviceName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                  />
+                </div>
+              </div>
 
-            {statusMsg.text && (
-              <div className={`mt-4 px-4 py-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
-                statusMsg.type === 'success' 
+              <button 
+                type="submit"
+                disabled={addingDevice || !newDeviceId || !newDeviceName}
+                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/10 hover:shadow-purple-500/25"
+              >
+                {addingDevice ? <RefreshCw size={14} className="animate-spin" /> : <UserPlus size={14} />}
+                Hubungkan Sensor Baru
+              </button>
+            </form>
+
+            {deviceStatus.text && (
+              <div className={`px-4 py-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+                deviceStatus.type === 'success' 
                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' 
                   : 'bg-red-500/10 border-red-500/20 text-red-500'
               }`}>
-                {statusMsg.type === 'success' ? <Check size={14} /> : <AlertTriangle size={14} />}
-                {statusMsg.text}
+                {deviceStatus.type === 'success' ? <Check size={14} /> : <AlertTriangle size={14} />}
+                {deviceStatus.text}
               </div>
             )}
+
+            {/* List Alat Terhubung */}
+            <div className="pt-5 border-t border-slate-200 dark:border-white/5 space-y-3">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Sensor Terhubung ({devices.length})</h3>
+
+              {devicesLoading ? (
+                <div className="text-xs text-slate-400 flex items-center gap-2 py-3">
+                  <RefreshCw size={12} className="animate-spin" /> Memuat daftar alat...
+                </div>
+              ) : devices.length === 0 ? (
+                <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-2xl">
+                  <p className="text-xs text-slate-400 italic">Belum ada sensor yang terhubung ke akun ini.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {devices.map((dev: any) => (
+                    <div key={dev.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl">
+                      <div className="min-w-0 pr-3">
+                        <p className="text-xs font-black text-slate-800 dark:text-slate-200">{dev.device_name}</p>
+                        <p className="text-[10px] text-slate-400 font-mono truncate">{dev.device_id}</p>
+                      </div>
+                      <button 
+                        onClick={() => handleRemoveDevice(dev.id, dev.device_id)}
+                        className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all flex-shrink-0"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -307,6 +678,149 @@ export default function ProfilePage() {
                       </p>
                     )}
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Kelola Akses Pegawai / Share Alat */}
+            <div className="border-b border-slate-200 dark:border-white/10">
+              <button onClick={() => setActiveMenu(activeMenu === 'sharing' ? null : 'sharing')} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
+                    <UserPlus size={20} />
+                  </div>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    Kelola Akses Pegawai (Undang User)
+                  </span>
+                </div>
+                <div className={`w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`}>
+                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
+                </div>
+              </button>
+              
+              {activeMenu === 'sharing' && (
+                <div className="p-6 pt-2 bg-slate-50/50 dark:bg-white/[0.01] animate-in slide-in-from-top-2">
+                  {user?.role !== 'admin' && !(user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date()) ? (
+                    // NOT PREMIUM
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold space-y-2">
+                      <p>Fitur Kelola Pegawai/Akses Multi-User hanya tersedia untuk pelanggan Premium Active.</p>
+                      <a
+                        href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin, saya ingin upgrade ke Premium agar bisa mengundang pegawai saya untuk monitoring alat.`)}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-wider shadow-sm hover:bg-amber-600 transition-colors"
+                      >
+                        <Crown size={11} /> Upgrade Sekarang
+                      </a>
+                    </div>
+                  ) : (
+                    // PREMIUM ACTIVE
+                    <div className="space-y-5">
+                      {/* Panduan Cara Akses Pegawai */}
+                      <div className="p-4 rounded-2xl bg-blue-500/8 border border-blue-500/15 space-y-3">
+                        <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1.5">
+                          <span>ℹ️</span> Cara Pegawai Mengakses Dashboard
+                        </p>
+                        <ol className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300">
+                          <li className="flex gap-2.5">
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">1</span>
+                            <span>Pegawai membuka halaman <strong>Register</strong> di SkyWatch</span>
+                          </li>
+                          <li className="flex gap-2.5">
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">2</span>
+                            <span>Mendaftar menggunakan <strong>email yang sama persis</strong> dengan yang Anda undang di bawah</span>
+                          </li>
+                          <li className="flex gap-2.5">
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">3</span>
+                            <span>Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda</span>
+                          </li>
+                        </ol>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <a
+                            href="/register"
+                            className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-500 px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Buka Halaman Register →
+                          </a>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Masukkan email pegawai/pengawas yang ingin Anda undang untuk memantau sensor Anda:
+                      </p>
+
+                      <form onSubmit={handleInvite} className="flex gap-2">
+                        <input
+                          type="email"
+                          placeholder="email.pegawai@anda.com"
+                          value={inviteEmail}
+                          onChange={e => setInviteEmail(e.target.value)}
+                          className="flex-1 bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white"
+                        />
+                        <button type="submit" disabled={inviting || !inviteEmail}
+                          className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50">
+                          {inviting ? 'Mengundang...' : 'Undang'}
+                        </button>
+                      </form>
+
+                      {shareStatus.text && (
+                        <p className={`text-xs font-bold ${shareStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {shareStatus.text}
+                        </p>
+                      )}
+
+                      <div className="pt-3 border-t border-slate-200 dark:border-white/5">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Pegawai yang Diundang ({shares.length})</p>
+                        
+                        {sharesLoading ? (
+                          <div className="text-xs text-slate-400 flex items-center gap-2 py-3"><RefreshCw size={12} className="animate-spin" /> Memuat data...</div>
+                        ) : shares.length === 0 ? (
+                          <p className="text-xs text-slate-400 py-3 italic">Belum ada pegawai yang diundang.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {shares.map((s: any) => (
+                              <div key={s.id} className="flex items-center justify-between p-3.5 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl">
+                                <div className="min-w-0-fake flex-1 min-w-0 pr-3">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{s.member_name || '—'}</p>
+                                    {s.member_name ? (
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 uppercase tracking-wider">Aktif</span>
+                                    ) : (
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 uppercase tracking-wider">Belum Daftar</span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-slate-400 font-mono truncate">{s.member_email}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {/* Tombol Salin Link */}
+                                  <button
+                                    onClick={() => handleCopyLink(s.id, s.member_email)}
+                                    title="Salin Link Undangan"
+                                    className={`p-2 rounded-xl border flex items-center justify-center transition-all ${
+                                      copiedId === s.id
+                                        ? 'bg-[#a3e635]/15 border-[#a3e635]/30 text-[#a3e635]'
+                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                    }`}
+                                  >
+                                    {copiedId === s.id ? (
+                                      <span className="text-[9px] font-black uppercase tracking-wider px-1 flex items-center gap-1">
+                                        <Check size={11} strokeWidth={3} /> Salin!
+                                      </span>
+                                    ) : (
+                                      <Copy size={12} />
+                                    )}
+                                  </button>
+
+                                  <button onClick={() => handleRevoke(s.id)} title="Cabut Akses" className="p-2 rounded-xl bg-red-500/15 border border-red-500/20 text-red-500 hover:bg-red-500/25 transition-all">
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
