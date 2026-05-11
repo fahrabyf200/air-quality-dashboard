@@ -13,6 +13,7 @@ import {
   Moon,
   User,
   Bell,
+  ShieldCheck,
 } from "lucide-react";
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -91,6 +92,20 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
             </Link>
           );
         })}
+        {/* Admin-only link */}
+        {user?.role === 'admin' && (
+          <Link
+            href="/admin"
+            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              pathname === '/admin'
+                ? 'bg-purple-500 text-white shadow-sm'
+                : 'text-purple-500 hover:bg-purple-500/10 hover:text-purple-600 border border-purple-500/20'
+            }`}
+          >
+            <ShieldCheck size={15} strokeWidth={pathname === '/admin' ? 2.6 : 2.2} />
+            Admin
+          </Link>
+        )}
       </nav>
 
       {/* RIGHT */}
@@ -115,8 +130,10 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
               {user?.name || 'Loading...'}
             </p>
 
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">
-              User
+            <p className={`text-[10px] uppercase tracking-wider mt-1 ${
+              user?.role === 'admin' ? 'text-purple-500 font-black' : 'text-slate-500'
+            }`}>
+              {user?.role === 'admin' ? 'Admin' : 'User'}
             </p>
           </div>
         </div>
@@ -223,6 +240,7 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isAdminPage = pathname.startsWith("/admin");
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -245,14 +263,14 @@ export default function RootLayout({
           enableSystem={false}
         >
           <div className="min-h-screen flex flex-col">
-            {!isAuthPage && <DesktopNav pathname={pathname} user={user} />}
-            {!isAuthPage && <MobileHeader />}
+            {!isAuthPage && !isAdminPage && <DesktopNav pathname={pathname} user={user} />}
+            {!isAuthPage && !isAdminPage && <MobileHeader />}
 
             <main className="flex-1 overflow-y-auto pb-28 lg:pb-0">
               {children}
             </main>
 
-            {!isAuthPage && <MobileBottomNav pathname={pathname} />}
+            {!isAuthPage && !isAdminPage && <MobileBottomNav pathname={pathname} />}
           </div>
         </ThemeProvider>
       </body>

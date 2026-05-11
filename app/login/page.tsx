@@ -23,11 +23,17 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        router.push('/');
+        // Redirect berdasarkan role
+        if (data.user?.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
         router.refresh();
       } else {
-        const data = await res.json();
         setError(data.error || 'Gagal login');
       }
     } catch (err) {

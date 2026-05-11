@@ -31,6 +31,11 @@ const SENSOR_INFO = {
     general: "Kelembapan adalah tingkat uap air di udara yang bisa memicu tumbuhnya jamur dan bakteri.",
     safe: "Kondisi saat ini: Kelembapan pas, jamur dan bakteri sulit untuk tumbuh.",
     danger: "Kondisi saat ini: Udara terlalu lembap dan basah! Lap area basah dan biarkan udara luar masuk."
+  },
+  voc: {
+    general: "Volatile Organic Compounds (VOC) adalah senyawa kimia menguap dari asap masakan, bahan pembersih, atau parfum ruangan.",
+    safe: "Kondisi saat ini: Kadar VOC rendah, kualitas udara ruangan sehat.",
+    danger: "Kondisi saat ini: Bahaya! VOC tinggi terdeteksi. Buka ventilasi udara untuk mengurangi paparan bahan kimia."
   }
 };
 
@@ -38,18 +43,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white/95 dark:bg-[#0a1020]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 shadow-2xl text-xs">
-      <p className="text-slate-600 font-bold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
+      <p className="text-slate-500 dark:text-slate-400 font-bold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
       <div className="flex flex-col gap-1.5">
         {payload.map((p: any) => (
           <div key={p.dataKey} className="flex items-center justify-between gap-6">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-              <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider">{p.name}</span>
+              <span className="text-slate-600 dark:text-slate-400 font-bold uppercase text-[9px] tracking-wider">{p.name}</span>
             </div>
             <span className="font-black tabular-nums text-slate-900 dark:text-white text-[11px]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
               {p.value?.toFixed(p.dataKey === 'nh3' ? 2 : 1)}
-              <span className="text-slate-600 font-normal ml-0.5 text-[9px]">
-                {p.dataKey === 'co2' || p.dataKey === 'nh3' ? ' PPM' : p.dataKey === 'temp' ? '°C' : '%'}
+              <span className="text-slate-500 dark:text-slate-600 font-normal ml-0.5 text-[9px]">
+                {p.dataKey === 'co2' || p.dataKey === 'nh3' || p.dataKey === 'voc' ? ' PPM' : p.dataKey === 'temp' ? '°C' : '%'}
               </span>
             </span>
           </div>
@@ -254,24 +259,49 @@ export default function Dashboard() {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (mounted && data && !alarmAcknowledged) {
-      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
+      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
       if (isDangerNow) {
         const playAlarm = () => {
           try {
-            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.4);
+            const savedSound = localStorage.getItem('alarmSound') || 'siren';
+            
+            // Try to play mp3 first (if user provided it)
+            const audio = new Audio(`/${savedSound}.mp3`);
+            audio.play().catch(() => {
+              // Fallback to web audio synthesis if mp3 is missing
+              const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+              if (!AudioContext) return;
+              const ctx = new AudioContext();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              
+              if (savedSound === 'beep') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.1);
+              } else if (savedSound === 'bell') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.5);
+              } else {
+                // siren
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+              }
+            });
           } catch (e) {}
         };
         playAlarm(); // Play immediately
@@ -286,7 +316,7 @@ export default function Dashboard() {
   // Reset acknowledged if it becomes safe again
   useEffect(() => {
     if (data) {
-      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
+      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
       if (!isDangerNow) {
         setAlarmAcknowledged(false);
       }
@@ -309,10 +339,11 @@ export default function Dashboard() {
     );
   }
 
-  const isDanger = data.co2 > T.co2 || data.nh3 > T.nh3 || data.temp > T.temp;
+  const isDanger = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
   const dangerLabels: string[] = [];
   if (data.co2 > T.co2) dangerLabels.push('CO2');
   if (data.nh3 > T.nh3) dangerLabels.push('NH3');
+  if (data.voc > T.voc) dangerLabels.push('VOC');
   if (data.temp > T.temp) dangerLabels.push('TEMP');
 
   const sensors = [
@@ -331,6 +362,14 @@ export default function Dashboard() {
       delta: data.nh3 > T.nh3 ? 'Bahaya' : 'Aman',
       icon: Wind, threshold: T.nh3, infoKey: 'nh3' as const,
       description: SENSOR_INFO.nh3.general + '\n' + (data.nh3 > T.nh3 ? SENSOR_INFO.nh3.danger : SENSOR_INFO.nh3.safe),
+    },
+    {
+      key: 'voc' as const,
+      label: 'VOC', value: data.voc?.toFixed(2) ?? '--', unit: 'PPM',
+      danger: data.voc > T.voc, color: '#ec4899', bgColor: '#ec489910',
+      delta: data.voc > T.voc ? 'Tinggi' : 'Aman',
+      icon: Activity, threshold: T.voc, infoKey: 'voc' as const,
+      description: SENSOR_INFO.voc.general + '\n' + (data.voc > T.voc ? SENSOR_INFO.voc.danger : SENSOR_INFO.voc.safe),
     },
     {
       key: 'temp' as const,
@@ -454,8 +493,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* SENSOR CARDS — 2×2 grid, info langsung di dalam */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* SENSOR CARDS — grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
 {sensors.map(({ key, ...sensor }) => (
   <SensorCard key={key} {...sensor} />
 ))}
@@ -479,6 +518,7 @@ export default function Dashboard() {
                 {[
                   { k: 'CO₂', c: 'bg-blue-500' },
                   { k: 'NH₃', c: 'bg-yellow-500' },
+                  { k: 'VOC', c: 'bg-pink-500' },
                   { k: 'TEMP', c: 'bg-orange-500' },
                   { k: 'HUM', c: 'bg-purple-500' }
                 ].map(i => (
@@ -501,6 +541,10 @@ export default function Dashboard() {
                       <stop offset="5%" stopColor="#eab308" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
                     </linearGradient>
+                    <linearGradient id="colorVoc" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                    </linearGradient>
                     <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
@@ -516,6 +560,7 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip />} />
                   <Area yAxisId="left" type="monotone" dataKey="co2" stroke="#3b82f6" strokeWidth={3} fill="url(#colorCo2)" />
                   <Area yAxisId="left" type="monotone" dataKey="nh3" stroke="#eab308" strokeWidth={3} fill="url(#colorNh3)" />
+                  <Area yAxisId="left" type="monotone" dataKey="voc" stroke="#ec4899" strokeWidth={3} fill="url(#colorVoc)" />
                   <Area yAxisId="right" type="monotone" dataKey="temp" stroke="#f97316" strokeWidth={3} fill="url(#colorTemp)" />
                   <Area yAxisId="right" type="monotone" dataKey="hum" stroke="#a855f7" strokeWidth={3} fill="url(#colorHum)" />
                 </AreaChart>
