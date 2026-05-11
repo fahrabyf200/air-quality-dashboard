@@ -60,6 +60,26 @@ async function main() {
     } catch (e) { console.error("❌ Gagal update role:", e.message); }
   }
 
+  // 5. Tabel global_settings untuk menyimpan Threshold secara global
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS global_settings (
+        setting_key VARCHAR(50) PRIMARY KEY,
+        setting_value JSON NOT NULL
+      )
+    `);
+    
+    // Set default threshold jika belum ada
+    const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 35, hum: 80 };
+    await db.query(
+      `INSERT IGNORE INTO global_settings (setting_key, setting_value) VALUES ('thresholds', ?)`,
+      [JSON.stringify(defaultThresholds)]
+    );
+    console.log("✅ Tabel 'global_settings' berhasil dibuat dan default threshold di-set");
+  } catch (e) {
+    console.error("❌ Gagal membuat tabel global_settings:", e.message);
+  }
+
   console.log("\n✨ Migrasi selesai! Jalankan: node scripts/migrate.js email@anda.com");
   process.exit(0);
 }

@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminThresholdsPage() {
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
+  const [localThresholds, setLocalThresholds] = useState<typeof thresholds | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,7 +24,22 @@ export default function AdminThresholdsPage() {
     });
   }, [router]);
 
+  // Sync state lokal ketika data sudah berhasil dimuat dari server
+  useEffect(() => {
+    if (isLoaded && thresholds && !localThresholds) {
+      setLocalThresholds(thresholds);
+    }
+  }, [isLoaded, thresholds, localThresholds]);
+
   if (!user || user.role !== 'admin') return null;
+
+  const handleSave = async () => {
+    if (localThresholds) {
+      setIsSaving(true);
+      await saveThresholds(localThresholds);
+      setTimeout(() => setIsSaving(false), 500); // efek loading sebentar
+    }
+  };
 
   return (
     <div className="p-6 md:p-8 space-y-6">
@@ -39,31 +56,45 @@ export default function AdminThresholdsPage() {
           Ubah nilai maksimal sensor di bawah ini. Jika ada perangkat sensor yang mengirim nilai melebihi ambang batas ini, sistem akan otomatis mendeteksinya sebagai status bahaya/darurat di seluruh sistem (Dashboard, Monitoring, dan Laporan).
         </p>
 
-        {isLoaded ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
-            {Object.entries(thresholds).map(([key, val]) => (
-              <div key={key} className="flex flex-col gap-2.5">
-                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center justify-between">
-                  <span>Maksimal {key === 'hum' ? 'Kelembapan' : key === 'temp' ? 'Suhu' : key.toUpperCase()}</span>
-                  {key === 'co2' || key === 'nh3' || key === 'voc' ? (
-                    <span className="text-[9px] text-blue-500">Gas</span>
-                  ) : (
-                    <span className="text-[9px] text-orange-500">Udara</span>
-                  )}
-                </label>
-                <div className="relative group">
-                  <input
-                    type="number"
-                    value={val}
-                    onChange={(e) => saveThresholds({ ...thresholds, [key]: Number(e.target.value) })}
-                    className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl pl-5 pr-14 py-4 text-base font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-inner dark:shadow-none"
-                  />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-200 dark:bg-white/10 px-2 py-1 rounded-md text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:bg-blue-500/10 group-focus-within:text-blue-500 transition-colors">
-                    {key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}
+        {isLoaded && localThresholds ? (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+              {Object.entries(localThresholds).map(([key, val]) => (
+                <div key={key} className="flex flex-col gap-2.5">
+                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                    <span>Maksimal {key === 'hum' ? 'Kelembapan' : key === 'temp' ? 'Suhu' : key.toUpperCase()}</span>
+                    {key === 'co2' || key === 'nh3' || key === 'voc' ? (
+                      <span className="text-[9px] text-blue-500">Gas</span>
+                    ) : (
+                      <span className="text-[9px] text-orange-500">Udara</span>
+                    )}
+                  </label>
+                  <div className="relative group">
+                    <input
+                      type="number"
+                      value={val}
+                      onChange={(e) => setLocalThresholds({ ...localThresholds, [key]: Number(e.target.value) })}
+                      className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl pl-5 pr-14 py-4 text-base font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-inner dark:shadow-none"
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-200 dark:bg-white/10 px-2 py-1 rounded-md text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:bg-blue-500/10 group-focus-within:text-blue-500 transition-colors">
+                      {key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-white/5">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-70 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/30"
+              >
+                {isSaving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
+                {isSaving ? 'Menyimpan...' : 'Simpan Pengaturan'}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="text-sm text-slate-500 flex items-center py-6 animate-pulse gap-3 font-bold uppercase tracking-widest">
