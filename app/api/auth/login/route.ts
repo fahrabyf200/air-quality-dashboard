@@ -25,7 +25,12 @@ export async function POST(req: Request) {
     }
 
     // Buat JWT token
-    const token = await signToken({ id: user.id, name: user.name, email: user.email });
+    const token = await signToken({ 
+      id: user.id, 
+      name: user.name, 
+      email: user.email, 
+      role: user.role || 'user' 
+    });
 
     // Set cookie
     const cookieStore = await cookies();
@@ -37,7 +42,7 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 // 1 day
     });
 
-    return NextResponse.json({ message: "Login berhasil", user: { name: user.name, email: user.email } }, { status: 200 });
+    return NextResponse.json({ message: "Login berhasil", user: { name: user.name, email: user.email, role: user.role || 'user' } }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

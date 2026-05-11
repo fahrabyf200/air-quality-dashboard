@@ -87,9 +87,9 @@ function SummaryCard({
     <div
       className="relative rounded-2xl md:rounded-3xl border border-slate-200 dark:border-white/15 overflow-hidden group transition-all duration-300 bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
     >
-      {/* glow desktop only */}
+      {/* Glow bg */}
       <div
-        className="hidden md:block absolute -top-10 -right-10 w-28 h-28 rounded-full blur-3xl opacity-10"
+        className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-25 dark:opacity-10 group-hover:opacity-40 dark:group-hover:opacity-20 transition-opacity pointer-events-none"
         style={{ background: color }}
       />
 
@@ -193,8 +193,7 @@ export default function MonitoringPage() {
 
   const dangerCount = rows.filter((r) => {
     const t = r.temp ?? r.temperature ?? 0;
-
-    return r.co2 > T.co2 || r.nh3 > T.nh3 || t > T.temp;
+    return r.co2 > T.co2 || r.nh3 > T.nh3 || (r.voc || 0) > T.voc || t > T.temp;
   }).length;
 
   return (
@@ -369,6 +368,7 @@ export default function MonitoringPage() {
                         const isDanger =
                           row.co2 > T.co2 ||
                           row.nh3 > T.nh3 ||
+                          (row.voc || 0) > T.voc ||
                           t > T.temp;
                         const ts = row.created_at ?? row.timestamp;
 
@@ -429,7 +429,7 @@ export default function MonitoringPage() {
                     const t = row.temp ?? row.temperature ?? 0;
                     const h = row.hum ?? row.humidity ?? 0;
                     const isDanger =
-                      row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+                      row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || t > T.temp;
                     const ts = row.created_at ?? row.timestamp;
 
                     return (
@@ -455,21 +455,25 @@ export default function MonitoringPage() {
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-5 gap-1.5 md:gap-2">
                           <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">CO₂</p>
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">CO₂</p>
                             <NumCell v={row.co2} threshold={T.co2} digits={0} />
                           </div>
                           <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">NH₃</p>
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">NH₃</p>
                             <NumCell v={row.nh3} threshold={T.nh3} digits={2} />
                           </div>
                           <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">TEMP</p>
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">VOC</p>
+                            <NumCell v={row.voc || 0} threshold={T.voc} digits={2} />
+                          </div>
+                          <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">TEMP</p>
                             <NumCell v={t} threshold={T.temp} digits={1} />
                           </div>
                           <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">HUM</p>
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">HUM</p>
                             <NumCell v={h} threshold={T.hum} digits={0} />
                           </div>
                         </div>
