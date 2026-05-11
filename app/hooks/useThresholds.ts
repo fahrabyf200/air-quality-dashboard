@@ -1,37 +1,62 @@
 import { useState, useEffect } from 'react';
 
-export const defaultThresholds = { co2: 800, nh3: 2, voc: 10, temp: 35, hum: 80 };
+export const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 35, hum: 80 };
 
 export function useThresholds() {
   const [thresholds, setThresholds] = useState(defaultThresholds);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Fetch dari database saat komponen pertama kali dimuat
   useEffect(() => {
-    const saved = localStorage.getItem('skywatch_thresholds');
-    if (saved) {
+    const fetchThresholds = async () => {
       try {
-        setThresholds(JSON.parse(saved));
+        const res = await fetch('/api/settings/thresholds');
+        if (res.ok) {
+          const data = await res.json();
+          setThresholds(data);
+        }
       } catch (e) {
-        console.error("Failed to parse thresholds");
+        console.error("Failed to fetch thresholds from server", e);
+      } finally {
+        setIsLoaded(true);
       }
-    }
-    setIsLoaded(true);
+    };
+    fetchThresholds();
   }, []);
 
-  const saveThresholds = (newT: typeof defaultThresholds) => {
+  // Update thresholds (hanya admin yang bisa menyimpan ke DB)
+  const saveThresholds = async (newT: typeof defaultThresholds) => {
+    // Optimistic UI update
     setThresholds(newT);
-    localStorage.setItem('skywatch_thresholds', JSON.stringify(newT));
-    window.dispatchEvent(new Event('thresholds_updated'));
+    
+    // Save to server
+    try {
+      const res = await fetch('/api/settings/thresholds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newT)
+      });
+      if (res.ok) {
+        // Beri tahu window lain bahwa threshold terupdate
+        window.dispatchEvent(new Event('thresholds_updated'));
+      } else {
+        console.error("Gagal menyimpan threshold");
+      }
+    } catch (e) {
+      console.error("Error saving thresholds", e);
+    }
   };
 
+  // Sync state dengan event jika di tab lain terupdate
   useEffect(() => {
-    const handleUpdate = () => {
-      const saved = localStorage.getItem('skywatch_thresholds');
-      if (saved) {
-        try {
-          setThresholds(JSON.parse(saved));
-        } catch (e) {}
-      }
+    const handleUpdate = async () => {
+      try {
+        const res = await fetch('/api/settings/thresholds');
+        if (res.ok) {
+          const data = await res.json();
+          setThresholds(data);
+        }
+      } catch (e) {}
     };
     window.addEventListener('thresholds_updated', handleUpdate);
     return () => window.removeEventListener('thresholds_updated', handleUpdate);
