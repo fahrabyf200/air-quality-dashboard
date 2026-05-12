@@ -38,6 +38,9 @@ export default function ProfilePage() {
   
   // State copy link pegawai
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  
+  // State collapsible daftar paket (jika sudah berlangganan)
+  const [showPlans, setShowPlans] = useState(false);
 
   const handleCopyLink = (shareId: number, email: string) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
@@ -247,6 +250,105 @@ export default function ProfilePage() {
     router.refresh();
   };
 
+  const handleWhatsAppRedirect = (packageName: string, price: string, isPromo = false) => {
+    const adminNum = "6285792524863";
+    const name = user?.name || '-';
+    const email = user?.email || '-';
+    
+    let text = `Halo Admin SkyWatch 👋\n\nSaya tertarik untuk memesan:\n📌 *${packageName}*\n💰 *${isPromo ? 'Harga Promo' : 'Harga'}:* ${price}`;
+    if (isPromo) {
+      text += " (Harga Coret Rp 749.000)";
+    }
+    text += `\n\nBerikut detail akun saya:\n👤 *Nama Akun:* ${name}\n✉️ *Email Akun:* ${email}\n\nMohon informasi mengenai prosedur pembayaran dan pengiriman alat. Terima kasih!`;
+    
+    const url = `https://wa.me/${adminNum}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const renderPackageGrid = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Paket 1 Bulan — Bundle Alat + Web */}
+      <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
+          <div className="flex flex-col">
+            <span className="text-lg font-black text-slate-900 dark:text-white">Rp 349.000</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Alat + Web 1 Bln</span>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+            <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
+            <li className="flex items-center gap-1.5">✓ Multi-device &amp; Invite Pegawai</li>
+            <li className="flex items-center gap-1.5">✓ Notifikasi &amp; Laporan Real-time</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Bulan (Bundle Alat + Web)", "Rp 349.000")}
+          className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
+        >
+          Pilih Paket
+        </button>
+      </div>
+
+      {/* Paket 1 Tahun — Bundle Best Value */}
+      <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-sm">
+        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-slate-400 line-through font-bold">Rp 749.000</span>
+            <span className="text-lg font-black text-[#a3e635]">Rp 599.000</span>
+            <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-0.5">Alat + Web 12 Bln (Best Offer)</span>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
+            <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
+            <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
+            <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Tahun (Bundle Alat + Web - Best Value)", "Rp 599.000", true)}
+          className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#a3e635]/20"
+        >
+          Pilih Paket
+        </button>
+      </div>
+
+      {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
+      <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
+          <div className="flex flex-col">
+            <span className="text-lg font-black text-slate-900 dark:text-white">Rp 249.000</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Modul Sensor ESP32 Saja</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
+            <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Pembelian Hanya Alat Sensor (Modul ESP32 Saja)", "Rp 249.000")}
+          className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-center font-black text-[10px] uppercase tracking-wider transition-all"
+        >
+          Beli Alat Saja
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
@@ -264,7 +366,7 @@ export default function ProfilePage() {
 
       <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header Profil */}
-        <div className="flex flex-col items-center text-center space-y-3 -mt-16 md:-mt-20">
+        <div className="flex flex-col items-center text-center space-y-3 mt-2 md:mt-4">
           <div className="relative group cursor-pointer">
             <label htmlFor="profile-upload" className="cursor-pointer block relative">
               <div className="w-20 h-20 rounded-[1.5rem] bg-[#a3e635] flex items-center justify-center text-[#0a0f1a] shadow-xl shadow-lime-500/20 transition-transform group-hover:scale-105 overflow-hidden relative">
@@ -341,7 +443,7 @@ export default function ProfilePage() {
 
         {/* === KARTU STATUS LANGGANAN === */}
         {user?.role !== 'admin' && (
-          <div className="mt-2">
+          <div className="mt-2 space-y-4">
             {user?.is_invited ? (
               // --- PEGAWAI / UNDANGAN ACTIVE ---
               <div className="relative rounded-3xl overflow-hidden border border-[#a3e635]/30 bg-white dark:bg-[#0d1a08]/60 p-6 shadow-lg shadow-[#a3e635]/10 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
@@ -402,8 +504,36 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+            ) : null}
+
+            {/* Render collapsible plans if already active, otherwise show expanded normal for Free Member */}
+            {(user?.is_invited || (user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date())) ? (
+              <div className="border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden bg-white dark:bg-white/[0.03] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPlans(!showPlans)}
+                  className="w-full py-4 px-6 flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-white/[0.04] transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400">
+                      <Crown size={14} />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest text-left">Pilihan Opsi Alat &amp; Upgrade Langganan</span>
+                  </div>
+                  <ChevronRight 
+                    size={16} 
+                    className={`transform transition-transform duration-300 text-slate-400 ${showPlans ? 'rotate-90' : 'rotate-0'}`} 
+                  />
+                </button>
+                
+                {showPlans && (
+                  <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/15 animate-in slide-in-from-top-2 duration-300">
+                    {renderPackageGrid()}
+                  </div>
+                )}
+              </div>
             ) : (
-              // --- FREE MEMBER ---
+              // --- FREE MEMBER (Daftar paket terbuka penuh seperti biasa) ---
               <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 md:p-8 shadow-sm space-y-6 text-left">
                 <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-slate-200/30 dark:bg-white/5 blur-2xl pointer-events-none" />
                 
@@ -427,86 +557,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Grid Paket Langganan */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  
-                  {/* Paket 1 Bulan — Bundle Alat + Web */}
-                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-                        <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
-                        <li className="flex items-center gap-1.5">✓ Multi-device & Invite Pegawai</li>
-                        <li className="flex items-center gap-1.5">✓ Notifikasi & Laporan Real-time</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Bulan* (Bundle Alat + Web Monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
-                    >
-                      Pilih Paket
-                    </a>
-                  </div>
-
-                  {/* Paket 1 Tahun — Bundle Best Value */}
-                  <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-sm">
-                    <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
-                        <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
-                        <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
-                        <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Tahun* (Bundle Alat + Web Monitoring - Best Value).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#a3e635]/20"
-                    >
-                      Pilih Paket
-                    </a>
-                  </div>
-
-                  {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
-                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
-                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik & Laporan Online</li>
-                        <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya ingin *Hanya Membeli Alat Sensor* saja (tanpa langganan web monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan alat. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-center font-black text-[10px] uppercase tracking-wider transition-all"
-                    >
-                      Beli Alat Saja
-                    </a>
-                  </div>
-
-                </div>
+                {renderPackageGrid()}
               </div>
             )}
           </div>
