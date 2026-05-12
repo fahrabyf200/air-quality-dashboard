@@ -3,7 +3,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Wind, AlertTriangle, CheckCircle, Activity,
   RefreshCw, TrendingUp, X, Info,
-  Thermometer, Droplets, Flame, Zap, ShieldCheck
+  Thermometer, Droplets, Flame, Zap, ShieldCheck,
+  ChevronDown, Cpu
 } from 'lucide-react';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -224,13 +225,37 @@ export default function Dashboard() {
   const [lastSync, setLastSync] = useState('');
   const [mounted, setMounted] = useState(false);
   
+  // States Multi-Device
+  const [devices, setDevices] = useState<any[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState('all');
+  const [user, setUser] = useState<any>(null);
+  
   // Emergency state
   const [alarmAcknowledged, setAlarmAcknowledged] = useState(false);
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      if (data.user) setUser(data.user);
+    } catch {}
+  };
+
+  const fetchDevices = async () => {
+    try {
+      const res = await fetch('/api/devices');
+      const data = await res.json();
+      setDevices(data.devices || []);
+    } catch {}
+  };
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/sensor');
+      const url = selectedDeviceId && selectedDeviceId !== 'all' 
+        ? `/api/sensor?device_id=${encodeURIComponent(selectedDeviceId)}`
+        : '/api/sensor';
+      const res = await fetch(url);
       const result = await res.json();
       if (Array.isArray(result) && result.length > 0) {
         setData(result[0]);
@@ -240,20 +265,30 @@ export default function Dashboard() {
         })).reverse();
         setHistory(formatted);
         setLastSync(new Date().toLocaleTimeString('id-ID'));
+      } else {
+        setData(null);
+        setHistory([]);
       }
     } catch (e) {
       console.error('SkyWatch fetch error', e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedDeviceId]);
 
   useEffect(() => {
     setMounted(true);
-    fetchData();
-    const iv = setInterval(fetchData, 10000);
-    return () => clearInterval(iv);
-  }, [fetchData]);
+    fetchUser();
+    fetchDevices();
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchData();
+      const iv = setInterval(fetchData, 10000);
+      return () => clearInterval(iv);
+    }
+  }, [mounted, fetchData]);
 
   // Audio Alarm Logic
   useEffect(() => {
@@ -323,7 +358,7 @@ export default function Dashboard() {
     }
   }, [data, T]);
 
-  if (!mounted || !data || !thresholdsLoaded) {
+  if (!mounted || !thresholdsLoaded) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
@@ -339,53 +374,63 @@ export default function Dashboard() {
     );
   }
 
-  const isDanger = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
+  const isDanger = data ? (data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp) : false;
   const dangerLabels: string[] = [];
-  if (data.co2 > T.co2) dangerLabels.push('CO2');
-  if (data.nh3 > T.nh3) dangerLabels.push('NH3');
-  if (data.voc > T.voc) dangerLabels.push('VOC');
-  if (data.temp > T.temp) dangerLabels.push('TEMP');
+  if (data) {
+    if (data.co2 > T.co2) dangerLabels.push('CO2');
+    if (data.nh3 > T.nh3) dangerLabels.push('NH3');
+    if (data.voc > T.voc) dangerLabels.push('VOC');
+    if (data.temp > T.temp) dangerLabels.push('TEMP');
+  }
+
+  // Nama sensor yang sedang aktif dipantau
+  const activeDevice = selectedDeviceId === 'all'
+    ? (devices.length > 0 ? null : null)
+    : devices.find(d => d.device_id === selectedDeviceId);
+  const activeSensorLabel = selectedDeviceId === 'all'
+    ? (devices.length > 1 ? `Semua Sensor (${devices.length})` : devices[0]?.device_name || 'Sensor Utama')
+    : (activeDevice?.device_name || selectedDeviceId);
 
   const sensors = [
     {
       key: 'co2' as const,
-      label: 'CO2', value: data.co2?.toFixed(0) ?? '--', unit: 'PPM',
-      danger: data.co2 > T.co2, color: '#3b82f6', bgColor: '#3b82f610',
-      delta: data.co2 > T.co2 ? 'Tinggi' : 'Normal',
+      label: 'CO2', value: data?.co2?.toFixed(0) ?? '--', unit: 'PPM',
+      danger: data ? data.co2 > T.co2 : false, color: '#3b82f6', bgColor: '#3b82f610',
+      delta: data ? (data.co2 > T.co2 ? 'Tinggi' : 'Normal') : 'No Data',
       icon: Zap, threshold: T.co2, infoKey: 'co2' as const,
-      description: SENSOR_INFO.co2.general + '\n' + (data.co2 > T.co2 ? SENSOR_INFO.co2.danger : SENSOR_INFO.co2.safe),
+      description: SENSOR_INFO.co2.general + '\n' + (data ? (data.co2 > T.co2 ? SENSOR_INFO.co2.danger : SENSOR_INFO.co2.safe) : ''),
     },
     {
       key: 'nh3' as const,
-      label: 'NH3', value: data.nh3?.toFixed(2) ?? '--', unit: 'PPM',
-      danger: data.nh3 > T.nh3, color: '#a78bfa', bgColor: '#a78bfa10',
-      delta: data.nh3 > T.nh3 ? 'Bahaya' : 'Aman',
+      label: 'NH3', value: data?.nh3?.toFixed(2) ?? '--', unit: 'PPM',
+      danger: data ? data.nh3 > T.nh3 : false, color: '#a78bfa', bgColor: '#a78bfa10',
+      delta: data ? (data.nh3 > T.nh3 ? 'Bahaya' : 'Aman') : 'No Data',
       icon: Wind, threshold: T.nh3, infoKey: 'nh3' as const,
-      description: SENSOR_INFO.nh3.general + '\n' + (data.nh3 > T.nh3 ? SENSOR_INFO.nh3.danger : SENSOR_INFO.nh3.safe),
+      description: SENSOR_INFO.nh3.general + '\n' + (data ? (data.nh3 > T.nh3 ? SENSOR_INFO.nh3.danger : SENSOR_INFO.nh3.safe) : ''),
     },
     {
       key: 'voc' as const,
-      label: 'VOC', value: data.voc?.toFixed(2) ?? '--', unit: 'PPM',
-      danger: data.voc > T.voc, color: '#ec4899', bgColor: '#ec489910',
-      delta: data.voc > T.voc ? 'Tinggi' : 'Aman',
+      label: 'VOC', value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
+      danger: data ? data.voc > T.voc : false, color: '#ec4899', bgColor: '#ec489910',
+      delta: data ? (data.voc > T.voc ? 'Tinggi' : 'Aman') : 'No Data',
       icon: Activity, threshold: T.voc, infoKey: 'voc' as const,
-      description: SENSOR_INFO.voc.general + '\n' + (data.voc > T.voc ? SENSOR_INFO.voc.danger : SENSOR_INFO.voc.safe),
+      description: SENSOR_INFO.voc.general + '\n' + (data ? (data.voc > T.voc ? SENSOR_INFO.voc.danger : SENSOR_INFO.voc.safe) : ''),
     },
     {
       key: 'temp' as const,
-      label: 'Temperature', value: data.temp?.toFixed(1) ?? '--', unit: '°C',
-      danger: data.temp > T.temp, color: '#f97316', bgColor: '#f9731610',
-      delta: data.temp > T.temp ? 'Panas' : 'Normal',
+      label: 'Temperature', value: data?.temp?.toFixed(1) ?? '--', unit: '°C',
+      danger: data ? data.temp > T.temp : false, color: '#f97316', bgColor: '#f9731610',
+      delta: data ? (data.temp > T.temp ? 'Panas' : 'Normal') : 'No Data',
       icon: Flame, threshold: T.temp, infoKey: 'temp' as const,
-      description: SENSOR_INFO.temp.general + '\n' + (data.temp > T.temp ? SENSOR_INFO.temp.danger : SENSOR_INFO.temp.safe),
+      description: SENSOR_INFO.temp.general + '\n' + (data ? (data.temp > T.temp ? SENSOR_INFO.temp.danger : SENSOR_INFO.temp.safe) : ''),
     },
     {
       key: 'hum' as const,
-      label: 'Humidity', value: data.hum?.toFixed(0) ?? '--', unit: '%',
-      danger: data.hum > T.hum, color: '#38bdf8', bgColor: '#38bdf810',
-      delta: data.hum > T.hum ? 'Lembap' : 'Ideal',
+      label: 'Humidity', value: data?.hum?.toFixed(0) ?? '--', unit: '%',
+      danger: data ? data.hum > T.hum : false, color: '#38bdf8', bgColor: '#38bdf810',
+      delta: data ? (data.hum > T.hum ? 'Lembap' : 'Ideal') : 'No Data',
       icon: Droplets, threshold: T.hum, infoKey: 'hum' as const,
-      description: SENSOR_INFO.hum.general + '\n' + (data.hum > T.hum ? SENSOR_INFO.hum.danger : SENSOR_INFO.hum.safe),
+      description: SENSOR_INFO.hum.general + '\n' + (data ? (data.hum > T.hum ? SENSOR_INFO.hum.danger : SENSOR_INFO.hum.safe) : ''),
     },
   ];
 
@@ -395,16 +440,55 @@ export default function Dashboard() {
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex items-start justify-between gap-4 w-full">
           <div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Kitchen Sensor Node</p>
-            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              My Dashboard
-            </h1>
-            {lastSync && (
-              <p className="text-slate-600 text-xs mt-1 font-mono">Last sync {lastSync}</p>
+            {user?.is_invited && (
+              <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-lg bg-[#a3e635]/10 border border-[#a3e635]/20 text-[#a3e635] text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+                Pegawai Diundang oleh: {user.invited_by_name || 'Pemilik Alat'}
+              </div>
             )}
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.35em] mb-1 flex items-center gap-1.5">
+              <Cpu size={10} />
+              Monitoring Aktif
+            </p>
+            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              {activeSensorLabel}
+            </h1>
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              {selectedDeviceId !== 'all' && activeDevice && (
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded-lg">
+                  ID: {activeDevice.device_id}
+                </span>
+              )}
+              {lastSync && (
+                <span className="text-slate-500 text-[10px] font-mono">Sync {lastSync}</span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5">
+            {devices.length > 0 && (
+              <div className="relative">
+                <select
+                  value={selectedDeviceId}
+                  onChange={e => setSelectedDeviceId(e.target.value)}
+                  className="appearance-none bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-sm"
+                >
+                  <option value="all" className="bg-white dark:bg-[#070d1a]">Semua Sensor</option>
+                  {devices.map((dev: any) => (
+                    <option key={dev.id} value={dev.device_id} className="bg-white dark:bg-[#070d1a]">
+                      {dev.device_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
+                  <Cpu size={12} />
+                </div>
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
+                  <ChevronDown size={10} />
+                </div>
+              </div>
+            )}
+
             <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all duration-500 ${
               isDanger
                 ? 'bg-red-500/8 border-red-500/20 text-red-400'
@@ -588,11 +672,19 @@ export default function Dashboard() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Device ID</span>
-                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">NODE-KITCHEN-01</span>
+                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
+                    {selectedDeviceId === 'all' 
+                      ? (devices[0]?.device_id || 'NODE-KITCHEN-01') 
+                      : selectedDeviceId}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Sensors</span>
-                  <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">MQ135, DHT22</span>
+                  <span className="text-xs text-slate-500 font-medium">Device Name</span>
+                  <span className="text-xs text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
+                    {selectedDeviceId === 'all' 
+                      ? 'Semua Sensor' 
+                      : (devices.find(d => d.device_id === selectedDeviceId)?.device_name || 'Sensor Utama')}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Network</span>
