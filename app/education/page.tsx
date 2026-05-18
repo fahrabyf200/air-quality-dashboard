@@ -1,59 +1,72 @@
 "use client";
 import React, { useState } from 'react';
-import { BookOpen, ChevronDown, Wind, Thermometer, Droplets, Zap } from 'lucide-react';
+import { BookOpen, ChevronDown, Wind, Thermometer, Droplets, Zap, Flame } from 'lucide-react';
 
 const topics = [
   {
+    id: 'voc',
+    label: 'VOC — Sensor Utama Kebocoran Gas LPG',
+    icon: <Flame size={16} />,
+    color: '#ec4899',
+    threshold: '200 PPM (Batas Kebocoran)',
+    safe: '< 200 PPM (Aman)',
+    danger: '> 200 PPM (AWAS KEBOCORAN)',
+    image: '/voc.png',
+    desc: 'Sensor VOC (Volatile Organic Compounds) dalam sistem keselamatan ini dirancang khusus untuk menjadi BARISAN UTAMA penilai partikel gas elpiji (Propana & Butana) mentah di udara dapur Anda. Kebocoran tabung elpiji sering terjadi di area selang regulator yang usang atau pemasangan seal karet yang kurang rapat. Sensor ini akan menangkap partikel tersebut sebelum konsentrasinya mencapai batas pemicu ledakan.',
+    symptoms: 'Mulai tercium bau menyengat khas gas belerang (mercaptan yang sengaja ditambahkan ke elpiji agar mudah dikenali), rasa mual, sakit kepala ringan, hingga risiko fatal ledakan hebat jika tersulut sekecil apa pun percikan listrik.',
+    tips: '1. JANGAN menyentuh saklar lampu atau mencabut stopkontak kabel (ini dapat menghasilkan percikan listrik mikro yang memicu ledakan!).\n2. JANGAN menyalakan korek api atau kompor.\n3. Segera lepaskan regulator dari kepala tabung gas.\n4. Buka lebar semua pintu, jendela, dan ventilasi dapur agar gas segera menguap keluar.',
+  },
+  {
     id: 'co2',
-    label: 'CO2 — Karbon Dioksida',
+    label: 'CO₂ — Sisa Gas Pembakaran Api Kompor',
     icon: <Wind size={16} />,
     color: '#3b82f6',
-    threshold: '800 PPM (Dapur)',
+    threshold: '800 PPM (Batas Wajar)',
     safe: '< 800 PPM',
     danger: '> 800 PPM',
     image: '/co2.png',
-    desc: 'Karbon Dioksida (CO2) adalah gas yang membuat udara terasa pengap. Di dapur, gas ini muncul saat kita menyalakan kompor. Jika terlalu banyak, udara jadi tidak sehat.',
-    symptoms: 'Kepala pusing, mudah mengantuk, dan napas terasa sesak.',
-    tips: 'Selalu buka jendela atau nyalakan kipas penyedot (exhaust) saat memasak agar udara segar bisa masuk.',
+    desc: 'Karbon Dioksida (CO₂) merupakan produk pembuangan dari nyala api kompor gas. Pemantauan gas CO₂ di dapur sangat penting untuk mengukur kualitas sirkulasi udara. Jika area dapur Anda terlalu tertutup rapat saat Anda memasak, kadar gas CO₂ akan meningkat pesat, menggantikan volume oksigen yang kita hirup sehari-hari.',
+    symptoms: 'Napas terasa berat, rasa kantuk luar biasa secara tiba-tiba saat memasak, pusing berdenyut di pelipis, dan dalam skenario terburuk bisa memicu pingsan (asfiksia) akibat paru-paru kekurangan oksigen.',
+    tips: '1. Selalu pastikan api kompor menyala dengan sempurna berwarna biru (warna jingga/merah menandakan sisa pembakaran CO₂ yang jauh lebih tinggi).\n2. Nyalakan exhaust fan atau penyedot udara di atas kompor selama aktivitas memasak berlangsung.\n3. Biarkan jendela dapur terbuka minimal sebagian saat kompor menyala.',
   },
   {
     id: 'nh3',
-    label: 'NH3 — Amonia',
+    label: 'NH₃ — Kebocoran Senyawa Gas Kimia Beracun',
     icon: <Zap size={16} />,
     color: '#f59e0b',
-    threshold: '2 PPM (Dapur)',
+    threshold: '2 PPM (Peringatan)',
     safe: '< 2 PPM',
     danger: '> 2 PPM',
     image: '/nh3.png',
-    desc: 'Amonia (NH3) adalah gas dengan bau yang sangat menyengat. Biasanya berasal dari cairan pembersih lantai atau jika ada kebocoran gas pada kulkas.',
-    symptoms: 'Mata perih, hidung gatal, batuk, dan tenggorokan sakit.',
-    tips: 'Gunakan pembersih alami, jangan mencampur berbagai cairan pembersih, dan rutin periksa kulkas Anda.',
+    desc: 'Amonia (NH₃) dipantau di dapur sebagai pelacak keselamatan sekunder. Gas amonia adalah senyawa kimia beracun yang memiliki sifat korosif tajam. Deteksi dini kebocoran gas kimia seperti amonia sangat penting agar tidak terhirup atau terakumulasi pekat di ruangan dapur tertutup yang dapat membahayakan sistem pernapasan dan mata.',
+    symptoms: 'Bau menyengat menusuk hidung seperti bau air kencing pekat, mata terasa sangat perih berair seperti terbakar, tenggorokan teriritasi parah, dan sesak napas akut.',
+    tips: '1. Segera tinggalkan area dapur dan evakuasi seluruh anggota keluarga ke luar rumah.\n2. Jangan menyalakan kompor atau kipas ventilasi listrik jika konsentrasi gas terlampau pekat.\n3. Buka lebar-lebar semua pintu dan jendela dari arah luar agar embusan angin mengusir uap gas kimia beracun tersebut.',
   },
   {
     id: 'temp',
-    label: 'Suhu Panas',
+    label: 'Suhu Panas — Alarm Kebakaran & Titik Api',
     icon: <Thermometer size={16} />,
     color: '#ef4444',
     threshold: '35°C (Dapur)',
-    safe: '20°C – 35°C',
-    danger: '> 35°C',
+    safe: 'Normal (Sesuai Cuaca)',
+    danger: 'Lonjakan Panas Mendadak',
     image: '/temp.png',
-    desc: 'Suhu ruangan yang terlalu panas membuat kita tidak nyaman saat memasak dan menyebabkan bakteri pada makanan basah cepat berkembang biak sehingga makanan cepat basi.',
-    symptoms: 'Badan lemas, dehidrasi (kurang cairan), dan keringat berlebih.',
-    tips: 'Nyalakan kipas angin atau AC jika ada. Simpan sisa makanan langsung ke dalam kulkas.',
+    desc: 'Sensor Suhu berfungsi sebagai sistem pertahanan berlapis untuk mendeteksi dini keberadaan titik api kebakaran. Ketika gas elpiji bocor, potensi gas tersebut tersulut api sangat tinggi. Sensor suhu dapur dirancang sensitif mendeteksi adanya lompatan suhu yang janggal dalam durasi singkat, sebelum api menyebar luas ke dinding dapur Anda.',
+    symptoms: 'Rasa gerah memanggang yang tiba-tiba di sekitar kulit wajah, tercium bau benda plastik atau kabel yang meleleh di dekat kompor, serta terdengar suara letupan kecil dari arah dapur.',
+    tips: '1. Jauhkan kain lap dapur, minyak goreng, tisu gulung, dan tabung semprotan aerosol (seperti obat nyamuk) dari jangkauan kompor.\n2. Selalu bersihkan sisa-sisa minyak kompor yang menempel di dinding agar tidak menjadi bahan bakar api.\n3. Sediakan APAR (Alat Pemadam Api Ringan) berbahan powder di dapur.',
   },
   {
     id: 'hum',
-    label: 'Kelembapan Ruangan',
+    label: 'Kelembapan — Hambatan Evakuasi Gas LPG',
     icon: <Droplets size={16} />,
     color: '#8b5cf6',
-    threshold: '80% (Dapur)',
+    threshold: '80% (Batas Lembap)',
     safe: '30% – 70%',
-    danger: '> 80%',
+    danger: '> 80% (Gas Terjebak)',
     image: '/hum.png',
-    desc: 'Kelembapan adalah jumlah uap air di udara. Jika terlalu lembap (basah), dinding akan berjamur, berbau apek, dan menjadi sarang bakteri.',
-    symptoms: 'Bau apek yang mengganggu, alergi, dan memicu asma kambuh.',
-    tips: 'Lap permukaan yang basah setelah memasak. Pastikan cahaya matahari bisa masuk ke dapur.',
+    desc: 'Sensor Kelembapan di dapur memiliki peran ilmiah yang sangat penting. Gas elpiji (LPG) memiliki massa yang jauh lebih berat dibanding udara. Dalam ruangan yang sangat lembap dan basah, partikel air di udara akan menghalangi pergerakan gas elpiji untuk naik ke atas, sehingga gas yang bocor akan mengendap pekat di bawah lantai dan kolong lemari dapur, membuatnya tidak bisa terbuang lewat jendela atas.',
+    symptoms: 'Lantai dapur sering terasa basah/licin berembun, ruangan terasa apek menyengat, dan bau gas tercium sangat pekat saat Anda menunduk atau membersihkan area kolong dapur.',
+    tips: '1. Hindari genangan air yang dibiarkan lama di lantai dapur.\n2. Jika terdeteksi kebocoran gas di ruang lembap, gunakan sapu lantai atau hembusan kipas angin listrik yang diletakkan di lantai untuk meniup gas keluar menuju pintu terdekat.\n3. Buka kabinet lemari bawah kompor agar aliran udara di bawah kompor tidak tersumbat.',
   },
 ];
 
@@ -61,33 +74,71 @@ export default function EducationPage() {
   const [open, setOpen] = useState<string | null>('co2');
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
           <div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Knowledge Base</p>
+            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">About & Safety Guide</p>
             <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Education Center
+              Tentang & Panduan Keselamatan
             </h1>
-            <p className="text-slate-600 text-xs mt-1 font-mono">Panduan Kualitas Udara Dapur</p>
+            <p className="text-slate-600 text-xs mt-1 font-mono">Mitigasi Cerdas Kebocoran Gas Dapur Pintar</p>
           </div>
         </div>
       </div>
 
-      <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-5xl mx-auto space-y-3">
+      <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-5xl mx-auto space-y-5">
 
-        {/* Intro card */}
-        <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 px-6 py-5 flex items-start gap-4 mb-6 transition-colors">
-          <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20 flex-shrink-0">
-            <BookOpen size={18} className="text-blue-600 dark:text-blue-400" />
+        {/* ABOUT SYSTEM SECTION */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+          <div className="md:col-span-2 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none transition-all flex flex-col justify-between">
+            <div>
+              <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-[0.25em] mb-2">Tujuan Proyek</p>
+              <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                Sistem Deteksi Dini & Mitigasi Kebocoran Gas Dapur
+              </h2>
+              <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed mb-4">
+                <strong>SkyWatch</strong> dirancang khusus sebagai solusi preventif rumah tangga modern untuk memitigasi bahaya kebocoran gas LPG dan polusi udara dapur secara real-time. Dengan integrasi mikrokontroler <strong className="text-[#a3e635]">ESP32</strong>, sensor gas <strong className="text-[#a3e635]">MQ Series</strong>, serta sensor suhu-kelembapan <strong className="text-[#a3e635]">DHT22</strong>, alat ini mampu memberikan sinyal evakuasi instan sebelum potensi ledakan atau kebakaran terjadi.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-white/5 text-[10px] text-slate-500 font-mono">
+              <span>Platform: Next.js + MySQL + IoT Node</span>
+            </div>
           </div>
-          <div>
-            <p className="text-blue-700 dark:text-blue-300 font-bold text-sm mb-1">Tentang Sensor SkyWatch</p>
-            <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-              SkyWatch menggunakan sensor <strong className="text-slate-900 dark:text-slate-300">MQ Series</strong> dan <strong className="text-slate-900 dark:text-slate-300">DHT22</strong> yang terpasang pada ESP32 untuk memantau kualitas udara dapur secara real-time. Pelajari ambang batas dan cara menjaga lingkungan dapur yang sehat di bawah ini.
-            </p>
+
+          <div className="relative overflow-hidden rounded-3xl border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#a3e635]/5 p-6 transition-all flex flex-col justify-between group">
+            {/* Glow Lampu */}
+            <div 
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+              style={{ backgroundColor: '#a3e635' }} 
+            />
+            <div className="relative z-10">
+              <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-[0.25em] mb-2">Cara Kerja IoT</p>
+              <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                Bagaimana Alat Bekerja?
+              </h2>
+              <div className="space-y-3 mt-2">
+                {[
+                  { num: "01", text: "Sensor membaca kadar VOC (LPG), CO₂, NH₃, Suhu, & Kelembapan di area dapur secara berkelanjutan." },
+                  { num: "02", text: "Data dikirimkan secara instan melalui Wi-Fi ke Cloud Database MySQL setiap kali terjadi perubahan data." },
+                  { num: "03", text: "Dashboard SkyWatch menganalisis batas aman, memberikan alarm visual, serta log histori deteksi lengkap." }
+                ].map((step, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <span className="text-xs font-black text-[#a3e635] font-mono shrink-0">{step.num}</span>
+                    <p className="text-slate-600 dark:text-slate-300 text-[10px] leading-relaxed">{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Section Title */}
+        <div className="pt-2 pb-1">
+          <h3 className="text-xs font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.3em] font-mono">
+            Panduan & Indikator Batas Aman Sensor
+          </h3>
         </div>
 
         {/* Accordion topics */}
@@ -96,23 +147,27 @@ export default function EducationPage() {
           return (
             <div
               key={topic.id}
-                className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
+                className={`border-2 rounded-2xl overflow-hidden transition-all duration-300 relative group ${
                   isOpen 
-                  ? 'border-blue-500/30 dark:border-blue-500/50 bg-white dark:bg-[#070d1a] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(59,130,246,0.1)]' 
-                  : 'border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:border-slate-300 dark:hover:border-white/25'
+                  ? 'border-blue-500/40 dark:border-blue-500/50 bg-[#FFFFFF] dark:bg-[#070d1a] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(59,130,246,0.1)]' 
+                  : 'border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:border-slate-400 dark:hover:border-slate-500'
                 }`}
               style={{
                 borderColor: isOpen ? topic.color + '60' : undefined,
                 backgroundColor: isOpen ? topic.color + '08' : undefined,
               }}
             >
+              <div 
+                className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.1]" 
+                style={{ backgroundColor: topic.color }} 
+              />
               <button
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
                 onClick={() => setOpen(isOpen ? null : topic.id)}
               >
                 <div className="flex items-center gap-3">
                   <span style={{ color: topic.color }}>{topic.icon}</span>
-                  <span className={`font-black text-sm uppercase tracking-wide transition-colors ${isOpen ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+                  <span className={`font-semibold text-sm uppercase tracking-wide transition-colors ${isOpen ? 'text-slate-900 dark:text-white' : 'text-[#1E293B] dark:text-slate-400 dark:text-slate-300'}`}>
                     {topic.label}
                   </span>
                   <span
@@ -130,10 +185,10 @@ export default function EducationPage() {
               </button>
 
               {isOpen && (
-                <div className="px-6 pb-6 space-y-4 border-t border-slate-200 dark:border-white/5 pt-5 transition-colors">
+                <div className="px-6 pb-6 space-y-4 border-t border-[#E2E8F0] dark:border-white/5 pt-5 transition-colors">
                   <div className="flex flex-col md:flex-row gap-5">
                     <div className="md:w-1/3 flex-shrink-0">
-                      <img src={topic.image} alt={topic.label} className="w-full h-40 object-cover rounded-xl shadow-sm border border-slate-200 dark:border-white/10" />
+                      <img src={topic.image} alt={topic.label} className="w-full h-40 object-cover rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] border border-[#E2E8F0] dark:border-white/10" />
                     </div>
                     <div className="md:w-2/3 space-y-4">
                       <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{topic.desc}</p>
@@ -157,8 +212,8 @@ export default function EducationPage() {
                         </div>
                       </div>
                       <div className="mt-5 space-y-3">
-                        <div className="rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-white/[0.06] px-4 py-3 transition-colors shadow-sm dark:shadow-none">
-                          <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
+                        <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.06] px-4 py-3 transition-colors shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
+                          <p className="text-[9px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
                           <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
                         </div>
                       </div>
@@ -172,7 +227,7 @@ export default function EducationPage() {
 
         {/* Footer note */}
         <p className="text-center text-slate-400 dark:text-slate-700 text-[9px] uppercase font-black tracking-[0.4em] pt-6 transition-colors">
-          SkyWatch Education Center — Group 4 Polinema IT
+          SkyWatch About & Safety Guide — Group 4 Polinema IT
         </p>
       </div>
     </div>

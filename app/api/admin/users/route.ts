@@ -80,26 +80,59 @@ export async function PATCH(req: Request) {
 
   // --- Kelola Subscription Premium ---
   if (subscription_action) {
+    const [userRows]: any = await db.query('SELECT name, email, subscription_end_date FROM users WHERE id = ?', [id]);
+    if (userRows.length === 0) return NextResponse.json({ error: 'User tidak ditemukan' }, { status: 404 });
+    const user = userRows[0];
+
+    // Logika Akumulasi (Stacking) Masa Aktif
+    let currentEndDate = user.subscription_end_date ? new Date(user.subscription_end_date) : null;
+    const now = new Date();
+    
+    // Jika langganan sudah kedaluwarsa atau belum ada, mulai dari hari ini
+    if (!currentEndDate || currentEndDate < now) {
+      currentEndDate = now;
+    }
+
     if (subscription_action === 'activate_1month') {
+      // Tambah 30 hari ke sisa masa aktif
+      const newEndDate = new Date(currentEndDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+      
       await db.query(
-        `UPDATE users SET subscription_status = 'active', subscription_end_date = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE id = ?`,
-        [id]
+        `UPDATE users SET subscription_status = 'active', subscription_end_date = ? WHERE id = ?`,
+        [newEndDate, id]
       );
-      return NextResponse.json({ message: 'Premium 1 Bulan berhasil diaktifkan!' });
+      
+      // Catat transaksi otomatis
+      await db.query(
+        `INSERT INTO sales_transactions (user_id, user_name, user_email, package_name, amount, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [id, user.name, user.email, 'Langganan 1 Bulan', 349000, 'Manual Admin', 'Diaktifkan & diakumulasi otomatis oleh sistem']
+      );
+
+      return NextResponse.json({ message: 'Langganan 1 Bulan berhasil diakumulasi & transaksi dicatat!' });
     }
     if (subscription_action === 'activate_1year') {
+      // Tambah 365 hari ke sisa masa aktif
+      const newEndDate = new Date(currentEndDate.getTime() + 365 * 24 * 60 * 60 * 1000);
+      
       await db.query(
-        `UPDATE users SET subscription_status = 'active', subscription_end_date = DATE_ADD(NOW(), INTERVAL 365 DAY) WHERE id = ?`,
-        [id]
+        `UPDATE users SET subscription_status = 'active', subscription_end_date = ? WHERE id = ?`,
+        [newEndDate, id]
       );
-      return NextResponse.json({ message: 'Premium 1 Tahun berhasil diaktifkan!' });
+
+      // Catat transaksi otomatis
+      await db.query(
+        `INSERT INTO sales_transactions (user_id, user_name, user_email, package_name, amount, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [id, user.name, user.email, 'Langganan 1 Tahun', 599000, 'Manual Admin', 'Diaktifkan & diakumulasi otomatis oleh sistem']
+      );
+
+      return NextResponse.json({ message: 'Langganan 1 Tahun berhasil diakumulasi & transaksi dicatat!' });
     }
     if (subscription_action === 'deactivate') {
       await db.query(
         `UPDATE users SET subscription_status = 'free', subscription_end_date = NULL WHERE id = ?`,
         [id]
       );
-      return NextResponse.json({ message: 'Akses premium berhasil dinonaktifkan.' });
+      return NextResponse.json({ message: 'Akses premium dinonaktifkan.' });
     }
     return NextResponse.json({ error: 'Aksi subscription tidak valid' }, { status: 400 });
   }

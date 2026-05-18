@@ -5,7 +5,6 @@ import { FileBarChart, RefreshCw, TrendingUp, Activity, Wind, Thermometer, Dropl
 function SummaryCard({
   label,
   value,
-  maxValue,
   unit,
   color,
   danger,
@@ -13,39 +12,32 @@ function SummaryCard({
 }: {
   label: string;
   value: any;
-  maxValue?: any;
   unit: string;
   color: string;
   danger: boolean;
   icon: any;
 }) {
   return (
-    <div className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden group transition-all duration-300 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-500">
-      {/* Glow Lampu */}
-      <div 
-        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-        style={{ backgroundColor: color }} 
+    <div className="relative rounded-2xl md:rounded-3xl border border-slate-200 dark:border-white/15 overflow-hidden group transition-all duration-300 bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] flex flex-col justify-between">
+      {/* Glow bg */}
+      <div
+        className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-25 dark:opacity-10 group-hover:opacity-40 dark:group-hover:opacity-20 transition-opacity pointer-events-none"
+        style={{ background: color }}
       />
 
-      <div className="relative z-10 p-4 md:p-5 flex-1 flex flex-col justify-between">
+      {/* top line */}
+      <div
+        className="absolute inset-x-0 top-0 h-px"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${color}70, transparent)`,
+        }}
+      />
+
+      <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
         {/* MOBILE */}
-        <div className="flex md:hidden flex-col justify-between h-full">
-          <div className="flex items-start justify-between mb-4">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm"
-            >
-              <Icon size={14} style={{ color }} />
-            </div>
-            
-            <div
-              className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
-              style={{ color: danger ? '#f87171' : '#4ade80' }}
-            >
-              {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
-            </div>
-          </div>
+        <div className="flex md:hidden items-center justify-between mb-2">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400 mb-1">
+            <p className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-500 mb-1">
               {label}
             </p>
 
@@ -58,52 +50,49 @@ function SummaryCard({
               </h2>
               <span className="text-slate-400 text-[10px] font-bold uppercase">{unit}</span>
             </div>
-            {maxValue !== undefined && (
-              <div className="mt-1 text-[10px] text-slate-400 font-mono">
-                MAX: <span className="font-bold text-slate-700 dark:text-slate-300">{maxValue} {unit}</span>
-              </div>
-            )}
+          </div>
+
+          <div
+            className="w-10 h-10 rounded-xl border border-slate-200 dark:border-white/8 flex items-center justify-center shrink-0"
+            style={{ background: `${color}15` }}
+          >
+            <Icon size={16} style={{ color }} />
           </div>
         </div>
 
         {/* DESKTOP */}
-        <div className="hidden md:flex flex-col h-full justify-between">
-          <div className="flex items-start justify-between mb-5">
+        <div className="hidden md:block">
+          <div className="flex items-start justify-between mb-4">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm"
+              className="w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/8 flex items-center justify-center"
+              style={{ background: `${color}15` }}
             >
               <Icon size={16} style={{ color }} />
             </div>
-            
-            <div
-              className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
-              style={{ color: danger ? '#f87171' : '#4ade80' }}
+          </div>
+
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-slate-500 mb-2">
+            {label}
+          </p>
+
+          <div className="flex items-baseline gap-1">
+            <h2
+              className="text-3xl xl:text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums"
+              style={{ fontFamily: "'IBM Plex Mono', monospace", color: danger ? '#f87171' : undefined }}
             >
-              {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
-              {danger ? 'Melebihi Batas' : 'Dalam Batas Aman'}
-            </div>
+              {value}
+            </h2>
+            <span className="text-slate-400 text-xs font-bold uppercase">{unit}</span>
           </div>
-
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400 mb-2">
-              {label}
-            </p>
-
-            <div className="flex items-baseline gap-1">
-              <h2
-                className="text-3xl xl:text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums"
-                style={{ fontFamily: "'IBM Plex Mono', monospace", color: danger ? '#f87171' : undefined }}
-              >
-                {value}
-              </h2>
-              <span className="text-slate-400 text-xs font-bold uppercase">{unit}</span>
-            </div>
-            {maxValue !== undefined && (
-              <div className="mt-2 text-[11px] text-slate-400 font-mono">
-                NILAI PUNCAK: <span className="font-bold text-slate-700 dark:text-slate-300">{maxValue} {unit}</span>
-              </div>
-            )}
-          </div>
+        </div>
+        
+        {/* Danger indicator */}
+        <div
+          className="mt-3 md:mt-4 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
+          style={{ color: danger ? '#f87171' : '#4ade80' }}
+        >
+          {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
+          {danger ? 'Above threshold' : 'Normal'}
         </div>
       </div>
     </div>
@@ -133,7 +122,7 @@ function minVal(arr: number[]) { return arr.length ? Math.min(...arr) : 0; }
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="bg-[#FFFFFF] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 p-3 rounded-xl shadow-2xl flex flex-col gap-2 relative overflow-hidden">
+    <div className="bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 p-3 rounded-xl shadow-2xl flex flex-col gap-2 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-black/5 dark:from-white/5 to-transparent pointer-events-none" />
       <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-black mb-1 relative z-10">{label}</p>
       {payload.map((p: any) => {
@@ -143,7 +132,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <div key={p.dataKey} className="flex items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ background: color, color: color }} />
-              <span className="text-[10px] font-semibold uppercase text-[#1E293B] dark:text-slate-400 dark:text-slate-300">{cleanName}</span>
+              <span className="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300">{cleanName}</span>
             </div>
             <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
               {p.value?.toFixed(1) || 0}
@@ -233,12 +222,16 @@ export default function ReportsPage() {
   const safeRate = filteredRows.length ? (((filteredRows.length - dangerCount) / filteredRows.length) * 100).toFixed(1) : '0';
 
   const summaryStats = [
-    { label: 'CO₂ (Sisa Pembakaran)', value: avg(co2s).toFixed(0), maxValue: maxVal(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2, icon: Wind },
-    { label: 'NH₃ (Indikator Kimia)', value: avg(nh3s).toFixed(2), maxValue: maxVal(nh3s).toFixed(2), unit: 'PPM', color: '#f59e0b', danger: avg(nh3s) > T.nh3, icon: Activity },
-    { label: 'VOC (GAS LPG MUDAH TERBAKAR)', value: avg(vocs).toFixed(2), maxValue: maxVal(vocs).toFixed(2), unit: 'PPM', color: '#ec4899', danger: avg(vocs) > T.voc, icon: Activity },
-    { label: 'Suhu Udara', value: avg(temps).toFixed(1), maxValue: maxVal(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp, icon: Thermometer },
-    { label: 'Kelembapan', value: avg(hums).toFixed(0), maxValue: maxVal(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum, icon: Droplets },
-    { label: 'Tingkat Keamanan Sistem', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
+    { label: 'Avg CO₂', value: avg(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2, icon: Wind },
+    { label: 'Max CO₂', value: maxVal(co2s).toFixed(0), unit: 'PPM', color: '#60a5fa', danger: maxVal(co2s) > T.co2, icon: TrendingUp },
+    { label: 'Avg NH₃', value: avg(nh3s).toFixed(2), unit: 'PPM', color: '#f59e0b', danger: avg(nh3s) > T.nh3, icon: Activity },
+    { label: 'Max NH₃', value: maxVal(nh3s).toFixed(2), unit: 'PPM', color: '#fbbf24', danger: maxVal(nh3s) > T.nh3, icon: TrendingUp },
+    { label: 'Avg VOC', value: avg(vocs).toFixed(2), unit: 'PPM', color: '#ec4899', danger: avg(vocs) > T.voc, icon: Activity },
+    { label: 'Max VOC', value: maxVal(vocs).toFixed(2), unit: 'PPM', color: '#f472b6', danger: maxVal(vocs) > T.voc, icon: TrendingUp },
+    { label: 'Avg Temp', value: avg(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp, icon: Thermometer },
+    { label: 'Avg Humidity', value: avg(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum, icon: Droplets },
+    { label: 'Safe Rate', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
+    { label: 'Total Records', value: filteredRows.length.toString(), unit: 'entries', color: '#94a3b8', danger: false, icon: Database },
   ];
 
   const groupedMap: Record<string, { co2: number[]; nh3: number[]; voc: number[]; temp: number[]; hum: number[] }> = {};
@@ -287,12 +280,12 @@ export default function ReportsPage() {
     : chartData;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
           <div>
-            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">Kitchen Sensor Node</p>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">Kitchen Sensor Node</p>
             <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Reports
             </h1>
@@ -303,7 +296,7 @@ export default function ReportsPage() {
               <select
                 value={filterType}
                 onChange={e => setFilterType(e.target.value as any)}
-                className="bg-[#FFFFFF] dark:bg-[#0d1425] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none"
+                className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none"
               >
                 <option value="all">Semua Data</option>
                 <option value="day">Harian</option>
@@ -312,20 +305,20 @@ export default function ReportsPage() {
               </select>
               
               {filterType === 'day' && (
-                <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-[#FFFFFF] dark:bg-[#0d1425] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+                <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
               )}
               {filterType === 'week' && (
-                <input type="week" value={filterWeek} onChange={e => setFilterWeek(e.target.value)} className="bg-[#FFFFFF] dark:bg-[#0d1425] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+                <input type="week" value={filterWeek} onChange={e => setFilterWeek(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
               )}
               {filterType === 'month' && (
-                <input type="month" value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="bg-[#FFFFFF] dark:bg-[#0d1425] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
+                <input type="month" value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="bg-white dark:bg-[#0d1425] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none" />
               )}
             </div>
 
             <button
               onClick={fetchData}
               disabled={loading}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-semibold uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-black uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-sm dark:shadow-none"
             >
               <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
               <span className="hidden sm:inline">Refresh</span>
@@ -349,20 +342,19 @@ export default function ReportsPage() {
               </div>
               <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl animate-pulse" />
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#1E293B] dark:text-slate-400">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-600">
               Loading report data...
             </p>
           </div>
         ) : (
           <>
             {/* Summary grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
               {summaryStats.map(s => (
                 <SummaryCard
                   key={s.label}
                   label={s.label}
                   value={s.value}
-                  maxValue={s.maxValue}
                   unit={s.unit}
                   color={s.color}
                   danger={s.danger}
@@ -373,8 +365,8 @@ export default function ReportsPage() {
 
             {/* Bar Chart */}
             {displayChartData.length > 0 ? (
-              <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
-                <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                     <div className="flex items-center gap-2">
                       <FileBarChart size={13} className="text-blue-500" />
@@ -392,9 +384,9 @@ export default function ReportsPage() {
                         { k: 'TEMP', c: 'bg-orange-500' },
                         { k: 'HUM', c: 'bg-purple-500' }
                       ].map(i => (
-                        <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#FFFFFF]/5 px-2 py-1 rounded border border-[#E2E8F0] dark:border-white/10">
+                        <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded border border-slate-200 dark:border-white/10">
                           <span className={`w-2 h-2 rounded-full ${i.c}`} />
-                          <span className="text-[9px] font-semibold uppercase text-[#1E293B] dark:text-slate-400">{i.k}</span>
+                          <span className="text-[9px] font-black uppercase text-slate-500">{i.k}</span>
                         </div>
                       ))}
                     </div>
@@ -466,8 +458,8 @@ export default function ReportsPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] flex flex-col items-center justify-center p-12 text-center shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
-                <div className="w-16 h-16 bg-slate-100 dark:bg-[#FFFFFF]/5 rounded-full flex items-center justify-center mb-4">
+              <div className="rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] flex flex-col items-center justify-center p-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                   <Database size={24} className="text-slate-400 dark:text-slate-500" />
                 </div>
                 <h3 className="text-sm font-black text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wider">Tidak Ada Data</h3>
@@ -476,9 +468,9 @@ export default function ReportsPage() {
             )}
 
             {/* Threshold reference table */}
-            <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
-              <div className="px-6 py-5 border-b border-[#E2E8F0] dark:border-white/5">
-                <span className="text-[10px] font-semibold text-slate-400 dark:text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">
+            <div className="rounded-3xl border border-slate-200 dark:border-white/15 bg-white dark:bg-white/[0.05] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-colors duration-300">
+              <div className="px-6 py-5 border-b border-slate-200 dark:border-white/5">
+                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em]">
                   Kitchen Threshold Reference
                 </span>
               </div>
@@ -486,9 +478,9 @@ export default function ReportsPage() {
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#E2E8F0] dark:border-white/5">
+                    <tr className="border-b border-slate-200 dark:border-white/5">
                       {['Parameter', 'Threshold', 'Dataset Average', 'Dataset Max', 'Status'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 text-[9px] font-semibold text-slate-400 dark:text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">{h}</th>
+                        <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -500,7 +492,7 @@ export default function ReportsPage() {
                       { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
                       { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                     ].map(row => (
-                      <tr key={row.name} className="hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.03] transition-colors">
+                      <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
                         <td className="px-5 py-3.5 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-tight">{row.name}</td>
                         <td className="px-5 py-3.5 text-slate-400 dark:text-slate-500 text-xs font-mono" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{row.threshold}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#f87171', fontFamily: "'IBM Plex Mono', monospace" }}>{row.avg}</td>
@@ -529,7 +521,7 @@ export default function ReportsPage() {
                   { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
                   { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                 ].map(row => (
-                  <div key={row.name} className="p-5 hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-colors">
+                  <div key={row.name} className="p-5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">{row.name}</span>
                       <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
@@ -543,15 +535,15 @@ export default function ReportsPage() {
                     </div>
                     
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">THRESHOLD</p>
                         <p className="text-xs font-black text-slate-600 dark:text-slate-300 font-mono">{row.threshold}</p>
                       </div>
-                      <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">AVERAGE</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#f87171' }}>{row.avg}</p>
                       </div>
-                      <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">MAXIMUM</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#fca5a5' }}>{row.max}</p>
                       </div>

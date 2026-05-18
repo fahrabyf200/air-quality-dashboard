@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 
-export const db = mysql.createPool({
+const dbConfig = {
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
@@ -13,4 +13,17 @@ export const db = mysql.createPool({
   ssl: {
     rejectUnauthorized: false 
   }
-});
+};
+
+let db: mysql.Pool;
+
+if (process.env.NODE_ENV === 'production') {
+  db = mysql.createPool(dbConfig);
+} else {
+  if (!(global as any).mysqlPool) {
+    (global as any).mysqlPool = mysql.createPool(dbConfig);
+  }
+  db = (global as any).mysqlPool;
+}
+
+export { db };

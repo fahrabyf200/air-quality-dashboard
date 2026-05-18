@@ -97,10 +97,10 @@ export default function AdminComplaintsPage() {
       {/* Detail Modal */}
       {selected && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-3xl p-7 max-w-lg w-full shadow-2xl">
+          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-lg w-full shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">Detail Pengaduan #{selected.id}</h2>
-              <button onClick={() => setSelected(null)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
+              <button onClick={() => setSelected(null)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
                 <X size={14} />
               </button>
             </div>
@@ -110,7 +110,7 @@ export default function AdminComplaintsPage() {
                 <div><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Email</p><p className="font-bold text-slate-900 dark:text-white font-mono text-xs">{selected.email}</p></div>
               </div>
               <div><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Subjek</p><p className="text-sm font-bold text-slate-900 dark:text-white">{selected.subject}</p></div>
-              <div><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Pesan</p><p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{selected.message}</p></div>
+              <div><p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mb-0.5">Pesan</p><p className="text-sm text-[#1E293B] dark:text-slate-400 dark:text-slate-300 leading-relaxed">{selected.message}</p></div>
               <div className="flex items-center justify-between"><StatusBadge status={selected.status} /><span className="text-[10px] text-slate-400 font-mono">{new Date(selected.created_at).toLocaleString('id-ID')}</span></div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -141,7 +141,7 @@ export default function AdminComplaintsPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Pengaduan</h1>
           <p className="text-slate-500 text-xs mt-1 font-mono">Kelola laporan dan keluhan dari pengguna</p>
         </div>
-        <button onClick={fetchData} disabled={loading} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50">
+        <button onClick={fetchData} disabled={loading} className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider transition-all disabled:opacity-50">
           <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
@@ -159,27 +159,37 @@ export default function AdminComplaintsPage() {
           { label: 'Diproses',  value: inProgressCount, color: '#3b82f6', icon: AlertTriangle },
           { label: 'Selesai',   value: resolvedCount,   color: '#22c55e', icon: CheckCircle },
         ].map(s => (
-          <div key={s.label} className="relative rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] p-4 overflow-hidden shadow-sm">
-            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-2xl opacity-20" style={{ background: s.color }} />
-            <div className="p-2 rounded-lg w-fit mb-3" style={{ background: `${s.color}15` }}>
-              <s.icon size={14} style={{ color: s.color }} />
+          <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
+            {/* Glow Lampu */}
+            <div 
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+              style={{ backgroundColor: s.color }} 
+            />
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+                  <s.icon size={16} style={{ color: s.color }} />
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 mb-1.5">{s.label}</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{s.value}</p>
+              </div>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">{s.label}</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div className="rounded-3xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm">
+      <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-2 flex-1">
             <MessageSquareWarning size={16} className="text-amber-500" />
-            <p className="text-xs font-black uppercase tracking-widest text-slate-500">Daftar Pengaduan ({filtered.length})</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Daftar Pengaduan ({filtered.length})</p>
           </div>
           <div className="flex items-center gap-2">
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-300 focus:outline-none">
+              className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-300 focus:outline-none">
               <option value="all">Semua Status</option>
               <option value="pending">Menunggu</option>
               <option value="in_progress">Diproses</option>
@@ -188,7 +198,7 @@ export default function AdminComplaintsPage() {
             <div className="relative">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input type="text" placeholder="Cari..." value={search} onChange={e => setSearch(e.target.value)}
-                className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-8 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 focus:outline-none focus:border-purple-500/40 w-40 transition-colors" />
+                className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl pl-8 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 focus:outline-none focus:border-purple-500/40 w-40 transition-colors" />
             </div>
           </div>
         </div>
@@ -204,7 +214,7 @@ export default function AdminComplaintsPage() {
           <div className="divide-y divide-slate-100 dark:divide-white/[0.04]">
             {filtered.map(c => (
               <div key={c.id} onClick={() => setSelected(c)}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/70 dark:hover:bg-white/[0.02] cursor-pointer transition-all group">
+                className="flex items-center gap-4 px-6 py-4 hover:bg-[#F8F9FA]/70 dark:hover:bg-[#FFFFFF]/[0.02] cursor-pointer transition-all group">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{c.subject}</p>
