@@ -53,10 +53,10 @@ export default function ComplaintsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.35em] mb-1">Pusat Bantuan</p>
+        <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">Pusat Bantuan</p>
         <h1 className="text-2xl md:text-[28px] font-black tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
           Pengaduan & Bantuan
         </h1>
@@ -96,17 +96,22 @@ export default function ComplaintsPage() {
             <div
               key={c.label}
               onClick={c.action || undefined}
-              className={`relative rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-5 overflow-hidden shadow-sm transition-all ${c.action ? 'cursor-pointer hover:scale-[1.02] hover:shadow-md' : ''}`}
+              className={`relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] transition-all group ${c.action ? 'cursor-pointer hover:scale-[1.02] hover:border-slate-400 dark:hover:border-slate-500' : ''}`}
             >
-              <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-15 blur-2xl" style={{ background: c.color }} />
-              <div className="p-2.5 rounded-2xl w-fit mb-3" style={{ background: `${c.color}15` }}>
+              <div 
+                className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-[0.25] dark:opacity-20 blur-3xl pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+                style={{ backgroundColor: c.color }} 
+              />
+              <div className="relative z-10 p-2.5 rounded-2xl w-fit mb-3 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
                 <c.icon size={18} style={{ color: c.color }} />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{c.label}</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">{c.value}</p>
-              {c.cta && (
-                <p className="text-[10px] font-black mt-2" style={{ color: c.color }}>{c.cta} →</p>
-              )}
+              <div className="relative z-10">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{c.label}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">{c.value}</p>
+                {c.cta && (
+                  <p className="text-[10px] font-black mt-2" style={{ color: c.color }}>{c.cta} →</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -121,7 +126,7 @@ export default function ComplaintsPage() {
               </h2>
             </div>
 
-            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none">
               {sent && (
                 <div className="mb-6 flex flex-col items-center text-center py-4">
                   <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
@@ -148,7 +153,7 @@ export default function ComplaintsPage() {
                         value={form.name}
                         onChange={e => setForm({ ...form, name: e.target.value })}
                         placeholder="Nama Anda..."
-                        className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
+                        className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -158,7 +163,7 @@ export default function ComplaintsPage() {
                         value={form.email}
                         onChange={e => setForm({ ...form, email: e.target.value })}
                         placeholder="email@anda.com"
-                        className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
+                        className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
                       />
                     </div>
                   </div>
@@ -170,7 +175,7 @@ export default function ComplaintsPage() {
                       value={form.subject}
                       onChange={e => setForm({ ...form, subject: e.target.value })}
                       placeholder="Contoh: Sensor tidak mengirim data..."
-                      className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
+                      className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all"
                     />
                   </div>
 
@@ -181,7 +186,7 @@ export default function ComplaintsPage() {
                       onChange={e => setForm({ ...form, message: e.target.value })}
                       placeholder="Jelaskan masalah atau pertanyaan Anda secara detail..."
                       rows={5}
-                      className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all resize-none"
+                      className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#a3e635]/20 focus:border-[#a3e635] transition-all resize-none"
                     />
                   </div>
 
@@ -199,7 +204,7 @@ export default function ComplaintsPage() {
                   <button
                     type="submit"
                     disabled={sending}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm uppercase tracking-wider transition-all shadow-md shadow-[#a3e635]/20 hover:shadow-[#a3e635]/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm uppercase tracking-wider transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20 hover:shadow-[#a3e635]/40 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {sending ? <RefreshCw size={15} className="animate-spin" /> : <Send size={15} />}
                     {sending ? 'Mengirim...' : 'Kirim Pengaduan'}
@@ -236,7 +241,7 @@ export default function ComplaintsPage() {
                   a: 'Ya, seluruh data tersimpan di server kami dengan enkripsi dan tidak dibagikan ke pihak ketiga manapun.',
                 },
               ].map((item, i) => (
-                <div key={i} className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm">
+                <div key={i} className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] border-2 border-slate-300 dark:border-slate-600 rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
                       <span className="text-[9px] font-black text-blue-600">Q</span>

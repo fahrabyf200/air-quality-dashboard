@@ -51,7 +51,7 @@ export default function AdminThresholdsPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors max-w-4xl">
+      <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors max-w-4xl">
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-8 max-w-2xl leading-relaxed">
           Ubah nilai maksimal sensor di bawah ini. Jika ada perangkat sensor yang mengirim nilai melebihi ambang batas ini, sistem akan otomatis mendeteksinya sebagai status bahaya/darurat di seluruh sistem (Dashboard, Monitoring, dan Laporan).
         </p>
@@ -61,7 +61,7 @@ export default function AdminThresholdsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
               {Object.entries(localThresholds).map(([key, val]) => (
                 <div key={key} className="flex flex-col gap-2.5">
-                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                  <label className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest flex items-center justify-between">
                     <span>Maksimal {key === 'hum' ? 'Kelembapan' : key === 'temp' ? 'Suhu' : key.toUpperCase()}</span>
                     {key === 'co2' || key === 'nh3' || key === 'voc' ? (
                       <span className="text-[9px] text-blue-500">Gas</span>
@@ -74,9 +74,9 @@ export default function AdminThresholdsPage() {
                       type="number"
                       value={val}
                       onChange={(e) => setLocalThresholds({ ...localThresholds, [key]: Number(e.target.value) })}
-                      className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl pl-5 pr-14 py-4 text-base font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-inner dark:shadow-none"
+                      className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-2xl pl-5 pr-14 py-4 text-base font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-inner dark:shadow-none"
                     />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-200 dark:bg-white/10 px-2 py-1 rounded-md text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:bg-blue-500/10 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-200 dark:bg-[#FFFFFF]/10 px-2 py-1 rounded-md text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:bg-blue-500/10 group-focus-within:text-blue-500 transition-colors">
                       {key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}
                     </div>
                   </div>
@@ -89,7 +89,7 @@ export default function AdminThresholdsPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-70 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/30"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-70 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-blue-500/30"
               >
                 {isSaving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
                 {isSaving ? 'Menyimpan...' : 'Simpan Pengaturan'}

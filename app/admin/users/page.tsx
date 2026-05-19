@@ -66,7 +66,7 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-slate-100 dark:bg-white/5 text-slate-500 border-slate-200 dark:border-white/10">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border bg-slate-100 dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 border-[#E2E8F0] dark:border-white/10">
       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
       Free
     </span>
@@ -76,10 +76,10 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-sm px-4">
-      <div className="bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
+      <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-black text-slate-900 dark:text-white">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
             <X size={15} />
           </button>
         </div>
@@ -92,14 +92,14 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] font-semibold text-slate-400 dark:text-[#1E293B] dark:text-slate-400 uppercase tracking-widest">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputClass = "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-colors";
-const selectClass = "w-full bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 transition-colors";
+const inputClass = "w-full bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-colors";
+const selectClass = "w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 transition-colors";
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -250,8 +250,8 @@ export default function AdminUsersPage() {
               </select>
             </FormField>
             <div className="flex gap-3 pt-4">
-              <button onClick={() => setCreateModal(false)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-white/10 transition-all">Batal</button>
-              <button onClick={handleCreate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-lg shadow-purple-500/10">
+              <button onClick={() => setCreateModal(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={handleCreate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10">
                 {saving ? 'Menyimpan...' : 'Buat Akun'}
               </button>
             </div>
@@ -279,8 +279,8 @@ export default function AdminUsersPage() {
               <p className="text-[10px] text-yellow-500 font-mono">⚠️ Anda tidak bisa menurunkan peran akun Anda sendiri.</p>
             )}
             <div className="flex gap-3 pt-4">
-              <button onClick={() => setEditUser(null)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-white/10 transition-all">Batal</button>
-              <button onClick={handleUpdate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-lg shadow-purple-500/10">
+              <button onClick={() => setEditUser(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={handleUpdate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10">
                 {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
               </button>
             </div>
@@ -291,7 +291,7 @@ export default function AdminUsersPage() {
       {/* CONFIRM DELETE MODAL */}
       {confirmDelete && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl">
             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <UserX size={26} className="text-red-500" />
             </div>
@@ -300,8 +300,8 @@ export default function AdminUsersPage() {
             <p className="text-sm font-black text-red-500 text-center mb-2 font-mono">{confirmDelete.email}</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-600 text-center mb-6">Data sensor yang terhubung akan diputus namun tidak dihapus.</p>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:bg-slate-100 dark:hover:bg-white/10 transition-all">Batal</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-all shadow-md shadow-red-500/10">Ya, Hapus</button>
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/10">Ya, Hapus</button>
             </div>
           </div>
         </div>
@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
           <p className="text-slate-500 text-xs mt-1 font-mono">CRUD manajemen akun dan hak akses pengguna</p>
         </div>
         <button onClick={() => { setForm({ name: '', email: '', password: '', role: 'user' }); setError(''); setCreateModal(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-all text-[11px] font-black uppercase tracking-wider shadow-lg shadow-purple-500/20">
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-all text-[11px] font-black uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/20">
           <UserPlus size={13} /> Tambah User
         </button>
       </div>
@@ -327,14 +327,23 @@ export default function AdminUsersPage() {
           { label: 'Premium Active', value: premiumCount, color: '#a3e635', icon: ShieldAlert },
           { label: 'Free Member', value: freeCount, color: '#64748b', icon: UserCircle },
         ].map(s => (
-          <div key={s.label} className="relative rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] p-4 overflow-hidden shadow-sm dark:shadow-none">
-            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-2xl opacity-20 pointer-events-none" style={{ background: s.color }} />
-            <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${s.color}60, transparent)` }} />
-            <div className="p-2 rounded-lg w-fit mb-3" style={{ background: `${s.color}15` }}>
-              <s.icon size={14} style={{ color: s.color }} />
+          <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
+            {/* Glow Lampu */}
+            <div 
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+              style={{ backgroundColor: s.color }} 
+            />
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+                  <s.icon size={16} style={{ color: s.color }} />
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 mb-1.5">{s.label}</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{s.value}</p>
+              </div>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">{s.label}</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{s.value}</p>
           </div>
         ))}
       </div>
@@ -353,14 +362,14 @@ export default function AdminUsersPage() {
       )}
 
       {/* Table */}
-      <div className="rounded-3xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm dark:shadow-none">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-white/[0.01]">
+      <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
               <Users size={15} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Daftar Pengguna</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Daftar Pengguna</p>
               <p className="text-xs text-slate-500 mt-0.5">{filtered.length} dari {users.length} akun</p>
             </div>
           </div>
@@ -368,10 +377,10 @@ export default function AdminUsersPage() {
             <div className="relative">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
               <input type="text" placeholder="Cari nama / email..." value={search} onChange={e => setSearch(e.target.value)}
-                className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/40 w-48 transition-colors shadow-sm dark:shadow-none" />
+                className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/40 w-48 transition-colors shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none" />
             </div>
             <button onClick={fetchUsers} disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-all text-[11px] font-black uppercase tracking-wider disabled:opacity-50">
+              className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50">
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
           </div>
@@ -380,7 +389,7 @@ export default function AdminUsersPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <RefreshCw size={22} className="text-purple-600 dark:text-purple-400 animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 animate-pulse">Memuat data...</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat data...</p>
           </div>
         ) : (
           <>
@@ -390,19 +399,19 @@ export default function AdminUsersPage() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
                     {['#', 'Pengguna', 'Email', 'Role', 'Langganan', 'Data Sensor', 'Bergabung', 'Aksi'].map(h => (
-                      <th key={h} className="text-left px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-600">{h}</th>
+                      <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 dark:text-[#1E293B] dark:text-slate-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-16 text-slate-500 text-sm font-black uppercase tracking-widest">Tidak ada pengguna</td></tr>
+                    <tr><td colSpan={7} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">Tidak ada pengguna</td></tr>
                   ) : filtered.map((u, i) => (
-                    <tr key={u.id} className={`transition-all hover:bg-slate-50/50 dark:hover:bg-white/[0.02] ${u.id === session?.id ? 'bg-purple-500/[0.04]' : ''}`}>
+                    <tr key={u.id} className={`transition-all hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] ${u.id === session?.id ? 'bg-purple-500/[0.04]' : ''}`}>
                       <td className="px-5 py-4 text-slate-500 dark:text-slate-600 font-mono text-xs">{i + 1}</td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-slate-200 dark:border-white/10 flex items-center justify-center text-sm font-black text-slate-600 dark:text-slate-300 uppercase flex-shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase flex-shrink-0">
                             {u.name?.charAt(0) || '?'}
                           </div>
                           <div>
@@ -495,7 +504,7 @@ export default function AdminUsersPage() {
                 <div key={u.id} className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-slate-200 dark:border-white/10 flex items-center justify-center text-sm font-black text-slate-600 dark:text-slate-300 uppercase">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase">
                         {u.name?.charAt(0) || '?'}
                       </div>
                       <div>

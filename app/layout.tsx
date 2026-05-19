@@ -30,7 +30,7 @@ const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/" },
   { name: "Monitoring", icon: Table, path: "/monitoring" },
   { name: "Reports", icon: FileBarChart, path: "/reports" },
-  { name: "Education", icon: BookOpen, path: "/education" },
+  { name: "About & Safety", icon: BookOpen, path: "/education" },
   { name: "Pengaduan", icon: MessageSquare, path: "/complaints" },
   { name: "Profile", icon: User, path: "/profile" },
 ];
@@ -46,7 +46,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all duration-200 shadow-sm dark:shadow-none"
+      className="w-10 h-10 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all duration-200 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
     >
       {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
     </button>
@@ -82,11 +82,11 @@ function NotificationBell() {
     <div className="relative">
       <button
         onClick={markRead}
-        className="relative w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-sm dark:shadow-none"
+        className="relative w-10 h-10 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
       >
         <Bell size={16} />
         {unread > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-[9px] font-black shadow-md">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-[9px] font-black shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -94,7 +94,7 @@ function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 w-80 z-[200] bg-white dark:bg-[#0d1527] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="absolute right-0 top-12 w-80 z-[200] bg-[#FFFFFF] dark:bg-[#0d1527] border border-[#E2E8F0] dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/[0.06]">
             <p className="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Notifikasi</p>
             <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><X size={14} /></button>
@@ -120,12 +120,14 @@ function NotificationBell() {
 }
 
 function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
+  const isAdminActive = pathname.startsWith('/admin');
+
   return (
-    <header className="hidden lg:flex h-[72px] items-center justify-between px-8 border-b border-slate-200 dark:border-white/5 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl sticky top-0 z-40 transition-colors duration-300">
+    <header className="hidden lg:flex h-[72px] items-center justify-between px-8 border-b border-[#E2E8F0] dark:border-white/5 bg-[#FFFFFF]/95 dark:bg-[#070d1a]/95 backdrop-blur-xl sticky top-0 z-40 transition-colors duration-300">
       {/* LEFT */}
       <div className="flex items-center gap-3">
         <div className="relative">
-          <div className="w-11 h-11 rounded-2xl bg-[#a3e635] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-2xl bg-[#a3e635] flex items-center justify-center shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/15">
             <Wind className="text-[#0a0f1a]" size={18} strokeWidth={2.8} />
           </div>
 
@@ -144,7 +146,7 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
       </div>
 
       {/* CENTER */}
-      <nav className="flex items-center gap-2 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] p-1.5 rounded-2xl transition-colors duration-300">
+      <nav className="flex items-center gap-2 bg-slate-100 dark:bg-[#FFFFFF]/[0.03] border border-[#E2E8F0] dark:border-white/[0.06] p-1.5 rounded-2xl transition-colors duration-300">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.path;
@@ -153,10 +155,10 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
             <Link
               key={item.path}
               href={item.path}
-              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
                 active
-                  ? "bg-[#a3e635] text-[#0a0f1a] shadow-sm dark:shadow-none"
-                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/[0.04]"
+                  ? "bg-[#a3e635] text-[#0a0f1a] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/10 dark:shadow-none"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-[#FFFFFF] dark:hover:bg-[#FFFFFF]/[0.04]"
               }`}
             >
               <Icon size={15} strokeWidth={active ? 2.6 : 2.2} />
@@ -168,13 +170,13 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
         {user?.role === 'admin' && (
           <Link
             href="/admin"
-            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-              pathname === '/admin'
-                ? 'bg-purple-500 text-white shadow-sm'
+            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
+              isAdminActive
+                ? 'bg-purple-500 text-white shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/20'
                 : 'text-purple-500 hover:bg-purple-500/10 hover:text-purple-600 border border-purple-500/20'
             }`}
           >
-            <ShieldCheck size={15} strokeWidth={pathname === '/admin' ? 2.6 : 2.2} />
+            <ShieldCheck size={15} strokeWidth={isAdminActive ? 2.6 : 2.2} />
             Admin
           </Link>
         )}
@@ -186,14 +188,14 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
 
         <ThemeToggle />
 
-        <div className="w-px h-6 bg-slate-200 dark:bg-white/10 transition-colors duration-300" />
+        <div className="w-px h-6 bg-slate-200 dark:bg-[#FFFFFF]/10 transition-colors duration-300" />
 
-        <div className="flex items-center gap-3 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] rounded-2xl px-2 py-1.5 shadow-sm dark:shadow-none transition-colors duration-300">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#a3e635] to-lime-600 flex items-center justify-center text-[#0a0f1a] font-black text-sm uppercase">
+        <div className="flex items-center gap-3 border border-[#E2E8F0] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] rounded-2xl px-2 py-1.5 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none transition-colors duration-300">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#a3e635] to-lime-600 flex items-center justify-center text-[#0a0f1a] font-black text-sm uppercase shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
             {user?.name ? user.name.charAt(0) : 'U'}
           </div>
 
-          <div className="leading-none">
+          <div className="leading-none text-left">
             <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">
               {user?.name || 'Loading...'}
             </p>
@@ -212,13 +214,13 @@ function DesktopNav({ pathname, user }: { pathname: string, user: any }) {
 
 function MobileHeader() {
   return (
-    <header className="lg:hidden sticky top-0 z-40 h-14 px-4 flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl transition-colors duration-300">
+    <header className="lg:hidden sticky top-0 z-40 h-14 px-4 flex items-center justify-between border-b border-[#E2E8F0] dark:border-white/5 bg-[#FFFFFF]/95 dark:bg-[#070d1a]/95 backdrop-blur-xl transition-colors duration-300">
       <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-2xl bg-[#a3e635] flex items-center justify-center">
+        <div className="w-9 h-9 rounded-2xl bg-[#a3e635] flex items-center justify-center shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/15">
           <Wind size={16} className="text-[#0a0f1a]" strokeWidth={2.8} />
         </div>
 
-        <div>
+        <div className="text-left">
           <h1 className="text-slate-900 dark:text-white font-black text-[14px]">
             SkyWatch
           </h1>
@@ -230,11 +232,7 @@ function MobileHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="relative w-10 h-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.04] flex items-center justify-center text-slate-500 dark:text-slate-400 shadow-sm dark:shadow-none">
-          <Bell size={15} />
-
-          <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-[#a3e635]" />
-        </button>
+        <NotificationBell />
 
         <ThemeToggle />
       </div>
@@ -242,55 +240,77 @@ function MobileHeader() {
   );
 }
 
-function MobileBottomNav({ pathname }: { pathname: string }) {
+function MobileBottomNav({ pathname, user }: { pathname: string; user: any }) {
+  const items = [...menuItems];
+  const isAdmin = user?.role === 'admin';
+  if (isAdmin) {
+    items.push({ name: "Admin", icon: ShieldCheck, path: "/admin" });
+  }
+
+  const numCols = items.length;
+
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(16px,env(safe-area-inset-bottom))]">
       <nav
-        className="relative h-[72px] rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white/90 dark:bg-[#0a101e]/90 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300"
+        className="relative h-[72px] rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 overflow-hidden bg-[#FFFFFF]/90 dark:bg-[#0a101e]/90 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300"
       >
         {/* glow */}
         <div
           className="absolute inset-x-0 top-0 h-px"
           style={{
             background:
-              "linear-gradient(90deg, transparent, rgba(163,230,53,0.45), transparent)",
+              isAdmin
+                ? "linear-gradient(90deg, transparent, rgba(168,85,247,0.45), transparent)"
+                : "linear-gradient(90deg, transparent, rgba(163,230,53,0.45), transparent)",
           }}
         />
 
-        <div className="grid grid-cols-5 h-full">
-          {menuItems.map((item) => {
+        <div 
+          className="grid h-full" 
+          style={{ gridTemplateColumns: `repeat(${numCols}, minmax(0, 1fr))` }}
+        >
+          {items.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.path;
+            const active = item.path === '/admin' ? pathname.startsWith('/admin') : pathname === item.path;
+            const isPurpleTheme = item.path === '/admin';
 
             return (
               <Link
                 key={item.path}
                 href={item.path}
-                className="relative flex flex-col items-center justify-center gap-1"
+                className="relative flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform duration-100"
               >
                 {/* active bubble */}
                 {active && (
-                  <div className="absolute top-2 w-11 h-11 rounded-2xl bg-[#a3e635]/15 border border-[#a3e635]/20" />
+                  <div 
+                    className={`absolute top-2.5 w-11 h-11 rounded-2xl border ${
+                      isPurpleTheme 
+                        ? "bg-purple-500/15 border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
+                        : "bg-[#a3e635]/15 border-[#a3e635]/25 shadow-[0_0_15px_rgba(163,230,53,0.15)]"
+                    }`} 
+                  />
                 )}
 
-                <div className="relative z-10 flex flex-col items-center gap-1">
+                <div className="relative z-10 flex flex-col items-center justify-center gap-0.5">
                   <Icon
-                    size={20}
-                    strokeWidth={active ? 2.8 : 2.2}
+                    size={active ? 18 : 22}
+                    strokeWidth={active ? 2.8 : 2.0}
                     className={
-                      active ? "text-[#a3e635]" : "text-slate-600"
+                      active 
+                        ? (isPurpleTheme ? "text-purple-500 dark:text-purple-400 animate-in zoom-in-95 duration-150" : "text-[#a3e635] animate-in zoom-in-95 duration-150") 
+                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-200"
                     }
                   />
 
-                  <span
-                    className={`text-[10px] font-black tracking-wide ${
-                      active
-                        ? "text-[#a3e635]"
-                        : "text-slate-600"
-                    }`}
-                  >
-                    {item.name}
-                  </span>
+                  {active && (
+                    <span
+                      className={`text-[8px] font-black tracking-widest uppercase animate-in fade-in slide-in-from-bottom-1 duration-200 ${
+                        isPurpleTheme ? "text-purple-500 dark:text-purple-400" : "text-[#a3e635]"
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  )}
                 </div>
               </Link>
             );
@@ -327,16 +347,16 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
   const waLink = `https://wa.me/${WA_ADMIN}?text=${waMessage}`;
 
   return (
-    <div className="absolute inset-0 z-30 flex items-center justify-center">
+    <div className="fixed inset-0 z-[150] flex items-start justify-center pt-16 md:items-center md:pt-0 overflow-y-auto">
       {/* Blurred background blocker */}
       <div className="absolute inset-0 backdrop-blur-md bg-slate-900/10 dark:bg-[#070d1a]/30" />
 
       {/* Lock Card */}
-      <div className="relative z-10 mx-4 max-w-sm w-full">
+      <div className="relative z-10 mx-4 my-8 max-w-sm w-full">
         {/* Glow effect */}
         <div className="absolute inset-0 bg-[#a3e635]/10 blur-3xl rounded-3xl" />
 
-        <div className="relative bg-white/80 dark:bg-[#0d1527]/80 backdrop-blur-2xl border border-white/30 dark:border-white/10 rounded-3xl p-8 shadow-2xl text-center">
+        <div className="relative bg-[#FFFFFF]/80 dark:bg-[#0d1527]/80 backdrop-blur-2xl border border-white/30 dark:border-white/10 rounded-3xl p-8 shadow-2xl text-center">
           {/* Lock icon with neon glow */}
           <div className="relative w-20 h-20 mx-auto mb-6">
             <div className="absolute inset-0 bg-[#a3e635]/30 blur-2xl rounded-full" />
@@ -377,7 +397,7 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm transition-all duration-200 shadow-lg shadow-[#a3e635]/30 hover:shadow-[#a3e635]/50 hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm transition-all duration-200 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/30 hover:shadow-[#a3e635]/50 hover:scale-[1.02] active:scale-[0.98]"
           >
             <MessageCircle size={18} strokeWidth={2.5} />
             Upgrade Sekarang via WhatsApp
@@ -421,7 +441,7 @@ export default function RootLayout({
 
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className="bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white antialiased transition-colors duration-300">
+      <body className="bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white antialiased transition-colors duration-300">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -443,7 +463,7 @@ export default function RootLayout({
               )}
             </main>
 
-            {!isAuthPage && !isAdminPage && <MobileBottomNav pathname={pathname} />}
+            {!isAuthPage && !isAdminPage && <MobileBottomNav pathname={pathname} user={user} />}
 
             {/* ========== FLOATING WHATSAPP CALL CENTER BUTTON ========== */}
             {!isAuthPage && !isAdminPage && (
@@ -456,7 +476,7 @@ export default function RootLayout({
                 title="Hubungi Admin via WhatsApp"
               >
                 {/* Tooltip label */}
-                <span className="hidden lg:block opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 bg-[#25D366] text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap">
+                <span className="hidden lg:block opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 bg-[#25D366] text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] whitespace-nowrap">
                   Hubungi Admin
                 </span>
 

@@ -38,6 +38,9 @@ export default function ProfilePage() {
   
   // State copy link pegawai
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  
+  // State collapsible daftar paket (jika sudah berlangganan)
+  const [showPlans, setShowPlans] = useState(false);
 
   const handleCopyLink = (shareId: number, email: string) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
@@ -247,13 +250,112 @@ export default function ProfilePage() {
     router.refresh();
   };
 
+  const handleWhatsAppRedirect = (packageName: string, price: string, isPromo = false) => {
+    const adminNum = "6285792524863";
+    const name = user?.name || '-';
+    const email = user?.email || '-';
+    
+    let text = `Halo Admin SkyWatch 👋\n\nSaya tertarik untuk memesan:\n📌 *${packageName}*\n💰 *${isPromo ? 'Harga Promo' : 'Harga'}:* ${price}`;
+    if (isPromo) {
+      text += " (Harga Coret Rp 749.000)";
+    }
+    text += `\n\nBerikut detail akun saya:\n👤 *Nama Akun:* ${name}\n✉️ *Email Akun:* ${email}\n\nMohon informasi mengenai prosedur pembayaran dan pengiriman alat. Terima kasih!`;
+    
+    const url = `https://wa.me/${adminNum}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const renderPackageGrid = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Paket 1 Bulan — Bundle Alat + Web */}
+      <div className="relative rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/5 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
+          <div className="flex flex-col">
+            <span className="text-lg font-black text-slate-900 dark:text-white">Rp 349.000</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Alat + Web 1 Bln</span>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+            <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
+            <li className="flex items-center gap-1.5">✓ Multi-device &amp; Invite Pegawai</li>
+            <li className="flex items-center gap-1.5">✓ Notifikasi &amp; Laporan Real-time</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Bulan (Bundle Alat + Web)", "Rp 349.000")}
+          className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
+        >
+          Pilih Paket
+        </button>
+      </div>
+
+      {/* Paket 1 Tahun — Bundle Best Value */}
+      <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
+        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-slate-400 line-through font-bold">Rp 749.000</span>
+            <span className="text-lg font-black text-[#a3e635]">Rp 599.000</span>
+            <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-0.5">Alat + Web 12 Bln (Best Offer)</span>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
+            <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
+            <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
+            <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Tahun (Bundle Alat + Web - Best Value)", "Rp 599.000", true)}
+          className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20"
+        >
+          Pilih Paket
+        </button>
+      </div>
+
+      {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
+      <div className="relative rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/5 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
+        <div className="space-y-3 text-left">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
+          <div className="flex flex-col">
+            <span className="text-lg font-black text-slate-900 dark:text-white">Rp 249.000</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Modul Sensor ESP32 Saja</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+          </div>
+          <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
+            <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
+          </ul>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleWhatsAppRedirect("Pembelian Hanya Alat Sensor (Modul ESP32 Saja)", "Rp 249.000")}
+          className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-[#FFFFFF]/10 dark:hover:bg-[#FFFFFF]/20 text-[#1E293B] dark:text-slate-400 dark:text-slate-300 text-center font-semibold text-[10px] uppercase tracking-wider transition-all"
+        >
+          Beli Alat Saja
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
           <div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.35em] mb-1">User Settings</p>
+            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">User Settings</p>
             <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Profile
             </h1>
@@ -264,7 +366,7 @@ export default function ProfilePage() {
 
       <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header Profil */}
-        <div className="flex flex-col items-center text-center space-y-3 -mt-16 md:-mt-20">
+        <div className="flex flex-col items-center text-center space-y-3 mt-2 md:mt-4">
           <div className="relative group cursor-pointer">
             <label htmlFor="profile-upload" className="cursor-pointer block relative">
               <div className="w-20 h-20 rounded-[1.5rem] bg-[#a3e635] flex items-center justify-center text-[#0a0f1a] shadow-xl shadow-lime-500/20 transition-transform group-hover:scale-105 overflow-hidden relative">
@@ -279,7 +381,7 @@ export default function ProfilePage() {
               </div>
             </label>
             <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-50 dark:bg-[#070d1a] rounded-full flex items-center justify-center pointer-events-none">
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F8F9FA] dark:bg-[#070d1a] rounded-full flex items-center justify-center pointer-events-none">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
             </div>
           </div>
@@ -299,7 +401,7 @@ export default function ProfilePage() {
 
         {/* Grid Informasi Utama */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
+          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
             <div className="p-3.5 bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400">
               <Mail size={20} />
             </div>
@@ -311,7 +413,7 @@ export default function ProfilePage() {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors w-full">
+          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors w-full">
             <div className="p-3.5 bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400 flex-shrink-0">
               <Smartphone size={20} />
             </div>
@@ -341,12 +443,15 @@ export default function ProfilePage() {
 
         {/* === KARTU STATUS LANGGANAN === */}
         {user?.role !== 'admin' && (
-          <div className="mt-2">
+          <div className="mt-2 space-y-4">
             {user?.is_invited ? (
               // --- PEGAWAI / UNDANGAN ACTIVE ---
-              <div className="relative rounded-3xl overflow-hidden border border-[#a3e635]/30 bg-white dark:bg-[#0d1a08]/60 p-6 shadow-lg shadow-[#a3e635]/10 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+              <div className="relative rounded-3xl overflow-hidden border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#FFFFFF] dark:bg-[#0d1a08]/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] animate-in fade-in slide-in-from-bottom-2 duration-300 text-left group">
                 <div className="absolute inset-0 bg-[#a3e635]/5" />
-                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#a3e635]/10 blur-2xl pointer-events-none" />
+                <div 
+                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+                  style={{ backgroundColor: '#a3e635' }} 
+                />
                 <div className="relative flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4 text-left">
                     <div className="relative flex-shrink-0">
@@ -374,9 +479,12 @@ export default function ProfilePage() {
               </div>
             ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
               // --- PREMIUM ACTIVE ---
-              <div className="relative rounded-3xl overflow-hidden border border-[#a3e635]/30 bg-white dark:bg-[#0d1a08]/60 p-6 shadow-lg shadow-[#a3e635]/10 text-left">
+              <div className="relative rounded-3xl overflow-hidden border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#FFFFFF] dark:bg-[#0d1a08]/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] text-left group">
                 <div className="absolute inset-0 bg-[#a3e635]/5" />
-                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#a3e635]/10 blur-2xl pointer-events-none" />
+                <div 
+                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+                  style={{ backgroundColor: '#a3e635' }} 
+                />
                 <div className="relative flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4 text-left">
                     <div className="relative flex-shrink-0">
@@ -402,19 +510,50 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            ) : (
-              // --- FREE MEMBER ---
-              <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 md:p-8 shadow-sm space-y-6 text-left">
-                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-slate-200/30 dark:bg-white/5 blur-2xl pointer-events-none" />
+            ) : null}
+
+            {/* Render collapsible plans if already active, otherwise show expanded normal for Free Member */}
+            {(user?.is_invited || (user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date())) ? (
+              <div className="border border-[#E2E8F0] dark:border-white/10 rounded-3xl overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPlans(!showPlans)}
+                  className="w-full py-4 px-6 flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-[#FFFFFF]/[0.04] transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400">
+                      <Crown size={14} />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest text-left">Pilihan Opsi Alat &amp; Upgrade Langganan</span>
+                  </div>
+                  <ChevronRight 
+                    size={16} 
+                    className={`transform transition-transform duration-300 text-slate-400 ${showPlans ? 'rotate-90' : 'rotate-0'}`} 
+                  />
+                </button>
                 
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-slate-200 dark:border-white/5 pb-6">
+                {showPlans && (
+                  <div className="p-6 border-t border-[#E2E8F0] dark:border-white/10 bg-[#F8F9FA]/50 dark:bg-black/15 animate-in slide-in-from-top-2 duration-300">
+                    {renderPackageGrid()}
+                  </div>
+                )}
+              </div>
+            ) : (
+              // --- FREE MEMBER (Daftar paket terbuka penuh seperti biasa) ---
+              <div className="relative rounded-3xl overflow-hidden border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] space-y-6 text-left group transition-all duration-300">
+                <div 
+                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+                  style={{ backgroundColor: '#94a3b8' }} 
+                />
+                
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-[#E2E8F0] dark:border-white/5 pb-6">
                   <div className="flex items-center gap-4">
-                    <div className="p-3.5 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl">
+                    <div className="p-3.5 bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-2xl">
                       <Crown size={22} className="text-slate-400 dark:text-slate-500" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-widest bg-slate-100 dark:bg-[#FFFFFF]/5 border-2 border-slate-300 dark:border-slate-600 text-[#1E293B] dark:text-slate-400">
                           <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                           FREE MEMBER
                         </span>
@@ -427,86 +566,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Grid Paket Langganan */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  
-                  {/* Paket 1 Bulan — Bundle Alat + Web */}
-                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-                        <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
-                        <li className="flex items-center gap-1.5">✓ Multi-device & Invite Pegawai</li>
-                        <li className="flex items-center gap-1.5">✓ Notifikasi & Laporan Real-time</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Bulan* (Bundle Alat + Web Monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
-                    >
-                      Pilih Paket
-                    </a>
-                  </div>
-
-                  {/* Paket 1 Tahun — Bundle Best Value */}
-                  <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-sm">
-                    <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
-                        <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
-                        <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
-                        <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya tertarik dengan *Paket Langganan 1 Tahun* (Bundle Alat + Web Monitoring - Best Value).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-md shadow-[#a3e635]/20"
-                    >
-                      Pilih Paket
-                    </a>
-                  </div>
-
-                  {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
-                  <div className="relative rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
-                    <div className="space-y-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
-                      <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-slate-900 dark:text-white">Hubungi Admin</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
-                        <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik & Laporan Online</li>
-                        <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
-                      </ul>
-                    </div>
-                    <a
-                      href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin SkyWatch 👋\n\nSaya ingin *Hanya Membeli Alat Sensor* saja (tanpa langganan web monitoring).\n\nAkun saya: ${user?.email}\n\nMohon informasi lebih lanjut mengenai harga dan cara pemesanan alat. Terima kasih!`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-center font-black text-[10px] uppercase tracking-wider transition-all"
-                    >
-                      Beli Alat Saja
-                    </a>
-                  </div>
-
-                </div>
+                {renderPackageGrid()}
               </div>
             )}
           </div>
@@ -519,7 +579,7 @@ export default function ProfilePage() {
             <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Hubungkan Alat (Multi-Device Pairing)</h2>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors space-y-6">
+          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors space-y-6">
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Daftarkan satu atau **beberapa sensor ESP32 sekaligus** ke akun ini. Anda dapat memantau, memberi nama, dan beralih di antara sensor-sensor ini secara langsung dari halaman Dasbor Utama.
             </p>
@@ -534,7 +594,7 @@ export default function ProfilePage() {
                     placeholder="Contoh: ESP32_SKY_01"
                     value={newDeviceId}
                     onChange={e => setNewDeviceId(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                    className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -544,7 +604,7 @@ export default function ProfilePage() {
                     placeholder="Contoh: Restoran Area Depan"
                     value={newDeviceName}
                     onChange={e => setNewDeviceName(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                    className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                   />
                 </div>
               </div>
@@ -552,7 +612,7 @@ export default function ProfilePage() {
               <button 
                 type="submit"
                 disabled={addingDevice || !newDeviceId || !newDeviceName}
-                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/10 hover:shadow-purple-500/25"
+                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10 hover:shadow-purple-500/25"
               >
                 {addingDevice ? <RefreshCw size={14} className="animate-spin" /> : <UserPlus size={14} />}
                 Hubungkan Sensor Baru
@@ -571,7 +631,7 @@ export default function ProfilePage() {
             )}
 
             {/* List Alat Terhubung */}
-            <div className="pt-5 border-t border-slate-200 dark:border-white/5 space-y-3">
+            <div className="pt-5 border-t border-[#E2E8F0] dark:border-white/5 space-y-3">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Sensor Terhubung ({devices.length})</h3>
 
               {devicesLoading ? (
@@ -579,13 +639,13 @@ export default function ProfilePage() {
                   <RefreshCw size={12} className="animate-spin" /> Memuat daftar alat...
                 </div>
               ) : devices.length === 0 ? (
-                <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-2xl">
+                <div className="text-center py-6 border-2 border-dashed border-[#E2E8F0] dark:border-white/5 rounded-2xl">
                   <p className="text-xs text-slate-400 italic">Belum ada sensor yang terhubung ke akun ini.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {devices.map((dev: any) => (
-                    <div key={dev.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl">
+                    <div key={dev.id} className="flex items-center justify-between p-4 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.02] border-2 border-slate-300 dark:border-slate-600 rounded-2xl">
                       <div className="min-w-0 pr-3">
                         <p className="text-xs font-black text-slate-800 dark:text-slate-200">{dev.device_name}</p>
                         <p className="text-[10px] text-slate-400 font-mono truncate">{dev.device_id}</p>
@@ -613,15 +673,15 @@ export default function ProfilePage() {
             <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Ambang Batas Sensor</h2>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
+          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-2xl leading-relaxed">
               Berikut adalah nilai ambang batas sensor saat ini. Pengaturan ini hanya dapat diubah oleh Administrator melalui halaman dasbor admin.
             </p>
             {isLoaded ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                 {Object.entries(thresholds).map(([key, val]) => (
-                  <div key={key} className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 p-3 rounded-2xl text-center">
-                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">
+                  <div key={key} className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border-2 border-slate-300 dark:border-slate-600 p-3 rounded-2xl text-center">
+                    <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">
                       {key}
                     </p>
                     <p className="text-lg font-black text-slate-800 dark:text-slate-200 font-mono">
@@ -646,11 +706,11 @@ export default function ProfilePage() {
             <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Pengaturan Aplikasi</h2>
           </div>
           
-          <div className="bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
+          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
             
             {/* Keamanan Akun */}
-            <div className="border-b border-slate-200 dark:border-white/10">
-              <button onClick={() => setActiveMenu(activeMenu === 'security' ? null : 'security')} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+            <div className="border-b border-[#E2E8F0] dark:border-white/10">
+              <button onClick={() => setActiveMenu(activeMenu === 'security' ? null : 'security')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
                     <ShieldCheck size={20} />
@@ -659,16 +719,16 @@ export default function ProfilePage() {
                     Keamanan Akun (Ganti Password)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'security' ? 'rotate-90' : ''}`}>
+                <div className={`w-8 h-8 rounded-full border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'security' ? 'rotate-90' : ''}`}>
                   <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
                 </div>
               </button>
               
               {activeMenu === 'security' && (
-                <div className="p-6 pt-2 bg-slate-50/50 dark:bg-white/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
                   <div className="space-y-3 max-w-sm">
-                    <input type="password" placeholder="Password Lama" value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
-                    <input type="password" placeholder="Password Baru" value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                    <input type="password" placeholder="Password Lama" value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-[#FFFFFF] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                    <input type="password" placeholder="Password Baru" value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-[#FFFFFF] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                     <button onClick={handleSavePassword} disabled={savingPw} className="w-full px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50">
                       {savingPw ? 'Menyimpan...' : 'Simpan Password'}
                     </button>
@@ -683,8 +743,8 @@ export default function ProfilePage() {
             </div>
 
             {/* Kelola Akses Pegawai / Share Alat */}
-            <div className="border-b border-slate-200 dark:border-white/10">
-              <button onClick={() => setActiveMenu(activeMenu === 'sharing' ? null : 'sharing')} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+            <div className="border-b border-[#E2E8F0] dark:border-white/10">
+              <button onClick={() => setActiveMenu(activeMenu === 'sharing' ? null : 'sharing')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
                     <UserPlus size={20} />
@@ -693,13 +753,13 @@ export default function ProfilePage() {
                     Kelola Akses Pegawai (Undang User)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`}>
+                <div className={`w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`}>
                   <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
                 </div>
               </button>
               
               {activeMenu === 'sharing' && (
-                <div className="p-6 pt-2 bg-slate-50/50 dark:bg-white/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
                   {user?.role !== 'admin' && !(user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date()) ? (
                     // NOT PREMIUM
                     <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold space-y-2">
@@ -707,7 +767,7 @@ export default function ProfilePage() {
                       <a
                         href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin, saya ingin upgrade ke Premium agar bisa mengundang pegawai saya untuk monitoring alat.`)}`}
                         target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-wider shadow-sm hover:bg-amber-600 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] hover:bg-amber-600 transition-colors"
                       >
                         <Crown size={11} /> Upgrade Sekarang
                       </a>
@@ -754,7 +814,7 @@ export default function ProfilePage() {
                           placeholder="email.pegawai@anda.com"
                           value={inviteEmail}
                           onChange={e => setInviteEmail(e.target.value)}
-                          className="flex-1 bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white"
+                          className="flex-1 bg-[#FFFFFF] dark:bg-[#0a0f1a] border-2 border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white"
                         />
                         <button type="submit" disabled={inviting || !inviteEmail}
                           className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50">
@@ -768,7 +828,7 @@ export default function ProfilePage() {
                         </p>
                       )}
 
-                      <div className="pt-3 border-t border-slate-200 dark:border-white/5">
+                      <div className="pt-3 border-t border-[#E2E8F0] dark:border-white/5">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Pegawai yang Diundang ({shares.length})</p>
                         
                         {sharesLoading ? (
@@ -778,7 +838,7 @@ export default function ProfilePage() {
                         ) : (
                           <div className="space-y-2">
                             {shares.map((s: any) => (
-                              <div key={s.id} className="flex items-center justify-between p-3.5 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-2xl">
+                              <div key={s.id} className="flex items-center justify-between p-3.5 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] border-2 border-slate-300 dark:border-slate-600 rounded-2xl">
                                 <div className="min-w-0-fake flex-1 min-w-0 pr-3">
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{s.member_name || '—'}</p>
@@ -798,7 +858,7 @@ export default function ProfilePage() {
                                     className={`p-2 rounded-xl border flex items-center justify-center transition-all ${
                                       copiedId === s.id
                                         ? 'bg-[#a3e635]/15 border-[#a3e635]/30 text-[#a3e635]'
-                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-[#FFFFFF]/5 dark:hover:bg-[#FFFFFF]/10 border-[#E2E8F0] dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                                   >
                                     {copiedId === s.id ? (
@@ -827,7 +887,7 @@ export default function ProfilePage() {
 
             {/* Notifikasi Bahaya */}
             <div>
-              <button onClick={() => setActiveMenu(activeMenu === 'alarm' ? null : 'alarm')} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+              <button onClick={() => setActiveMenu(activeMenu === 'alarm' ? null : 'alarm')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
                     <Bell size={20} />
@@ -836,13 +896,13 @@ export default function ProfilePage() {
                     Notifikasi Bahaya (Suara Alarm)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'alarm' ? 'rotate-90' : ''}`}>
+                <div className={`w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center transition-transform ${activeMenu === 'alarm' ? 'rotate-90' : ''}`}>
                   <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
                 </div>
               </button>
               
               {activeMenu === 'alarm' && (
-                <div className="p-6 pt-2 bg-slate-50/50 dark:bg-white/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
                   <p className="text-xs text-slate-500 mb-4">Pilih suara peringatan saat sensor mendeteksi bahaya:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
@@ -856,7 +916,7 @@ export default function ProfilePage() {
                         className={`py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
                           alarmSound === sound.id 
                             ? 'bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400' 
-                            : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:border-slate-300 dark:hover:border-white/20'
+                            : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-500 hover:border-slate-300 dark:hover:border-white/20'
                         }`}
                       >
                         {sound.label}
@@ -873,7 +933,7 @@ export default function ProfilePage() {
         {/* Logout Button */}
         <button 
           onClick={handleLogout}
-          className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-5 rounded-3xl flex items-center justify-center gap-3 transition-all group shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none mt-8"
+          className="w-full bg-[#FFFFFF] dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border-2 border-red-500/20 py-5 rounded-3xl flex items-center justify-center gap-3 transition-all group shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none mt-8"
         >
           <LogOut size={20} className="text-red-500 group-hover:-translate-x-1 transition-transform" />
           <span className="text-sm font-black text-red-500 uppercase tracking-widest">Keluar Akun</span>

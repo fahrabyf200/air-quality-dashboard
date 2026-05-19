@@ -17,7 +17,7 @@ interface Transaction {
   created_at: string;
 }
 
-const inputClass = "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500/50 transition-colors";
+const inputClass = "w-full bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500/50 transition-colors";
 
 export default function AdminSalesPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -101,10 +101,10 @@ export default function AdminSalesPage() {
       {/* Create Modal */}
       {showForm && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
+          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">Catat Transaksi Baru</h2>
-              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
                 <X size={14} />
               </button>
             </div>
@@ -112,7 +112,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pilih Pengguna</label>
                 <select value={form.user_id} onChange={e => setForm({ ...form, user_id: e.target.value })}
-                  className="w-full bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option value="">-- Pilih pengguna --</option>
                   {users.map(u => (
                     <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
@@ -122,7 +122,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paket</label>
                 <select value={form.package_name} onChange={e => setForm({ ...form, package_name: e.target.value })}
-                  className="w-full bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option>1 Bulan</option>
                   <option>1 Tahun</option>
                 </select>
@@ -135,7 +135,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode Pembayaran</label>
                 <select value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })}
-                  className="w-full bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option>Transfer Bank</option>
                   <option>GoPay</option>
                   <option>OVO</option>
@@ -151,9 +151,9 @@ export default function AdminSalesPage() {
                   placeholder="Catatan tambahan..." className={inputClass} />
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowForm(false)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-white/10 transition-all">Batal</button>
+                <button onClick={() => setShowForm(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
                 <button onClick={handleCreate} disabled={saving || !form.user_id || !form.amount}
-                  className="flex-1 py-3 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50 shadow-lg shadow-[#a3e635]/20">
+                  className="flex-1 py-3 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20">
                   {saving ? 'Menyimpan...' : 'Simpan Transaksi'}
                 </button>
               </div>
@@ -168,7 +168,7 @@ export default function AdminSalesPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Penjualan</h1>
           <p className="text-slate-500 text-xs mt-1 font-mono">Log transaksi langganan premium</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-[11px] uppercase tracking-wider shadow-md shadow-[#a3e635]/20 transition-all">
+        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-[11px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20 transition-all">
           <Plus size={13} /> Catat Transaksi
         </button>
       </div>
@@ -186,26 +186,35 @@ export default function AdminSalesPage() {
           { label: 'Total Pendapatan',   value: stats?.total_revenue ?? 0,              format: 'rupiah', color: '#a3e635', icon: TrendingUp },
           { label: 'Pendapatan Bulan Ini', value: stats?.this_month_revenue ?? 0,       format: 'rupiah', color: '#3b82f6', icon: Calendar },
         ].map(s => (
-          <div key={s.label} className="relative rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] p-5 overflow-hidden shadow-sm">
-            <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: s.color }} />
-            <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${s.color}60, transparent)` }} />
-            <div className="p-2.5 rounded-xl w-fit mb-3" style={{ background: `${s.color}15` }}>
-              <s.icon size={16} style={{ color: s.color }} />
+          <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
+            {/* Glow Lampu */}
+            <div 
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
+              style={{ backgroundColor: s.color }} 
+            />
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-start justify-between mb-5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+                  <s.icon size={16} style={{ color: s.color }} />
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 mb-1.5">{s.label}</p>
+                <p className="text-xl font-black text-slate-900 dark:text-white font-mono">
+                  {s.format === 'rupiah' ? formatRupiah(s.value) : s.value}
+                </p>
+              </div>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">{s.label}</p>
-            <p className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              {s.format === 'rupiah' ? formatRupiah(s.value) : s.value}
-            </p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div className="rounded-3xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm">
+      <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center gap-3">
           <DollarSign size={16} className="text-[#a3e635]" />
-          <p className="text-xs font-black uppercase tracking-widest text-slate-500">Riwayat Transaksi ({transactions.length})</p>
-          <button onClick={fetchData} disabled={loading} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-900 dark:hover:text-white text-[10px] font-black uppercase tracking-wider transition-all">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Riwayat Transaksi ({transactions.length})</p>
+          <button onClick={fetchData} disabled={loading} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-all">
             <RefreshCw size={10} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
@@ -225,13 +234,13 @@ export default function AdminSalesPage() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
                     {['#', 'Pengguna', 'Paket', 'Jumlah', 'Metode', 'Tanggal', ''].map(h => (
-                      <th key={h} className="text-left px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{h}</th>
+                      <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
                   {transactions.map((t, i) => (
-                    <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-all">
+                    <tr key={t.id} className="hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-all">
                       <td className="px-5 py-4 text-slate-400 font-mono text-xs">{i + 1}</td>
                       <td className="px-5 py-4">
                         <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">{t.user_name || '—'}</p>

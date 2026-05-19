@@ -39,7 +39,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-all shadow-sm dark:shadow-none"
+      className="w-9 h-9 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-slate-100 dark:bg-[#FFFFFF]/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#FFFFFF]/10 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
     >
       {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
     </button>
@@ -64,7 +64,7 @@ function AdminSidebar({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#0a0514] border-r border-slate-200 dark:border-white/[0.06] transition-colors duration-300">
+    <div className="flex flex-col h-full bg-[#FFFFFF] dark:bg-[#0a0514] border-r border-[#E2E8F0] dark:border-white/[0.06] transition-colors duration-300">
       {/* Top gradient accent */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
 
@@ -89,7 +89,7 @@ function AdminSidebar({
         {onClose && (
           <button
             onClick={onClose}
-            className="lg:hidden w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className="lg:hidden w-8 h-8 rounded-lg bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           >
             <X size={16} />
           </button>
@@ -99,7 +99,7 @@ function AdminSidebar({
       {/* Admin Info */}
       <div className="mx-4 mb-5 p-3.5 rounded-2xl bg-purple-500/5 dark:bg-purple-500/10 border border-purple-500/10 dark:border-purple-500/20 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-black text-sm uppercase flex-shrink-0 shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-black text-sm uppercase flex-shrink-0 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
             {user?.name?.charAt(0) || "A"}
           </div>
           <div className="min-w-0">
@@ -115,7 +115,7 @@ function AdminSidebar({
 
       {/* Navigation */}
       <div className="px-3 flex-1 space-y-1">
-        <p className="text-[9px] font-black uppercase tracking-[0.35em] text-slate-400 dark:text-slate-600 px-2 mb-3">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-[#1E293B] dark:text-slate-400 px-2 mb-3">
           Menu Utama
         </p>
 
@@ -131,7 +131,7 @@ function AdminSidebar({
               className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                 active
                   ? "bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 dark:border-purple-500/30"
-                  : "text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.04]"
+                  : "text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/[0.04]"
               }`}
             >
               {active && (
@@ -141,7 +141,7 @@ function AdminSidebar({
                 className={`relative w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
                   active
                     ? "bg-purple-500/20 dark:bg-purple-500/30 text-purple-600 dark:text-purple-300"
-                    : "text-slate-500 dark:text-slate-600 group-hover:text-slate-900 group-hover:dark:text-slate-300 group-hover:bg-slate-100 group-hover:dark:bg-white/5"
+                    : "text-slate-500 dark:text-slate-600 group-hover:text-slate-900 group-hover:dark:text-slate-300 group-hover:bg-slate-100 group-hover:dark:bg-[#FFFFFF]/5"
                 }`}
               >
                 <Icon size={16} />
@@ -155,15 +155,15 @@ function AdminSidebar({
         })}
 
         <div className="pt-4">
-          <p className="text-[9px] font-black uppercase tracking-[0.35em] text-slate-400 dark:text-slate-600 px-2 mb-3">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-[#1E293B] dark:text-slate-400 px-2 mb-3">
             Sistem
           </p>
           <Link
             href="/"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-all group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/[0.04] transition-all group"
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-600 group-hover:text-slate-900 group-hover:dark:text-slate-300 group-hover:bg-slate-100 group-hover:dark:bg-white/5 transition-all">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-600 group-hover:text-slate-900 group-hover:dark:text-slate-300 group-hover:bg-slate-100 group-hover:dark:bg-[#FFFFFF]/5 transition-all">
               <Wind size={16} />
             </div>
             Lihat Dashboard User
@@ -172,9 +172,9 @@ function AdminSidebar({
       </div>
 
       {/* Bottom */}
-      <div className="p-4 border-t border-slate-200 dark:border-white/[0.06] space-y-2">
+      <div className="p-4 border-t border-[#E2E8F0] dark:border-white/[0.06] space-y-2">
         <div className="flex justify-between items-center px-2">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-600">Tema</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#1E293B] dark:text-slate-400">Tema</span>
           <ThemeToggle />
         </div>
         <button
@@ -214,7 +214,7 @@ export default function AdminLayout({
   }, [router]);
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-[#060410] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen flex bg-[#F1F5F9] dark:bg-[#060410] text-slate-900 dark:text-white transition-colors duration-300">
       {/* DESKTOP SIDEBAR */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 z-30">
         <AdminSidebar pathname={pathname} user={user} />
@@ -240,10 +240,10 @@ export default function AdminLayout({
       {/* MAIN CONTENT */}
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* MOBILE TOP BAR */}
-        <header className="lg:hidden sticky top-0 z-30 h-14 px-4 flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#060410]/95 backdrop-blur-xl">
+        <header className="lg:hidden sticky top-0 z-30 h-14 px-4 flex items-center justify-between border-b border-[#E2E8F0] dark:border-white/[0.06] bg-[#FFFFFF]/95 dark:bg-[#060410]/95 backdrop-blur-xl">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className="w-9 h-9 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-slate-100 dark:bg-[#FFFFFF]/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           >
             <Menu size={18} />
           </button>
@@ -256,7 +256,7 @@ export default function AdminLayout({
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400 relative">
+            <button className="w-9 h-9 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-slate-100 dark:bg-[#FFFFFF]/5 flex items-center justify-center text-slate-500 dark:text-slate-400 relative">
               <Bell size={15} />
               <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-purple-500" />
             </button>
@@ -265,9 +265,9 @@ export default function AdminLayout({
         </header>
 
         {/* DESKTOP TOP BAR */}
-        <header className="hidden lg:flex sticky top-0 z-20 h-[60px] px-8 items-center justify-between border-b border-slate-200 dark:border-white/[0.05] bg-white/80 dark:bg-[#060410]/80 backdrop-blur-xl">
+        <header className="hidden lg:flex sticky top-0 z-20 h-[60px] px-8 items-center justify-between border-b border-[#E2E8F0] dark:border-white/[0.05] bg-[#FFFFFF]/80 dark:bg-[#060410]/80 backdrop-blur-xl">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400 dark:text-slate-600">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-[#1E293B] dark:text-slate-400">
               Admin Panel
             </p>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">
@@ -276,14 +276,14 @@ export default function AdminLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="relative w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+            <button className="relative w-9 h-9 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-slate-100 dark:bg-[#FFFFFF]/5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
               <Bell size={15} />
               <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-purple-500 dark:bg-purple-400 animate-pulse" />
             </button>
             <ThemeToggle />
-            <div className="w-px h-5 bg-slate-200 dark:bg-white/10" />
-            <div className="flex items-center gap-2.5 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/[0.03] rounded-xl px-3 py-1.5">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-black text-xs uppercase shadow-sm">
+            <div className="w-px h-5 bg-slate-200 dark:bg-[#FFFFFF]/10" />
+            <div className="flex items-center gap-2.5 border border-[#E2E8F0] dark:border-white/10 bg-slate-100 dark:bg-[#FFFFFF]/[0.03] rounded-xl px-3 py-1.5">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-black text-xs uppercase shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
                 {user?.name?.charAt(0) || "A"}
               </div>
               <div>

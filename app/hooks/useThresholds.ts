@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 35, hum: 80 };
+export const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 45, hum: 80 };
 
 export function useThresholds() {
   const [thresholds, setThresholds] = useState(defaultThresholds);

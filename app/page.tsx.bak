@@ -14,37 +14,37 @@ import { useThresholds } from '@/app/hooks/useThresholds';
 
 const SENSOR_INFO = {
   co2: {
-    general: "Karbon Dioksida (CO2) adalah gas hasil sisa pembakaran api kompor. Di dapur, gas ini dipantau sebagai indikator kelancaran ventilasi udara. Pembakaran kompor yang terus-menerus tanpa ventilasi akan menyebabkan penumpukan gas CO2 beracun yang dapat memicu sesak napas.",
-    safe: "Kondisi saat ini: Sirkulasi gas hasil pembakaran kompor di area dapur Anda berjalan sangat baik.",
-    danger: "Kondisi saat ini: Bahaya! Terjadi penumpukan gas hasil pembakaran yang dapat memicu sesak napas (asfiksia). Segera nyalakan exhaust fan atau buka jendela lebar-lebar!"
+    general: "Karbon Dioksida (CO2) adalah udara pengap sisa pembakaran kompor gas.",
+    safe: "Kondisi saat ini: Udara di dapur segar dan sirkulasi lancar.",
+    danger: "Kondisi saat ini: Awas! Udara pengap karena CO2 tinggi. Segera buka jendela dan nyalakan kipas penyedot (exhaust)."
   },
   nh3: {
-    general: "Amonia (NH3) adalah senyawa gas kimia tajam dan beracun. Di dapur, sensor NH3 berfungsi sebagai detektor pendukung untuk melacak adanya kebocoran senyawa gas kimia berbahaya selain LPG. Hal ini bertujuan untuk memastikan udara dapur tidak tercemar oleh akumulasi uap gas kimia beracun yang dapat membahayakan pernapasan.",
-    safe: "Kondisi saat ini: Aman. Tidak terdeteksi adanya kebocoran senyawa gas kimia beracun (NH3) di dapur.",
-    danger: "Kondisi saat ini: Peringatan! Terdeteksi adanya kebocoran gas kimia beracun (NH3) di udara dapur. Segera evakuasi ruangan dan buka jendela!"
+    general: "Amonia (NH3) adalah gas berbau dari pembersih atau kebocoran kulkas.",
+    safe: "Kondisi saat ini: Udara aman dan tidak tercium bau gas menyengat.",
+    danger: "Kondisi saat ini: Bahaya! Bau gas menyengat terdeteksi. Jangan nyalakan api, buka semua pintu dan jendela segera."
   },
   temp: {
-    general: "Suhu Udara (Temperature) dipantau sebagai indikator awal terjadinya kebakaran (titik api). Jika tabung gas LPG bocor lalu tersulut percikan api, sensor suhu akan mendeteksi lonjakan panas ekstrem secara seketika untuk membunyikan alarm evakuasi.",
-    safe: "Kondisi saat ini: Suhu area dapur normal dan stabil, tidak menunjukkan adanya tanda-tanda rambatan panas ekstrem.",
-    danger: "Kondisi saat ini: Bahaya! Terjadi lonjakan suhu ekstrem yang sangat cepat. Segera matikan kompor, evakuasi tabung gas, dan siapkan alat pemadam kebakaran!"
+    general: "Suhu dapur mempengaruhi kenyamanan dan seberapa cepat bakteri tumbuh di makanan basah.",
+    safe: "Kondisi saat ini: Suhu dapur sangat pas dan nyaman.",
+    danger: "Kondisi saat ini: Sangat panas! Dapur tidak nyaman dan makanan cepat basi. Segera nyalakan kipas angin atau ventilasi."
   },
   hum: {
-    general: "Kelembapan Ruang (Humidity) dipantau karena gas elpiji (LPG) memiliki massa jenis yang lebih berat dibanding udara biasa. Pada kelembapan tinggi, gas elpiji yang bocor akan mengendap di bawah lantai dan sulit terbawa angin keluar melalui jendela atas.",
-    safe: "Kondisi saat ini: Kelembapan ideal. Udara cukup kering sehingga membantu meminimalkan risiko terjebaknya gas elpiji di lantai.",
-    danger: "Kondisi saat ini: Peringatan! Kelembapan terlalu tinggi. Gas bocor berisiko terperangkap pekat di bawah lantai. Segera buka pintu bawah dapur dan sapu udara di lantai ke arah luar."
+    general: "Kelembapan adalah tingkat uap air di udara yang bisa memicu tumbuhnya jamur dan bakteri.",
+    safe: "Kondisi saat ini: Kelembapan pas, jamur dan bakteri sulit untuk tumbuh.",
+    danger: "Kondisi saat ini: Udara terlalu lembap dan basah! Lap area basah dan biarkan udara luar masuk."
   },
   voc: {
-    general: "VOC (Volatile Organic Compounds) dalam sistem ini berfungsi sebagai sensor UTAMA pendeteksi kebocoran gas LPG (Propana & Butana). Sensor ini sangat sensitif terhadap partikel gas elpiji mentah yang bocor dari tabung sebelum sempat tersulut api.",
-    safe: "Kondisi saat ini: Aman terenkripsi. Tidak terdeteksi adanya kebocoran partikel gas elpiji sama sekali di udara dapur.",
-    danger: "Kondisi saat ini: ALARM KEBOCORAN GAS AKTIF! Gas elpiji bocor pekat di udara. JANGAN menyentuh saklar lampu/listrik, JANGAN menyalakan korek api. Cabut regulator tabung gas segera!"
+    general: "Volatile Organic Compounds (VOC) adalah senyawa kimia menguap dari asap masakan, bahan pembersih, atau parfum ruangan.",
+    safe: "Kondisi saat ini: Kadar VOC rendah, kualitas udara ruangan sehat.",
+    danger: "Kondisi saat ini: Bahaya! VOC tinggi terdeteksi. Buka ventilasi udara untuk mengurangi paparan bahan kimia."
   }
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#FFFFFF]/95 dark:bg-[#0a1020]/95 backdrop-blur-xl border border-[#E2E8F0] dark:border-white/10 rounded-2xl px-4 py-3 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] text-xs">
-      <p className="text-[#1E293B] dark:text-slate-400 font-semibold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
+    <div className="bg-white/95 dark:bg-[#0a1020]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 shadow-2xl text-xs">
+      <p className="text-slate-500 dark:text-slate-400 font-bold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
       <div className="flex flex-col gap-1.5">
         {payload.map((p: any) => (
           <div key={p.dataKey} className="flex items-center justify-between gap-6">
@@ -76,20 +76,20 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
     <>
       <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t-[1.5px] border-[#E2E8F0] dark:border-white/10 px-6 pt-4 pb-10 bg-[#FFFFFF] dark:bg-[#0d1525] shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]"
+        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t border-slate-200 dark:border-white/10 px-6 pt-4 pb-10 bg-white dark:bg-[#0d1525]"
         style={{ animation: 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)' }}
       >
-        <div className="w-10 h-1 bg-slate-300 dark:bg-[#FFFFFF]/15 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-slate-300 dark:bg-white/15 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-5">
-          <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
             <Info size={12} /> Detail Sensor
           </span>
-          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-[#E2E8F0] dark:border-white/8">
+          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/8">
             <X size={13} />
           </button>
         </div>
         <div className={`rounded-2xl px-5 py-5 mb-4 border ${danger ? 'bg-red-500/8 border-red-500/20' : 'bg-emerald-500/8 border-emerald-500/15'}`}>
-          <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.3em] mb-2">{label}</p>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{label}</p>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-black tabular-nums" style={{ color: danger ? '#f87171' : '#4ade80', fontFamily: "'IBM Plex Mono', monospace" }}>{value}</span>
             <span className="text-slate-400 font-bold text-xl">{unit}</span>
@@ -101,8 +101,8 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
             </div>
           )}
         </div>
-        <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/3 rounded-2xl px-5 py-4 border border-[#E2E8F0] dark:border-white/5 mb-4">
-          <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest mb-2">Penjelasan</p>
+        <div className="bg-slate-50 dark:bg-white/3 rounded-2xl px-5 py-4 border border-slate-200 dark:border-white/5 mb-4">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Penjelasan</p>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
         <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs font-black uppercase tracking-wider ${
@@ -134,18 +134,19 @@ function SensorCard({
     <>
       <div
         onClick={() => setDrawerOpen(true)}
-        className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer group transition-all duration-300 hover:border-slate-400 dark:hover:border-slate-500 hover:scale-[1.015] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] active:scale-[0.99] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+        className="relative rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden cursor-pointer group transition-all duration-300 hover:border-slate-300 dark:hover:border-white/25 hover:scale-[1.015] active:scale-[0.99] bg-white dark:bg-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
       >
-        {/* Glow Lampu */}
-        <div 
-          className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-          style={{ backgroundColor: color }} 
-        />
+        {/* Top color line */}
+        <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
 
-        <div className="px-5 py-5 relative z-10">
+        {/* Glow bg */}
+        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-25 dark:opacity-10 group-hover:opacity-40 dark:group-hover:opacity-20 transition-opacity pointer-events-none"
+          style={{ background: color }} />
+
+        <div className="px-5 py-5">
           {/* Row 1 — icon + status badge */}
           <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+            <div className="p-2 rounded-xl border border-slate-200 dark:border-white/8" style={{ background: `${color}12` }}>
               <Icon size={15} style={{ color }} />
             </div>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
@@ -159,7 +160,7 @@ function SensorCard({
           </div>
 
           {/* Row 2 — label */}
-          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.28em] mb-1">{label}</p>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.28em] mb-1">{label}</p>
 
           {/* Row 3 — value */}
           <div className="flex items-baseline gap-1.5 mb-1">
@@ -177,7 +178,7 @@ function SensorCard({
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-slate-100 dark:bg-[#FFFFFF]/5 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden mb-3">
             <div className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${pct}%`,
@@ -359,14 +360,14 @@ export default function Dashboard() {
 
   if (!mounted || !thresholdsLoaded) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
           <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center">
             <Wind size={22} className="text-[#a3e635] animate-spin" />
           </div>
           <div className="absolute inset-0 rounded-2xl bg-[#a3e635]/15 blur-xl animate-pulse" />
         </div>
-        <p className="text-[#1E293B] dark:text-slate-400 text-[10px] font-semibold uppercase tracking-[0.4em] animate-pulse">
+        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.4em] animate-pulse">
           Initializing SkyWatch...
         </p>
       </div>
@@ -387,13 +388,13 @@ export default function Dashboard() {
     ? (devices.length > 0 ? null : null)
     : devices.find(d => d.device_id === selectedDeviceId);
   const activeSensorLabel = selectedDeviceId === 'all'
-    ? 'Pemantauan Dapur Utama'
+    ? (devices.length > 1 ? `Semua Sensor (${devices.length})` : devices[0]?.device_name || 'Sensor Utama')
     : (activeDevice?.device_name || selectedDeviceId);
 
   const sensors = [
     {
       key: 'co2' as const,
-      label: 'CO2 (Sisa Pembakaran)', value: data?.co2?.toFixed(0) ?? '--', unit: 'PPM',
+      label: 'CO2', value: data?.co2?.toFixed(0) ?? '--', unit: 'PPM',
       danger: data ? data.co2 > T.co2 : false, color: '#3b82f6', bgColor: '#3b82f610',
       delta: data ? (data.co2 > T.co2 ? 'Tinggi' : 'Normal') : 'No Data',
       icon: Zap, threshold: T.co2, infoKey: 'co2' as const,
@@ -401,7 +402,7 @@ export default function Dashboard() {
     },
     {
       key: 'nh3' as const,
-      label: 'NH3 (Amonia Kimia)', value: data?.nh3?.toFixed(2) ?? '--', unit: 'PPM',
+      label: 'NH3', value: data?.nh3?.toFixed(2) ?? '--', unit: 'PPM',
       danger: data ? data.nh3 > T.nh3 : false, color: '#a78bfa', bgColor: '#a78bfa10',
       delta: data ? (data.nh3 > T.nh3 ? 'Bahaya' : 'Aman') : 'No Data',
       icon: Wind, threshold: T.nh3, infoKey: 'nh3' as const,
@@ -409,7 +410,7 @@ export default function Dashboard() {
     },
     {
       key: 'voc' as const,
-      label: 'VOC (GAS LPG MUDAH TERBAKAR)', value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
+      label: 'VOC', value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
       danger: data ? data.voc > T.voc : false, color: '#ec4899', bgColor: '#ec489910',
       delta: data ? (data.voc > T.voc ? 'Tinggi' : 'Aman') : 'No Data',
       icon: Activity, threshold: T.voc, infoKey: 'voc' as const,
@@ -417,7 +418,7 @@ export default function Dashboard() {
     },
     {
       key: 'temp' as const,
-      label: 'Suhu Udara (Titik Api)', value: data?.temp?.toFixed(1) ?? '--', unit: '°C',
+      label: 'Temperature', value: data?.temp?.toFixed(1) ?? '--', unit: '°C',
       danger: data ? data.temp > T.temp : false, color: '#f97316', bgColor: '#f9731610',
       delta: data ? (data.temp > T.temp ? 'Panas' : 'Normal') : 'No Data',
       icon: Flame, threshold: T.temp, infoKey: 'temp' as const,
@@ -425,7 +426,7 @@ export default function Dashboard() {
     },
     {
       key: 'hum' as const,
-      label: 'Kelembapan Ruangan', value: data?.hum?.toFixed(0) ?? '--', unit: '%',
+      label: 'Humidity', value: data?.hum?.toFixed(0) ?? '--', unit: '%',
       danger: data ? data.hum > T.hum : false, color: '#38bdf8', bgColor: '#38bdf810',
       delta: data ? (data.hum > T.hum ? 'Lembap' : 'Ideal') : 'No Data',
       icon: Droplets, threshold: T.hum, infoKey: 'hum' as const,
@@ -434,10 +435,10 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 w-full">
+        <div className="flex items-start justify-between gap-4 w-full">
           <div>
             {user?.is_invited && (
               <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-lg bg-[#a3e635]/10 border border-[#a3e635]/20 text-[#a3e635] text-[10px] font-bold">
@@ -445,7 +446,7 @@ export default function Dashboard() {
                 Pegawai Diundang oleh: {user.invited_by_name || 'Pemilik Alat'}
               </div>
             )}
-            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1 flex items-center gap-1.5">
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.35em] mb-1 flex items-center gap-1.5">
               <Cpu size={10} />
               Monitoring Aktif
             </p>
@@ -454,7 +455,7 @@ export default function Dashboard() {
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               {selectedDeviceId !== 'all' && activeDevice && (
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/5 px-2 py-0.5 rounded-lg">
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded-lg">
                   ID: {activeDevice.device_id}
                 </span>
               )}
@@ -464,17 +465,17 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2.5">
             {devices.length > 0 && (
               <div className="relative">
                 <select
                   value={selectedDeviceId}
                   onChange={e => setSelectedDeviceId(e.target.value)}
-                  className="appearance-none bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border border-[#E2E8F0] dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
+                  className="appearance-none bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-sm"
                 >
-                  <option value="all" className="bg-[#FFFFFF] dark:bg-[#070d1a]">Semua Sensor</option>
+                  <option value="all" className="bg-white dark:bg-[#070d1a]">Semua Sensor</option>
                   {devices.map((dev: any) => (
-                    <option key={dev.id} value={dev.device_id} className="bg-[#FFFFFF] dark:bg-[#070d1a]">
+                    <option key={dev.id} value={dev.device_id} className="bg-white dark:bg-[#070d1a]">
                       {dev.device_name}
                     </option>
                   ))}
@@ -498,10 +499,10 @@ export default function Dashboard() {
             </div>
             <button
               onClick={fetchData}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-bold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-bold uppercase tracking-wider shadow-sm dark:shadow-none"
             >
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              <span>Refresh</span>
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -512,7 +513,7 @@ export default function Dashboard() {
         {/* EMERGENCY MODAL */}
         {isDanger && !alarmAcknowledged && (
           <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-900/60 backdrop-blur-sm px-4">
-            <div className="bg-[#FFFFFF] dark:bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
+            <div className="bg-white dark:bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
               <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                 <AlertTriangle size={48} className="text-red-500 animate-ping absolute opacity-30" />
                 <AlertTriangle size={48} className="text-red-500 relative z-10" />
@@ -535,7 +536,7 @@ export default function Dashboard() {
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => setAlarmAcknowledged(true)}
-                  className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-3 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/30"
+                  className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-3 shadow-lg shadow-red-500/30"
                 >
                   <CheckCircle size={20} /> Mengerti & Matikan Suara Alarm
                 </button>
@@ -545,8 +546,8 @@ export default function Dashboard() {
         )}
 
         {/* ALERT BANNER */}
-        <div className={`relative rounded-2xl border border-t-[1.5px] px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-700 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] ${
-          isDanger ? 'bg-[#FFFFFF] dark:bg-red-500/5 border-red-200 dark:border-red-500/20' : 'bg-[#FFFFFF] dark:bg-emerald-500/5 border-[#E2E8F0] dark:border-emerald-500/15'
+        <div className={`relative rounded-2xl border px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-700 ${
+          isDanger ? 'bg-red-500/5 border-red-500/20' : 'bg-emerald-500/5 border-emerald-500/15'
         }`}>
           <div className="flex items-center gap-4">
             <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isDanger ? 'bg-red-500' : 'bg-emerald-500'}`} />
@@ -587,13 +588,13 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Area Chart */}
           <div
-            className="lg:col-span-2 flex flex-col rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+            className="lg:col-span-2 flex flex-col rounded-2xl border border-slate-200 dark:border-white/15 overflow-hidden bg-white dark:bg-white/[0.05] shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
           >
-            <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-[#E2E8F0] dark:border-white/5">
+            <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-slate-200 dark:border-white/5">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <Activity size={12} className="text-blue-400" />
-                  <span className="text-xs font-semibold text-[#1E293B] dark:text-slate-300 uppercase tracking-[0.2em]">Air Quality Trend</span>
+                  <span className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Air Quality Trend</span>
                 </div>
                 <p className="text-[10px] text-slate-700 font-mono">20 pembacaan terakhir</p>
               </div>
@@ -605,9 +606,9 @@ export default function Dashboard() {
                   { k: 'TEMP', c: 'bg-orange-500' },
                   { k: 'HUM', c: 'bg-purple-500' }
                 ].map(i => (
-                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#FFFFFF]/5 px-2 py-1 rounded border border-[#E2E8F0] dark:border-white/10">
+                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded border border-slate-200 dark:border-white/10">
                     <span className={`w-2 h-2 rounded-full ${i.c}`} />
-                    <span className="text-[9px] font-semibold uppercase text-[#1E293B] dark:text-slate-400">{i.k}</span>
+                    <span className="text-[9px] font-black uppercase text-slate-500">{i.k}</span>
                   </div>
                 ))}
               </div>
@@ -654,14 +655,14 @@ export default function Dashboard() {
           {/* Side — Device Info & Safety Summary */}
           <div className="flex flex-col gap-5 h-full">
             {/* Device Status Card */}
-            <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 p-5 relative overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 p-5 relative overflow-hidden bg-white dark:bg-white/[0.04] shadow-sm">
               <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
                 style={{ background: 'linear-gradient(90deg, transparent, #a3e635, transparent)' }} />
               
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
                   <Activity size={14} className="text-[#a3e635]" />
-                  <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">IoT Node Status</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">IoT Node Status</span>
                 </div>
                 <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Online
@@ -704,10 +705,10 @@ export default function Dashboard() {
             </div>
 
             {/* Safety Advice Card */}
-            <div className={`rounded-2xl border border-t-[1.5px] p-5 relative overflow-hidden transition-colors flex-1 flex flex-col justify-center shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] ${
+            <div className={`rounded-2xl border p-5 relative overflow-hidden transition-colors flex-1 flex flex-col justify-center ${
               isDanger 
-                ? 'bg-[#FFFFFF] dark:bg-red-500/5 border-red-200 dark:border-red-500/20' 
-                : 'bg-[#FFFFFF] dark:bg-emerald-500/5 border-[#E2E8F0] dark:border-emerald-500/15'
+                ? 'bg-red-500/5 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.1)]' 
+                : 'bg-emerald-500/5 border-emerald-500/15 shadow-[0_0_30px_rgba(16,185,129,0.05)]'
             }`}>
               <div className="flex items-center gap-2 mb-4">
                 {isDanger ? <AlertTriangle size={14} className="text-red-500" /> : <ShieldCheck size={14} className="text-emerald-500" />}

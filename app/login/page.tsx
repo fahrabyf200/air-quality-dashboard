@@ -42,7 +42,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#070d1a] p-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] dark:bg-[#070d1a] p-6">
       <div className="w-full max-w-md">
 
         {/* Banner sukses registrasi */}
@@ -60,9 +60,9 @@ function LoginForm() {
           </div>
         )}
 
-        <div className="bg-white dark:bg-[#0d1425] rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-white/10">
+        <div className="bg-[#FFFFFF] dark:bg-[#0d1425] rounded-3xl p-8 shadow-2xl border border-[#E2E8F0] dark:border-white/10">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#a3e635] flex items-center justify-center mb-4 shadow-lg shadow-lime-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-[#a3e635] flex items-center justify-center mb-4 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-lime-500/20">
               <Wind size={32} className="text-[#0a0f1a]" strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Selamat Datang</h1>
@@ -77,14 +77,14 @@ function LoginForm() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email</label>
+              <label className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest ml-1">Email</label>
               <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
-                  className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
                   placeholder="nama@email.com"
                 />
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -92,14 +92,14 @@ function LoginForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
+              <label className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest ml-1">Password</label>
               <div className="relative">
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full bg-slate-50 dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
                   placeholder="••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />

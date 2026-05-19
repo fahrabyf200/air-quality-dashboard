@@ -93,24 +93,24 @@ export default function AdminLogsPage() {
           <p className="text-slate-500 text-xs mt-1 font-mono">Riwayat kejadian dan deteksi sensor</p>
         </div>
         <button onClick={() => fetchData(selectedUser?.id ?? null)} disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-black uppercase tracking-wider disabled:opacity-50 transition-all shadow-sm dark:shadow-none">
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
 
       {/* USER FILTER */}
       <div className="flex flex-wrap items-center gap-3">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 flex items-center gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 flex items-center gap-2">
           <Users size={12} /> Filter Per User:
         </p>
 
         <div className="relative">
           <button onClick={() => setDropdownOpen(o => !o)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all min-w-[200px] justify-between ${
-              selectedUser ? 'bg-purple-500/15 border-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 shadow-sm dark:shadow-none'
+              selectedUser ? 'bg-purple-500/15 border-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none'
             }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-[#FFFFFF]/10 text-[#1E293B] dark:text-slate-400 dark:text-slate-400'}`}>
                 {selectedUser ? selectedUser.name.charAt(0) : '?'}
               </div>
               <span>{selectedUser ? selectedUser.name : 'Semua Pengguna'}</span>
@@ -119,10 +119,10 @@ export default function AdminLogsPage() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-[#0d0720] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+            <div className="absolute top-full left-0 mt-2 w-72 bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
               <button onClick={() => handleSelectUser(null)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${!selectedUser ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center">
+                className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/5 ${!selectedUser ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#FFFFFF]/10 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center">
                   <Users size={14} className="text-slate-500 dark:text-slate-400" />
                 </div>
                 <div className="text-left">
@@ -134,8 +134,8 @@ export default function AdminLogsPage() {
               <div className="border-t border-slate-100 dark:border-white/5 max-h-60 overflow-y-auto">
                 {users.map(u => (
                   <button key={u.id} onClick={() => handleSelectUser(u)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${selectedUser?.id === u.id ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs font-black text-slate-600 dark:text-slate-300 uppercase flex-shrink-0">
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/5 ${selectedUser?.id === u.id ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-xs font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase flex-shrink-0">
                       {u.name.charAt(0)}
                     </div>
                     <div className="text-left min-w-0">
@@ -174,13 +174,13 @@ export default function AdminLogsPage() {
           { label: 'Event Aman', value: safeRows.length, color: '#22c55e', icon: ShieldCheck },
           { label: 'Rasio Bahaya', value: `${dangerRate}%`, color: '#f59e0b', icon: Activity },
         ].map(s => (
-          <div key={s.label} className="relative rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] p-4 overflow-hidden shadow-sm dark:shadow-none">
+          <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-4 overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
             <div className="absolute -top-4 -right-4 w-14 h-14 rounded-full blur-xl opacity-20 pointer-events-none" style={{ background: s.color }} />
             <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg,transparent,${s.color}60,transparent)` }} />
             <div className="p-2 rounded-lg w-fit mb-3" style={{ background: `${s.color}15` }}>
               <s.icon size={13} style={{ color: s.color }} />
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-0.5">{s.label}</p>
+            <p className="text-[9px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 mb-0.5">{s.label}</p>
             <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{loading ? '—' : s.value}</p>
           </div>
         ))}
@@ -199,22 +199,22 @@ export default function AdminLogsPage() {
                 ? f.key === 'danger' ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30'
                   : f.key === 'safe' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                   : 'bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-500/30'
-                : 'bg-white dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 hover:text-slate-900 hover:dark:text-slate-300 hover:bg-slate-50 hover:dark:bg-white/[0.07]'
+                : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-500 dark:text-slate-400 border border-[#E2E8F0] dark:border-white/10 hover:text-slate-900 hover:dark:text-slate-300 hover:bg-[#F8F9FA] hover:dark:bg-[#FFFFFF]/[0.07]'
             }`}>
             {f.label}
-            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10">{f.count}</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#FFFFFF]/10">{f.count}</span>
           </button>
         ))}
       </div>
 
       {/* Timeline */}
-      <div className="rounded-3xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm dark:shadow-none">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center gap-3 bg-slate-50/50 dark:bg-white/[0.01]">
+      <div className="rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center gap-3 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01]">
           <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
             <Activity size={15} className="text-purple-600 dark:text-purple-400" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
               {selectedUser ? `Log: ${selectedUser.name}` : 'Timeline Semua Aktivitas'}
             </p>
             <p className="text-xs text-slate-500 mt-0.5">{filtered.length} log</p>
@@ -224,10 +224,10 @@ export default function AdminLogsPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <RefreshCw size={22} className="text-purple-500 dark:text-purple-400 animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 animate-pulse">Memuat log...</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat log...</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 dark:text-slate-600 text-sm font-black uppercase tracking-widest">
+          <div className="text-center py-20 text-slate-400 dark:text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
             Tidak ada log
           </div>
         ) : (
@@ -238,7 +238,7 @@ export default function AdminLogsPage() {
               const danger = isDanger(row);
 
               return (
-                <div key={row.id ?? i} className="px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                <div key={row.id ?? i} className="px-6 py-4 hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border ${danger ? 'bg-red-500/10 border-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
                       {danger ? <ShieldAlert size={15} className="text-red-500 dark:text-red-400" /> : <ShieldCheck size={15} className="text-emerald-500 dark:text-emerald-400" />}
@@ -265,7 +265,7 @@ export default function AdminLogsPage() {
                             </span>
                           </div>
                         </div>
-                        {row.id && <span className="text-[9px] text-slate-500 dark:text-slate-700 font-mono bg-slate-50 dark:bg-white/5 px-2 py-1 rounded border border-slate-100 dark:border-white/5 flex-shrink-0">#{row.id}</span>}
+                        {row.id && <span className="text-[9px] text-slate-500 dark:text-slate-700 font-mono bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 px-2 py-1 rounded border border-slate-100 dark:border-white/5 flex-shrink-0">#{row.id}</span>}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {[
@@ -275,7 +275,7 @@ export default function AdminLogsPage() {
                           { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
                           { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
                         ].map(s => (
-                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-500 dark:text-red-400' : 'bg-slate-50 dark:bg-white/[0.04] border-slate-150 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
+                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-500 dark:text-red-400' : 'bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.04] border-slate-150 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
                             <s.icon size={10} />
                             <span className="text-slate-400 dark:text-slate-500">{s.label}:</span>
                             <span className="font-mono">{s.value}</span>
