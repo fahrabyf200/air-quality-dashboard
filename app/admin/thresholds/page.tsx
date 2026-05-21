@@ -12,16 +12,21 @@ export default function AdminThresholdsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
-      if (d.user) {
-        setUser(d.user);
-        if (d.user.role !== 'admin') {
-          router.replace('/');
+    fetch('/api/auth/me')
+      .then(r => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
+      .then(d => {
+        if (d.user) {
+          setUser(d.user);
+          if (d.user.role !== 'admin') {
+            router.replace('/');
+          }
+        } else {
+          router.replace('/login');
         }
-      } else {
+      })
+      .catch(() => {
         router.replace('/login');
-      }
-    });
+      });
   }, [router]);
 
   // Sync state lokal ketika data sudah berhasil dimuat dari server

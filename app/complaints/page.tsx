@@ -15,8 +15,10 @@ export default function ComplaintsPage() {
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
-      if (d.user) {
+    fetch('/api/auth/me')
+      .then(r => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
+      .then(d => {
+        if (d.user) {
         setUser(d.user);
         setForm(f => ({ ...f, name: d.user.name || '', email: d.user.email || '' }));
       }

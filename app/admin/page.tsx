@@ -86,9 +86,12 @@ export default function AdminPage() {
   const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
-      if (d.user) setSession(d.user);
-    });
+    fetch('/api/auth/me')
+      .then(r => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
+      .then(d => {
+        if (d.user) setSession(d.user);
+      })
+      .catch(() => {});
   }, []);
 
   const fetchUsers = useCallback(async () => {

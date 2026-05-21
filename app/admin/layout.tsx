@@ -203,7 +203,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((r) => r.json())
+      .then((r) => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
       .then((d) => {
         if (!d.user || d.user.role !== "admin") {
           router.replace("/");

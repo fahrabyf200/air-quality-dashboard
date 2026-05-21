@@ -543,7 +543,7 @@ export default function RootLayout({
   useEffect(() => {
     if (!isAuthPage) {
       fetch('/api/auth/me')
-        .then(res => res.json())
+        .then(res => res.headers.get('content-type')?.includes('application/json') ? res.json() : { user: null })
         .then(data => {
           if (data.user) {
             setUser(data.user);

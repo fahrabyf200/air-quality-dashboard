@@ -762,25 +762,21 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
             
-            {/* Free Tier */}
+            {/* Paket 1 Bulan — Bundle Alat + Web */}
             <div className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
               <div className="space-y-4">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Uji Coba Dasar</p>
-                <h4 className="text-xl font-black text-white">Free Member</h4>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bundle Alat + Web</p>
+                <h4 className="text-xl font-black text-white">Langganan 1 Bulan</h4>
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">Rp 0</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Selamanya Gratis</span>
+                  <span className="text-2xl font-black text-white">Rp 349.000</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Alat + Web 1 Bln</span>
                 </div>
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  Pengenalan dasar untuk melihat ekosistem dashboard dan panduan informasi keselamatan udara.
-                </p>
                 
                 <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                  <li className="flex items-center gap-2">✓ Akses Profil Pengguna</li>
-                  <li className="flex items-center gap-2">✓ Modul Panduan &amp; Edukasi</li>
-                  <li className="flex items-center gap-2 text-slate-600">✗ Dashboard Real-time (Terkunci)</li>
-                  <li className="flex items-center gap-2 text-slate-600">✗ Grafik Tren Analisis (Terkunci)</li>
-                  <li className="flex items-center gap-2 text-slate-600">✗ Sistem Notifikasi Alarm (Terkunci)</li>
+                  <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
+                  <li className="flex items-center gap-2">✓ Dashboard Web Monitoring</li>
+                  <li className="flex items-center gap-2">✓ Multi-device &amp; Invite Pegawai</li>
+                  <li className="flex items-center gap-2">✓ Notifikasi &amp; Laporan Real-time</li>
                 </ul>
               </div>
 
@@ -788,35 +784,30 @@ export default function LandingPage() {
                 href="/register" 
                 className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
               >
-                Daftar Akun Gratis
+                Pilih Paket
               </Link>
             </div>
 
-            {/* Premium Tier (Featured) */}
+            {/* Paket 1 Tahun — Bundle Best Value (Featured) */}
             <div className="rounded-3xl border-2 border-[#a3e635] bg-[#a3e635]/5 p-8 flex flex-col justify-between hover:border-[#b6f041] transition-all text-left relative shadow-xl shadow-[#a3e635]/5">
               <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[9px] font-black uppercase tracking-widest">
-                Rekomendasi Utama
+                Hemat
               </div>
               
               <div className="space-y-4">
-                <p className="text-[10px] font-black text-[#a3e635] uppercase tracking-widest">Sistem Full Setup</p>
-                <h4 className="text-xl font-black text-white">Premium Active (1 Tahun)</h4>
+                <p className="text-[10px] font-black text-[#a3e635] uppercase tracking-widest">Bundle Alat + Web</p>
+                <h4 className="text-xl font-black text-white">Langganan 1 Tahun</h4>
                 <div className="flex flex-col">
                   <span className="text-xs text-slate-500 line-through font-bold">Rp 749.000</span>
                   <span className="text-3xl font-black text-[#a3e635]">Rp 599.000</span>
-                  <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-1">Sewa Alat ESP32 + Web Premium 12 Bulan</span>
+                  <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-1">Alat + Web 12 Bln (Best Offer)</span>
                 </div>
-                <p className="text-slate-300 text-xs leading-relaxed">
-                  Solusi lengkap pengamanan dapur restoran / rumah tinggal. Kami sediakan alat fisik dan dashboard monitoring web premium.
-                </p>
                 
                 <ul className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-white/10">
-                  <li className="flex items-center gap-2">✓ **Termasuk 1 Modul Alat Sensor ESP32**</li>
-                  <li className="flex items-center gap-2">✓ **Akses Dashboard Real-time (CO2, VOC, Temp)**</li>
-                  <li className="flex items-center gap-2">✓ **Sirene &amp; Peringatan Suara Aktif**</li>
-                  <li className="flex items-center gap-2">✓ **Invite Pegawai / Akses Multi-User**</li>
-                  <li className="flex items-center gap-2">✓ **Grafik Tren Analisis Kualitas Udara**</li>
-                  <li className="flex items-center gap-2">✓ **Notifikasi / Peringatan Bahaya WhatsApp**</li>
+                  <li className="flex items-center gap-2 font-bold text-[#a3e635]">✓ Semua Fitur Paket Bulanan</li>
+                  <li className="flex items-center gap-2">✓ Akses 12 Bulan Penuh</li>
+                  <li className="flex items-center gap-2">✓ Harga Lebih Hemat</li>
+                  <li className="flex items-center gap-2">✓ Prioritas Dukungan CS</li>
                 </ul>
               </div>
 
@@ -824,29 +815,29 @@ export default function LandingPage() {
                 href="/register" 
                 className="mt-8 w-full py-4 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest transition-all block shadow-lg shadow-[#a3e635]/20 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Mulai Berlangganan
+                Pilih Paket
               </Link>
             </div>
 
-            {/* Premium Monthly Tier */}
+            {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
             <div className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
               <div className="space-y-4">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sewa Bulanan</p>
-                <h4 className="text-xl font-black text-white">Premium Active (1 Bulan)</h4>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
+                <h4 className="text-xl font-black text-white">Hanya Beli Alat</h4>
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">Rp 349.000</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Paket Bulanan</span>
+                  <span className="text-2xl font-black text-white">Rp 249.000</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Modul Sensor ESP32 Saja</span>
                 </div>
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  Pilihan fleksibel bagi Anda yang ingin menguji keandalan alat sensor fisik di area operasional dapur Anda selama 1 bulan.
-                </p>
+                
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 my-2">
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+                </div>
                 
                 <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                  <li className="flex items-center gap-2">✓ Termasuk 1 Modul Alat Sensor ESP32</li>
-                  <li className="flex items-center gap-2">✓ Akses Dashboard Real-time Penuh</li>
-                  <li className="flex items-center gap-2">✓ Sirene &amp; Peringatan Suara Aktif</li>
-                  <li className="flex items-center gap-2">✓ Multi-Device &amp; Invite Pegawai</li>
-                  <li className="flex items-center gap-2">✓ Dukungan CS Teknis WhatsApp</li>
+                  <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
+                  <li className="flex items-center gap-2 line-through opacity-50">✗ Akses Dashboard Web</li>
+                  <li className="flex items-center gap-2 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
+                  <li className="flex items-center gap-2">✓ Bisa Upgrade Kapan Saja</li>
                 </ul>
               </div>
 
@@ -854,7 +845,7 @@ export default function LandingPage() {
                 href="/register" 
                 className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
               >
-                Coba Paket Bulanan
+                Beli Alat Saja
               </Link>
             </div>
 
@@ -863,16 +854,16 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/5 bg-[#050912] py-12 text-slate-500 text-xs">
+      <footer className="border-t border-white/5 bg-[#050912] py-12 text-slate-500 text-sm">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 text-left">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-[#a3e635] flex items-center justify-center">
                 <Wind className="text-[#0a0f1a]" size={14} strokeWidth={2.8} />
               </div>
-              <h5 className="text-white font-black uppercase text-xs tracking-wider">SkyWatch</h5>
+              <h5 className="text-white font-black uppercase text-sm tracking-wider">SkyWatch</h5>
             </div>
-            <p className="text-slate-400 leading-relaxed text-[11px]">
+            <p className="text-slate-400 leading-relaxed text-[13px]">
               Sistem Internet of Things (IoT) terintegrasi untuk pemantauan kualitas sirkulasi udara dan proteksi darurat kebocoran gas dapur secara real-time.
             </p>
           </div>
@@ -899,7 +890,7 @@ export default function LandingPage() {
 
           <div>
             <h6 className="text-white font-bold uppercase tracking-wider mb-4">Kontak Layanan</h6>
-            <p className="text-slate-400 leading-relaxed mb-3">
+            <p className="text-slate-400 leading-relaxed mb-3 text-[13px]">
               Layanan CS, Bantuan Teknis Alat, &amp; Konsultasi Operasional Hubungi:
             </p>
             <a 
@@ -920,7 +911,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 font-medium">
+        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 font-medium text-xs">
           <p>© {new Date().getFullYear()} SkyWatch Air Analytics. Hak Cipta Dilindungi.</p>
           <div className="flex gap-4">
             <span className="flex items-center gap-1">
