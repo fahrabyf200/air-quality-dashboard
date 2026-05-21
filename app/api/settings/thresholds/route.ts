@@ -3,8 +3,7 @@ import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
-
-const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 45, hum: 80 };
+const defaultThresholds = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 
 // Ambil data threshold
 export async function GET() {

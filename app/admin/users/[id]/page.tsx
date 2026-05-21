@@ -8,7 +8,7 @@ import {
   Clock, Crown, UserCircle, Calendar
 } from 'lucide-react';
 
-const DEFAULT_T = { co2: 800, nh3: 2, temp: 35, hum: 80 };
+const DEFAULT_T = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 
 interface SensorRow {
   id?: number;
@@ -144,10 +144,11 @@ export default function UserDetailPage() {
 
       {/* Sensor averages */}
       {stats && Number(stats.total) > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {[
             { label: 'Avg CO₂', val: Number(stats.avg_co2).toFixed(0), max: Number(stats.max_co2).toFixed(0), unit: 'PPM', icon: Zap, color: '#3b82f6' },
             { label: 'Avg NH₃', val: Number(stats.avg_nh3).toFixed(2), max: Number(stats.max_nh3).toFixed(2), unit: 'PPM', icon: Wind, color: '#a78bfa' },
+            { label: 'Avg VOC', val: Number(stats.avg_voc || 0).toFixed(2), max: Number(stats.max_voc || 0).toFixed(2), unit: 'PPM', icon: Activity, color: '#ec4899' },
             { label: 'Avg Suhu', val: Number(stats.avg_temp).toFixed(1), max: Number(stats.max_temp).toFixed(1), unit: '°C', icon: Thermometer, color: '#f97316' },
             { label: 'Avg Hum', val: Number(stats.avg_hum).toFixed(0), max: '—', unit: '%', icon: Droplets, color: '#38bdf8' },
           ].map(s => (
@@ -220,7 +221,7 @@ export default function UserDetailPage() {
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-white/[0.05]">
-                  {['#', 'Waktu', 'CO₂', 'NH₃', 'Suhu', 'Kelembapan', 'Status'].map(h => (
+                  {['#', 'Waktu', 'CO₂', 'NH₃', 'VOC', 'Suhu', 'Kelembapan', 'Status'].map(h => (
                     <th key={h} className="text-left px-5 py-3.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                   ))}
                 </tr>
@@ -229,7 +230,7 @@ export default function UserDetailPage() {
                 {sensor.map((row, i) => {
                   const t = row.temp ?? row.temperature ?? 0;
                   const h = row.hum ?? row.humidity ?? 0;
-                  const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+                  const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
                   return (
                     <tr key={row.id ?? i} className={`hover:bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] transition-colors ${danger ? 'bg-red-500/[0.03]' : ''}`}>
                       <td className="px-5 py-3.5 text-slate-600 font-mono text-xs">{(page - 1) * PER_PAGE + i + 1}</td>
@@ -238,6 +239,7 @@ export default function UserDetailPage() {
                       </td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.co2 > T.co2 ? '#f87171' : '#94a3b8' }}>{row.co2?.toFixed(0)}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.nh3 > T.nh3 ? '#f87171' : '#94a3b8' }}>{row.nh3?.toFixed(2)}</td>
+                      <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: (row.voc !== undefined && row.voc > T.voc) ? '#f87171' : '#94a3b8' }}>{row.voc?.toFixed(2) ?? '—'}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: t > T.temp ? '#f87171' : '#94a3b8' }}>{t.toFixed(1)}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono text-slate-400">{h.toFixed(0)}</td>
                       <td className="px-5 py-3.5">
@@ -258,7 +260,7 @@ export default function UserDetailPage() {
             {sensor.map((row, i) => {
               const t = row.temp ?? row.temperature ?? 0;
               const h = row.hum ?? row.humidity ?? 0;
-              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
               return (
                 <div key={row.id ?? i} className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -267,8 +269,14 @@ export default function UserDetailPage() {
                       {danger ? 'Danger' : 'Safe'}
                     </span>
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[{ l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 }, { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 }, { l: 'Temp', v: `${t.toFixed(1)}°`, over: t > T.temp }, { l: 'Hum', v: `${h.toFixed(0)}%`, over: false }].map(s => (
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {[
+                      { l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 },
+                      { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 },
+                      { l: 'VOC', v: `${row.voc?.toFixed(2) ?? '—'}`, over: row.voc !== undefined && row.voc > T.voc },
+                      { l: 'Temp', v: `${t.toFixed(1)}°`, over: t > T.temp },
+                      { l: 'Hum', v: `${h.toFixed(0)}%`, over: false }
+                    ].map(s => (
                       <div key={s.l} className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] border border-white/5 p-2 rounded-xl text-center">
                         <p className="text-[9px] text-slate-600 font-black mb-0.5">{s.l}</p>
                         <p className={`text-xs font-black font-mono ${s.over ? 'text-red-400' : 'text-slate-300'}`}>{s.v}</p>
@@ -311,7 +319,7 @@ export default function UserDetailPage() {
             {sensor.map((row, i) => {
               const t = row.temp ?? row.temperature ?? 0;
               const h = row.hum ?? row.humidity ?? 0;
-              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || t > T.temp;
+              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
               return (
                 <div key={row.id ?? i} className="px-6 py-4 hover:bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
@@ -322,7 +330,7 @@ export default function UserDetailPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <p className={`text-sm font-black ${danger ? 'text-red-400' : 'text-emerald-400'}`}>
-                            {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : 'Suhu'}` : 'Kondisi Normal'}
+                            {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc !== undefined && row.voc > T.voc) ? 'VOC' : 'Suhu'}` : 'Kondisi Normal'}
                           </p>
                           <div className="flex items-center gap-1.5 text-slate-600 mt-0.5">
                             <Clock size={10} />
@@ -338,6 +346,7 @@ export default function UserDetailPage() {
                         {[
                           { icon: Zap, label: 'CO₂', value: `${row.co2?.toFixed(0)} PPM`, over: row.co2 > T.co2 },
                           { icon: Wind, label: 'NH₃', value: `${row.nh3?.toFixed(2)} PPM`, over: row.nh3 > T.nh3 },
+                          { icon: Activity, label: 'VOC', value: `${row.voc?.toFixed(2) ?? '—'} PPM`, over: row.voc !== undefined && row.voc > T.voc },
                           { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
                           { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
                         ].map(s => (

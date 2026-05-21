@@ -70,7 +70,7 @@ async function main() {
     `);
     
     // Set default threshold jika belum ada
-    const defaultThresholds = { co2: 800, nh3: 4, voc: 10, temp: 35, hum: 80 };
+    const defaultThresholds = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
     await db.query(
       `INSERT IGNORE INTO global_settings (setting_key, setting_value) VALUES ('thresholds', ?)`,
       [JSON.stringify(defaultThresholds)]

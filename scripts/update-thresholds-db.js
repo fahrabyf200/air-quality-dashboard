@@ -14,21 +14,16 @@ async function run() {
   });
 
   try {
-    const [rows] = await db.query("SELECT setting_value FROM global_settings WHERE setting_key = 'thresholds'");
-    if (rows.length > 0) {
-      let parsed = rows[0].setting_value;
-      if (typeof parsed === 'string') {
-        parsed = JSON.parse(parsed);
-      }
-      parsed.temp = 45;
-      const updatedString = JSON.stringify(parsed);
-      await db.query("UPDATE global_settings SET setting_value = ? WHERE setting_key = 'thresholds'", [updatedString]);
-      console.log("Database thresholds updated successfully to:", parsed);
-    } else {
-      const defaultString = JSON.stringify({ co2: 800, nh3: 4, voc: 10, temp: 45, hum: 80 });
-      await db.query("INSERT INTO global_settings (setting_key, setting_value) VALUES ('thresholds', ?)", [defaultString]);
-      console.log("Database thresholds initialized to default with temp 45");
-    }
+    const targetThresholds = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
+    const thresholdString = JSON.stringify(targetThresholds);
+    
+    // Update atau Insert ke database
+    await db.query(
+      `INSERT INTO global_settings (setting_key, setting_value) VALUES ('thresholds', ?)
+       ON DUPLICATE KEY UPDATE setting_value = ?`,
+      [thresholdString, thresholdString]
+    );
+    console.log("Database thresholds updated successfully to:", targetThresholds);
   } catch (error) {
     console.error("Database update error:", error);
   } finally {
