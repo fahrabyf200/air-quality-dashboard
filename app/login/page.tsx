@@ -25,6 +25,7 @@ function LoginForm() {
       });
       const data = await res.json();
       if (res.ok) {
+        localStorage.setItem('skywatch_logged_in', 'true');
         if (data.user?.role === 'admin') {
           router.push('/admin');
         } else {

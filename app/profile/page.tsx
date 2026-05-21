@@ -245,9 +245,9 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
+    localStorage.removeItem('skywatch_logged_in');
     await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
-    router.refresh();
+    window.location.href = '/';
   };
 
   const handleWhatsAppRedirect = (packageName: string, price: string, isPromo = false) => {

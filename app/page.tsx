@@ -11,6 +11,7 @@ import {
   ResponsiveContainer, Area, AreaChart
 } from 'recharts';
 import { useThresholds } from '@/app/hooks/useThresholds';
+import LandingPage from '@/components/landing-page';
 
 const SENSOR_INFO = {
   co2: {
@@ -240,6 +241,7 @@ export default function Dashboard() {
   const [devices, setDevices] = useState<any[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('all');
   const [user, setUser] = useState<any>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   
   // Emergency state
   const [alarmAcknowledged, setAlarmAcknowledged] = useState(false);
@@ -248,8 +250,19 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
-      if (data.user) setUser(data.user);
-    } catch {}
+      if (data.user) {
+        setUser(data.user);
+        localStorage.setItem('skywatch_logged_in', 'true');
+      } else {
+        setUser(null);
+        localStorage.removeItem('skywatch_logged_in');
+      }
+    } catch {
+      setUser(null);
+      localStorage.removeItem('skywatch_logged_in');
+    } finally {
+      setAuthChecked(true);
+    }
   };
 
   const fetchDevices = async () => {
@@ -369,7 +382,7 @@ export default function Dashboard() {
     }
   }, [data, T]);
 
-  if (!mounted || !thresholdsLoaded) {
+  if (!mounted || !thresholdsLoaded || !authChecked) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
@@ -383,6 +396,10 @@ export default function Dashboard() {
         </p>
       </div>
     );
+  }
+
+  if (!user) {
+    return <LandingPage />;
   }
 
   const isDanger = data ? (data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp) : false;

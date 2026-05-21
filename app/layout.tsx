@@ -456,17 +456,40 @@ export default function RootLayout({
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isAdminPage = pathname.startsWith("/admin");
   const [user, setUser] = useState<any>(null);
+  const [clientLoggedIn, setClientLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Read cached login status on client mount to avoid flicker
+    const cached = typeof window !== 'undefined' && localStorage.getItem('skywatch_logged_in') === 'true';
+    setClientLoggedIn(cached);
+  }, []);
 
   useEffect(() => {
     if (!isAuthPage) {
       fetch('/api/auth/me')
         .then(res => res.json())
         .then(data => {
-          if (data.user) setUser(data.user);
+          if (data.user) {
+            setUser(data.user);
+            setClientLoggedIn(true);
+            localStorage.setItem('skywatch_logged_in', 'true');
+          } else {
+            setUser(null);
+            setClientLoggedIn(false);
+            localStorage.removeItem('skywatch_logged_in');
+          }
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err);
+          setUser(null);
+          setClientLoggedIn(false);
+          localStorage.removeItem('skywatch_logged_in');
+        });
     }
   }, [isAuthPage]);
+
+  // Apakah halaman ini adalah landing page sebelum login?
+  const isLandingPage = pathname === "/" && !clientLoggedIn;
 
   // Apakah halaman ini perlu dikunci untuk free member?
   const isLockedPage = LOCKED_PATHS.includes(pathname);
@@ -481,8 +504,8 @@ export default function RootLayout({
           enableSystem={false}
         >
           <div className="min-h-screen flex flex-col">
-            {!isAuthPage && !isAdminPage && <DesktopNav pathname={pathname} user={user} />}
-            {!isAuthPage && !isAdminPage && <MobileHeader />}
+            {!isAuthPage && !isAdminPage && !isLandingPage && <DesktopNav pathname={pathname} user={user} />}
+            {!isAuthPage && !isAdminPage && !isLandingPage && <MobileHeader />}
 
             <main className="flex-1 overflow-y-auto pb-28 lg:pb-0 relative">
               {/* Konten halaman — diberi blur jika terkunci */}
@@ -496,10 +519,10 @@ export default function RootLayout({
               )}
             </main>
 
-            {!isAuthPage && !isAdminPage && <MobileBottomNav pathname={pathname} user={user} />}
+            {!isAuthPage && !isAdminPage && !isLandingPage && <MobileBottomNav pathname={pathname} user={user} />}
 
             {/* ========== FLOATING WHATSAPP CALL CENTER BUTTON ========== */}
-            {!isAuthPage && !isAdminPage && (
+            {!isAuthPage && !isAdminPage && !isLandingPage && (
               <a
                 href={`https://wa.me/${WA_ADMIN}?text=${encodeURIComponent("Halo Admin SkyWatch, saya butuh bantuan.")}`}
                 target="_blank"
