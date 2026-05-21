@@ -886,7 +886,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Notifikasi Bahaya */}
-            <div>
+            <div className="border-b border-[#E2E8F0] dark:border-white/10">
               <button onClick={() => setActiveMenu(activeMenu === 'alarm' ? null : 'alarm')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
@@ -925,6 +925,31 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Layanan Pengaduan */}
+            <div>
+              <button 
+                onClick={() => router.push('/complaints')} 
+                className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-500 group-hover:scale-110 transition-transform">
+                    <MessageCircle size={20} />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors block">
+                      Layanan Pengaduan (Bantuan Teknis)
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      Laporkan kendala alat, sistem, atau ajukan keluhan teknis lainnya
+                    </span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center">
+                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
+                </div>
+              </button>
             </div>
 
           </div>

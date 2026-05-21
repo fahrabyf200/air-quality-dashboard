@@ -31,7 +31,6 @@ const menuItems = [
   { name: "Monitoring", icon: Table, path: "/monitoring" },
   { name: "Reports", icon: FileBarChart, path: "/reports" },
   { name: "About & Safety", icon: BookOpen, path: "/education" },
-  { name: "Pengaduan", icon: MessageSquare, path: "/complaints" },
   { name: "Profile", icon: User, path: "/profile" },
 ];
 
