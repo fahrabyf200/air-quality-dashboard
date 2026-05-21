@@ -105,13 +105,29 @@ function NotificationBell() {
                 <Bell size={24} className="mb-2 opacity-30" />
                 <p className="text-xs font-bold">Tidak ada notifikasi</p>
               </div>
-            ) : notifs.map(n => (
-              <div key={n.id} className={`px-4 py-3 border-b border-slate-50 dark:border-white/[0.04] last:border-0 ${!n.is_read ? 'bg-[#a3e635]/5' : ''}`}>
-                <p className={`text-xs font-bold mb-0.5 ${!n.is_read ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{n.title}</p>
-                <p className="text-[10px] text-slate-400 leading-relaxed">{n.message}</p>
-                <p className="text-[9px] text-slate-300 dark:text-slate-600 font-mono mt-1">{new Date(n.created_at).toLocaleString('id-ID')}</p>
-              </div>
-            ))}
+            ) : notifs.map(n => {
+              const isDangerNotif = n.type === 'danger' || n.type === 'alert';
+              return (
+                <div 
+                  key={n.id} 
+                  className={`px-4 py-3 border-b border-slate-50 dark:border-white/[0.04] last:border-0 transition-colors duration-200 ${
+                    !n.is_read 
+                      ? (isDangerNotif ? 'bg-red-500/10 border-l-2 border-red-500' : 'bg-[#a3e635]/5') 
+                      : (isDangerNotif ? 'border-l-2 border-red-500/20' : '')
+                  }`}
+                >
+                  <p className={`text-xs font-bold mb-0.5 ${
+                    !n.is_read 
+                      ? (isDangerNotif ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white') 
+                      : (isDangerNotif ? 'text-red-700/80 dark:text-red-400/80 font-semibold' : 'text-slate-600 dark:text-slate-300')
+                  }`}>
+                    {n.title}
+                  </p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">{n.message}</p>
+                  <p className="text-[9px] text-slate-300 dark:text-slate-600 font-mono mt-1">{new Date(n.created_at).toLocaleString('id-ID')}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -249,6 +265,27 @@ function MobileBottomNav({ pathname, user }: { pathname: string; user: any }) {
 
   const numCols = items.length;
 
+  const getShortName = (name: string) => {
+    switch (name) {
+      case "Dashboard":
+        return "Dash";
+      case "Monitoring":
+        return "Monitor";
+      case "Reports":
+        return "Report";
+      case "About & Safety":
+        return "About";
+      case "Pengaduan":
+        return "Aduan";
+      case "Profile":
+        return "Profile";
+      case "Admin":
+        return "Admin";
+      default:
+        return name;
+    }
+  };
+
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(16px,env(safe-area-inset-bottom))]">
       <nav
@@ -278,40 +315,36 @@ function MobileBottomNav({ pathname, user }: { pathname: string; user: any }) {
               <Link
                 key={item.path}
                 href={item.path}
-                className="relative flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform duration-100"
+                className="relative flex flex-col items-center justify-start pt-3 pb-2 h-full active:scale-95 transition-transform duration-100"
               >
-                {/* active bubble */}
-                {active && (
-                  <div 
-                    className={`absolute top-2.5 w-11 h-11 rounded-2xl border ${
-                      isPurpleTheme 
-                        ? "bg-purple-500/15 border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
-                        : "bg-[#a3e635]/15 border-[#a3e635]/25 shadow-[0_0_15px_rgba(163,230,53,0.15)]"
-                    }`} 
-                  />
-                )}
-
-                <div className="relative z-10 flex flex-col items-center justify-center gap-0.5">
+                {/* active bubble wrap around icon only */}
+                <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  active 
+                    ? (isPurpleTheme 
+                        ? "bg-purple-500/10 border border-purple-500/20 shadow-[0_0_12px_rgba(168,85,247,0.1)]" 
+                        : "bg-[#a3e635]/10 border border-[#a3e635]/20 shadow-[0_0_12px_rgba(163,230,53,0.1)]")
+                    : ""
+                }`}>
                   <Icon
-                    size={active ? 18 : 22}
-                    strokeWidth={active ? 2.8 : 2.0}
+                    size={20}
+                    strokeWidth={active ? 2.6 : 2.0}
                     className={
                       active 
-                        ? (isPurpleTheme ? "text-purple-500 dark:text-purple-400 animate-in zoom-in-95 duration-150" : "text-[#a3e635] animate-in zoom-in-95 duration-150") 
+                        ? (isPurpleTheme ? "text-purple-500 dark:text-purple-400" : "text-[#a3e635]") 
                         : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-200"
                     }
                   />
-
-                  {active && (
-                    <span
-                      className={`text-[8px] font-black tracking-widest uppercase animate-in fade-in slide-in-from-bottom-1 duration-200 ${
-                        isPurpleTheme ? "text-purple-500 dark:text-purple-400" : "text-[#a3e635]"
-                      }`}
-                    >
-                      {item.name}
-                    </span>
-                  )}
                 </div>
+
+                {active && (
+                  <span
+                    className={`text-[8px] font-black tracking-wider uppercase mt-1 animate-in fade-in slide-in-from-bottom-1 duration-200 whitespace-nowrap ${
+                      isPurpleTheme ? "text-purple-500 dark:text-purple-400" : "text-[#a3e635]"
+                    }`}
+                  >
+                    {getShortName(item.name)}
+                  </span>
+                )}
               </Link>
             );
           })}

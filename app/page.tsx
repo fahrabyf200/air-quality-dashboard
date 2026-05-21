@@ -134,12 +134,16 @@ function SensorCard({
     <>
       <div
         onClick={() => setDrawerOpen(true)}
-        className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer group transition-all duration-300 hover:border-slate-400 dark:hover:border-slate-500 hover:scale-[1.015] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] active:scale-[0.99] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+        className={`relative rounded-2xl border-2 overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] ${
+          danger
+            ? "border-red-500/80 dark:border-red-500/60 bg-red-50/20 dark:bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)] dark:shadow-[0_0_25px_rgba(239,68,68,0.25)] hover:shadow-[0_0_30px_rgba(239,68,68,0.25)] dark:hover:shadow-[0_0_35px_rgba(239,68,68,0.35)]"
+            : "border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+        }`}
       >
         {/* Glow Lampu */}
         <div 
           className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-          style={{ backgroundColor: color }} 
+          style={{ backgroundColor: danger ? '#ef4444' : color }} 
         />
 
         <div className="px-5 py-5 relative z-10">
@@ -189,17 +193,25 @@ function SensorCard({
 
           {/* Row 5 — threshold info */}
           <div className="flex items-center justify-between">
-            <p className="text-[10px] text-slate-600 font-mono">
-              Batas: <span className="text-slate-500">{threshold} {unit}</span>
+            <p className={`text-[10px] font-mono transition-colors duration-300 ${
+              danger ? 'text-red-500 font-bold animate-pulse' : 'text-slate-600 dark:text-slate-400'
+            }`}>
+              Batas: <span className={danger ? 'text-red-400 font-black' : 'text-slate-500 dark:text-slate-400'}>{threshold} {unit}</span>
             </p>
-            <span className="text-[9px] text-slate-600 font-bold uppercase tracking-wider flex items-center gap-0.5">
+            <span className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 transition-colors duration-300 ${
+              danger ? 'text-red-400' : 'text-slate-600 dark:text-slate-400'
+            }`}>
               <Info size={9} /> Info
             </span>
           </div>
 
           {/* Description snippet — always visible */}
-          <p className="mt-2 text-[11px] text-slate-600 leading-relaxed line-clamp-3">
-            {description}
+          <p className={`mt-2 text-[11px] leading-relaxed line-clamp-3 transition-colors duration-300 ${
+            danger 
+              ? 'text-red-500 font-semibold' 
+              : 'text-slate-600 dark:text-slate-400'
+          }`}>
+            {danger ? SENSOR_INFO[infoKey].danger : SENSOR_INFO[infoKey].general}
           </p>
         </div>
       </div>
@@ -284,7 +296,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (mounted) {
       fetchData();
-      const iv = setInterval(fetchData, 10000);
+      const iv = setInterval(fetchData, 1000);
       return () => clearInterval(iv);
     }
   }, [mounted, fetchData]);
@@ -410,7 +422,7 @@ export default function Dashboard() {
     {
       key: 'voc' as const,
       label: 'VOC (GAS LPG MUDAH TERBAKAR)', value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
-      danger: data ? data.voc > T.voc : false, color: '#ec4899', bgColor: '#ec489910',
+      danger: data ? data.voc > T.voc : false, color: '#14b8a6', bgColor: '#14b8a610',
       delta: data ? (data.voc > T.voc ? 'Tinggi' : 'Aman') : 'No Data',
       icon: Activity, threshold: T.voc, infoKey: 'voc' as const,
       description: SENSOR_INFO.voc.general + '\n' + (data ? (data.voc > T.voc ? SENSOR_INFO.voc.danger : SENSOR_INFO.voc.safe) : ''),
@@ -561,7 +573,7 @@ export default function Dashboard() {
                 {isDanger ? `DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS` : 'SYSTEM STATUS — SEMUA SENSOR OPTIMAL'}
               </p>
               <p className="text-slate-500 text-xs mt-0.5">
-                {isDanger ? 'Peringatan: Level gas telah melebihi batas aman. Lakukan tindakan darurat manual.' : 'Kondisi dapur aman. Pemantauan aktif setiap 10 detik.'}
+                {isDanger ? 'Peringatan: Level gas telah melebihi batas aman. Lakukan tindakan darurat manual.' : 'Kondisi dapur aman. Pemantauan aktif secara real-time.'}
               </p>
             </div>
           </div>
@@ -601,7 +613,7 @@ export default function Dashboard() {
                 {[
                   { k: 'CO₂', c: 'bg-blue-500' },
                   { k: 'NH₃', c: 'bg-yellow-500' },
-                  { k: 'VOC', c: 'bg-pink-500' },
+                  { k: 'VOC', c: 'bg-teal-500' },
                   { k: 'TEMP', c: 'bg-orange-500' },
                   { k: 'HUM', c: 'bg-purple-500' }
                 ].map(i => (
@@ -625,8 +637,8 @@ export default function Dashboard() {
                       <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorVoc" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
@@ -643,7 +655,7 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip />} />
                   <Area yAxisId="left" type="monotone" dataKey="co2" stroke="#3b82f6" strokeWidth={3} fill="url(#colorCo2)" />
                   <Area yAxisId="left" type="monotone" dataKey="nh3" stroke="#eab308" strokeWidth={3} fill="url(#colorNh3)" />
-                  <Area yAxisId="left" type="monotone" dataKey="voc" stroke="#ec4899" strokeWidth={3} fill="url(#colorVoc)" />
+                  <Area yAxisId="left" type="monotone" dataKey="voc" stroke="#14b8a6" strokeWidth={3} fill="url(#colorVoc)" />
                   <Area yAxisId="right" type="monotone" dataKey="temp" stroke="#f97316" strokeWidth={3} fill="url(#colorTemp)" />
                   <Area yAxisId="right" type="monotone" dataKey="hum" stroke="#a855f7" strokeWidth={3} fill="url(#colorHum)" />
                 </AreaChart>

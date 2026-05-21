@@ -24,9 +24,13 @@ async function main() {
     const [users] = await db.query("SELECT id, name, email, device_id FROM users");
     console.table(users);
 
-    console.log("\\n--- 10 DATA SENSOR TERAKHIR ---");
+    console.log("\n--- 10 DATA SENSOR TERAKHIR ---");
     const [sensors] = await db.query("SELECT id, user_id, co2, temp, created_at FROM sensor_data ORDER BY created_at DESC LIMIT 10");
     console.table(sensors);
+
+    console.log("\n--- NOTIFIKASI TERBARU ---");
+    const [notifs] = await db.query("SELECT id, user_id, title, type, is_read, created_at FROM notifications ORDER BY created_at DESC LIMIT 10");
+    console.table(notifs);
 
   } catch (error) {
     console.error("Terjadi kesalahan:", error.message);

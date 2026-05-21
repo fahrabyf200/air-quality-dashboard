@@ -1,16 +1,17 @@
 async function test() {
+  const isDangerArg = process.argv.includes('--danger');
   const payload = {
-    co2: 500,
-    nh3: 1.5,
-    voc: 0.5,
-    temp: 28,
+    co2: isDangerArg ? 1200 : 500,
+    nh3: isDangerArg ? 8.5 : 1.5,
+    voc: isDangerArg ? 15.0 : 0.5,
+    temp: isDangerArg ? 52 : 28,
     hum: 55,
-    isUnhealthy: false,
+    isUnhealthy: isDangerArg,
     dominant: "CO2"
   };
 
   try {
-    console.log("🚀 Mengirimkan data sensor uji coba ke http://localhost:3000/api/sensor...");
+    console.log(`🚀 Mengirimkan data sensor (${isDangerArg ? 'BAHAYA/DANGER' : 'AMAN/SAFE'}) ke http://localhost:3000/api/sensor...`);
     const res = await fetch('http://localhost:3000/api/sensor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

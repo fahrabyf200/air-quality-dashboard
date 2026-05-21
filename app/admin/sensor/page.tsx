@@ -7,7 +7,7 @@ import {
   TrendingUp, Thermometer, Droplets, Zap, Wind, Users, ChevronDown, X, Activity
 } from 'lucide-react';
 
-const T = { co2: 800, nh3: 2, voc: 10, temp: 35, hum: 80 };
+const T = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 const PER_PAGE = 20;
 
 interface SensorRow {

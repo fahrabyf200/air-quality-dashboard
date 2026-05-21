@@ -14,6 +14,77 @@ export async function POST(req: Request) {
 
     let savedCount = 0;
 
+    // Ambil threshold global dari database
+    const defaultThresholds = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
+    let T = defaultThresholds;
+    try {
+      const [settingsRows]: any = await db.query(
+        'SELECT setting_value FROM global_settings WHERE setting_key = ?',
+        ['thresholds']
+      );
+      if (settingsRows && settingsRows.length > 0) {
+        let parsed = settingsRows[0].setting_value;
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+        T = parsed;
+      }
+    } catch (err) {
+      console.error("Gagal mengambil threshold:", err);
+    }
+    const isDanger = !!(isUnhealthy || co2 > T.co2 || nh3 > T.nh3 || voc > T.voc || temp > T.temp);
+
+    // Helper untuk memproses notifikasi
+    const handleNotificationForUser = async (uid: number) => {
+      if (!uid) return;
+      try {
+        const [lastReadingRows]: any = await db.execute(
+          `SELECT co2, nh3, voc, temp, is_unhealthy FROM sensor_data 
+           WHERE user_id = ? 
+           ORDER BY created_at DESC LIMIT 1`,
+          [uid]
+        );
+
+        const wasDangerBefore = lastReadingRows && lastReadingRows.length > 0 && 
+          (lastReadingRows[0].is_unhealthy === 1 || 
+           lastReadingRows[0].co2 > T.co2 || 
+           lastReadingRows[0].nh3 > T.nh3 || 
+           lastReadingRows[0].voc > T.voc || 
+           lastReadingRows[0].temp > T.temp);
+
+        if (isDanger && !wasDangerBefore) {
+          const dangerLabels: string[] = [];
+          if (co2 > T.co2) dangerLabels.push('CO2');
+          if (nh3 > T.nh3) dangerLabels.push('NH3');
+          if (voc > T.voc) dangerLabels.push('VOC');
+          if (temp > T.temp) dangerLabels.push('TEMP');
+          if (dangerLabels.length === 0) dangerLabels.push('Kualitas Udara');
+
+          await db.execute(
+            `INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)`,
+            [
+              uid,
+              '🚨 ALARM BAHAYA: Udara Tidak Sehat!',
+              `Mendeteksi level kritis pada: ${dangerLabels.join(', ')}. Kadar parameter melebihi ambang batas aman. Segera lakukan tindakan pengamanan.`,
+              'danger'
+            ]
+          );
+        } else if (!isDanger && wasDangerBefore) {
+          await db.execute(
+            `INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)`,
+            [
+              uid,
+              '✅ Kondisi Normal: Udara Aman',
+              `Kualitas udara di dapur Anda sudah kembali normal di bawah ambang batas bahaya.`,
+              'info'
+            ]
+          );
+        }
+      } catch (err) {
+        console.error("Gagal memproses notifikasi:", err);
+      }
+    };
+
     // Langkah 1: Coba cari berdasarkan device_id jika dikirim
     if (device_id && device_id.trim() !== '') {
       const cleanId = device_id.trim();
@@ -49,11 +120,12 @@ export async function POST(req: Request) {
       // Distribusikan data sensor ke semua user_id terkait
       if (targetUserIds.length > 0) {
         for (const uid of targetUserIds) {
+          await handleNotificationForUser(uid);
           await db.execute(
             `INSERT INTO sensor_data 
              (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [co2, nh3, voc, temp, hum, isUnhealthy ? 1 : 0, dominant || 'CO2', uid, cleanId]
+            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', uid, cleanId]
           );
           savedCount++;
         }
@@ -68,11 +140,12 @@ export async function POST(req: Request) {
       
       if (allUsers && allUsers.length > 0) {
         for (const u of allUsers) {
+          await handleNotificationForUser(u.id);
           await db.execute(
             `INSERT INTO sensor_data 
              (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [co2, nh3, voc, temp, hum, isUnhealthy ? 1 : 0, dominant || 'CO2', u.id, device_id || null]
+            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', u.id, device_id || null]
           );
           savedCount++;
         }
@@ -82,7 +155,7 @@ export async function POST(req: Request) {
           `INSERT INTO sensor_data 
            (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
            VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
-          [co2, nh3, voc, temp, hum, isUnhealthy ? 1 : 0, dominant || 'CO2', device_id || null]
+          [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', device_id || null]
         );
       }
     }
