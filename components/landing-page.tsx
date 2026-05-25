@@ -5,10 +5,15 @@ import {
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
   Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
   Cpu, Layers, Bell, ExternalLink, ChevronRight, HelpCircle,
-  Play, Volume2, VolumeX, ShieldAlert, MessageCircle
+  Play, Volume2, VolumeX, ShieldAlert, MessageCircle,
+  Menu, X
 } from 'lucide-react';
 
+
 export default function LandingPage() {
+  // Mobile menu responsive state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Simulator States
   const [voc, setVoc] = useState(0.2); // VOC/LPG
   const [co2, setCo2] = useState(450); // CO2
@@ -221,7 +226,7 @@ export default function LandingPage() {
           ? 'border-b border-white/10 bg-[#070d1a]/95 backdrop-blur-xl shadow-lg shadow-black/40 h-16' 
           : 'border-b border-white/5 bg-[#070d1a]/80 backdrop-blur-xl h-20'
       }`}>
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-lg shadow-[#a3e635]/20">
@@ -245,7 +250,8 @@ export default function LandingPage() {
             <a href="#about" className="hover:text-[#a3e635] transition-colors">Cara Kerja</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3">
             <Link 
               href="/login" 
               className="px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-xs font-black uppercase tracking-wider text-slate-300 hover:text-white transition-all active:scale-95"
@@ -259,43 +265,123 @@ export default function LandingPage() {
               Daftar <ArrowRight size={13} strokeWidth={2.5} />
             </Link>
           </div>
+
+          {/* Mobile Actions & Hamburger Toggle */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link 
+              href="/login" 
+              className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.02] text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white transition-all active:scale-95"
+            >
+              Masuk
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all active:scale-95"
+              aria-label="Toggle Menu"
+            >
+              {mobileMenuOpen ? <X size={18} strokeWidth={2.5} /> : <Menu size={18} strokeWidth={2.5} />}
+            </button>
+          </div>
         </div>
       </header>
 
+      {/* MOBILE MENU OVERLAY */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[90] bg-[#070d1a]/98 backdrop-blur-2xl md:hidden flex flex-col justify-between pt-24 pb-8 px-6 overflow-y-auto">
+          <div className="space-y-8 text-left mt-4 animate-stagger-fade" style={{ animationDelay: '0.1s' }}>
+            <p className="text-[10px] font-black tracking-[0.25em] text-[#a3e635] uppercase">Navigasi Dashboard</p>
+            <nav className="flex flex-col gap-6 text-lg font-black uppercase tracking-wider text-slate-200">
+              <a 
+                href="#features" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-[#a3e635] transition-colors flex items-center justify-between border-b border-white/5 pb-3"
+              >
+                <span>Fitur Utama</span>
+                <ChevronRight size={16} className="text-slate-500" />
+              </a>
+              <a 
+                href="#simulator" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-[#a3e635] transition-colors flex items-center justify-between border-b border-white/5 pb-3"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Demo Live
+                </span>
+                <ChevronRight size={16} className="text-slate-500" />
+              </a>
+              <a 
+                href="#pricing" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-[#a3e635] transition-colors flex items-center justify-between border-b border-white/5 pb-3"
+              >
+                <span>Pilihan Paket</span>
+                <ChevronRight size={16} className="text-slate-500" />
+              </a>
+              <a 
+                href="#about" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-[#a3e635] transition-colors flex items-center justify-between border-b border-white/5 pb-3"
+              >
+                <span>Cara Kerja</span>
+                <ChevronRight size={16} className="text-slate-500" />
+              </a>
+            </nav>
+          </div>
+
+          <div className="space-y-4 pt-8 border-t border-white/5 animate-stagger-fade" style={{ animationDelay: '0.2s' }}>
+            <Link 
+              href="/login" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] text-slate-300 hover:text-white text-center font-black text-xs uppercase tracking-widest block transition-all active:scale-95"
+            >
+              Masuk ke Dashboard
+            </Link>
+            <Link 
+              href="/register" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-4 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest block transition-all shadow-lg shadow-[#a3e635]/20 active:scale-95 flex items-center justify-center gap-2"
+            >
+              Mulai Monitoring Sekarang <ArrowRight size={14} strokeWidth={2.5} />
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* HERO SECTION */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 max-w-7xl mx-auto px-6 overflow-hidden">
+      <section className="relative pt-28 pb-16 md:pt-40 md:pb-28 max-w-7xl mx-auto px-4 sm:px-6 overflow-hidden">
         {/* Ambient background glows for hero section */}
         <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse-slow" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#a3e635]/5 rounded-full blur-[160px] pointer-events-none -z-10 animate-pulse-slow" style={{ animationDelay: '2s' }} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           {/* Hero Left */}
-          <div className="lg:col-span-7 space-y-8 text-left animate-stagger-fade" style={{ animationDelay: '0.1s' }}>
+          <div className="lg:col-span-7 space-y-6 md:space-y-8 text-left animate-stagger-fade" style={{ animationDelay: '0.1s' }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-[10px] font-black uppercase tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping" />
               <Cpu size={12} /> IoT Smart Protection
             </div>
             
-            <h2 className="text-5xl md:text-7xl font-black tracking-[-0.04em] text-white leading-[0.95] font-display">
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-[-0.04em] text-white leading-[0.95] font-display">
               Dapur Aman,<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-lime-400 text-glow-green">Kerja Nyaman.</span>
             </h2>
             
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl font-medium">
+            <p className="text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl font-medium">
               Sistem deteksi dini kebocoran gas LPG dan polutan dapur berbasis Internet of Things (IoT). Pantau kadar udara secara real-time, terima peringatan suara seketika, dan lindungi dapur Anda dari risiko fatal sebelum terlambat.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <Link 
                 href="/register" 
-                className="px-8 py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-xs uppercase tracking-widest text-center transition-all duration-300 shadow-lg shadow-[#a3e635]/25 hover:shadow-[#a3e635]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5"
+                className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-xs uppercase tracking-widest text-center transition-all duration-300 shadow-lg shadow-[#a3e635]/25 hover:shadow-[#a3e635]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5"
               >
-                Mulai Monitoring Sekarang
+                Mulai Monitoring
                 <ArrowRight size={14} strokeWidth={2.8} />
               </Link>
               <a 
                 href="#simulator" 
-                className="px-8 py-4 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.06] text-slate-300 hover:text-white font-black text-xs uppercase tracking-widest text-center transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 backdrop-blur-md"
+                className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.06] text-slate-300 hover:text-white font-black text-xs uppercase tracking-widest text-center transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 backdrop-blur-md"
               >
                 <Play size={12} fill="currentColor" />
                 Coba Demo Live
@@ -303,24 +389,24 @@ export default function LandingPage() {
             </div>
 
             {/* Quick Metrics stats */}
-            <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-10 border-t border-white/5">
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">&lt; 3 Detik</p>
-                <p className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Respon Alarm Real-time</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">&lt; 3 Detik</p>
+                <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Respon Alarm Real-time</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">5 Sensor</p>
-                <p className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Dipantau Sekaligus</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">5 Sensor</p>
+                <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Dipantau Sekaligus</p>
               </div>
               <div>
-                <p className="text-3xl md:text-4xl font-extrabold text-[#a3e635] font-mono tracking-tight text-glow-green">Premium</p>
-                <p className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">WhatsApp & Sound Alert</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#a3e635] font-mono tracking-tight text-glow-green">Premium</p>
+                <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">WhatsApp & Sound Alert</p>
               </div>
             </div>
           </div>
  
           {/* Hero Right: Floating Device Presentation */}
-          <div className="lg:col-span-5 relative flex justify-center items-center animate-stagger-fade" style={{ animationDelay: '0.3s' }}>
+          <div className="lg:col-span-5 mt-10 lg:mt-0 relative flex justify-center items-center animate-stagger-fade" style={{ animationDelay: '0.3s' }}>
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#a3e635]/10 rounded-full blur-[100px] pointer-events-none" />
             
             {/* Animated Device Mockup */}
@@ -380,7 +466,7 @@ export default function LandingPage() {
           }`} style={{ animationDelay: '3s' }} />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-500 ${
               isAnyDanger 
@@ -401,17 +487,17 @@ export default function LandingPage() {
           {/* DANGER EMERGENCY MODAL PREVIEW */}
           {isVocDanger && !simulatedAlarmAck && (
             <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/80 backdrop-blur-md px-4">
-              <div className="bg-[#070d1a] border-2 border-red-500 rounded-[2.5rem] p-8 md:p-12 max-w-xl w-full text-center shadow-[0_0_120px_rgba(239,68,68,0.5)] animate-stagger-fade premium-glass">
-                <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative border border-red-500/20">
-                  <AlertTriangle size={44} className="text-red-500 animate-ping absolute opacity-30" />
-                  <AlertTriangle size={44} className="text-red-500 relative z-10" />
+              <div className="bg-[#070d1a] border-2 border-red-500 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 md:p-12 max-w-xl w-full text-center shadow-[0_0_120px_rgba(239,68,68,0.5)] animate-stagger-fade premium-glass">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative border border-red-500/20">
+                  <AlertTriangle size={36} className="text-red-500 animate-ping absolute opacity-30" />
+                  <AlertTriangle size={36} className="text-red-500 relative z-10" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black text-red-500 uppercase tracking-widest mb-3 font-display text-glow-red">KEBOCORAN DARURAT (SIMULASI)</h2>
-                <p className="text-slate-300 mb-8 font-bold text-xs md:text-sm leading-relaxed max-w-md mx-auto">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-red-500 uppercase tracking-widest mb-3 font-display text-glow-red">KEBOCORAN DARURAT (SIMULASI)</h2>
+                <p className="text-slate-300 mb-6 sm:mb-8 font-bold text-[11px] sm:text-xs md:text-sm leading-relaxed max-w-md mx-auto">
                   Sensor mensimulasikan level kritis pada: <span className="text-red-500 font-black">VOC (Gas LPG)</span>. Segera lakukan prosedur keselamatan di dapur Anda!
                 </p>
  
-                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 mb-8 text-left">
+                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 text-left">
                   <p className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <ShieldAlert size={14} /> Tindakan Penyelamatan Dapur:
                   </p>
@@ -426,13 +512,13 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-3">
                   <button 
                     onClick={() => setSimulatedAlarmAck(true)}
-                    className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg shadow-red-600/35 hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg shadow-red-600/35 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Check size={16} strokeWidth={2.8} /> Matikan Suara Alarm Sirene
                   </button>
                   <button 
                     onClick={resetSimulator}
-                    className="w-full py-3.5 text-slate-500 hover:text-white font-black text-xs uppercase tracking-wider transition-colors duration-300"
+                    className="w-full py-3 text-slate-500 hover:text-white font-black text-xs uppercase tracking-wider transition-colors duration-300"
                   >
                     Reset Simulator Ke Status Aman
                   </button>
@@ -442,14 +528,14 @@ export default function LandingPage() {
           )}
  
           {/* SIMULATOR DASHBOARD CONTAINER */}
-          <div className="rounded-[2.5rem] border border-white/10 overflow-hidden bg-[#070b16]/75 shadow-2xl relative backdrop-blur-2xl transition-all duration-700">
+          <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/10 overflow-hidden bg-[#070b16]/75 shadow-2xl relative backdrop-blur-2xl transition-all duration-700">
             {/* Ambient vignette pulsing overlay for danger state inside container */}
             <div className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 -z-10 ${
               isAnyDanger ? 'opacity-100' : 'opacity-0'
             }`} style={{ boxShadow: 'inset 0 0 80px rgba(239,68,68,0.25)' }} />
 
             {/* Simulator Header */}
-            <div className="px-8 py-5 bg-slate-900/40 border-b border-white/5 flex flex-wrap items-center justify-between gap-4 backdrop-blur-md">
+            <div className="px-4 py-4 sm:px-8 sm:py-5 bg-slate-900/40 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 backdrop-blur-md">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-red-500/30 flex items-center justify-center">
                   <span className={`w-1.5 h-1.5 rounded-full ${isAnyDanger ? 'bg-red-500 animate-ping' : 'bg-emerald-400'}`} />
@@ -459,7 +545,7 @@ export default function LandingPage() {
                 </span>
               </div>
  
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-2.5 sm:gap-3.5">
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
                   className={`p-2 px-3.5 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
@@ -483,10 +569,10 @@ export default function LandingPage() {
             </div>
  
             {/* ASYMMETRICAL PREMIUM GRID LAYOUT */}
-            <div className="p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            <div className="p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-stretch">
               
               {/* DOMINANT HERO OF THE SCREEN (VOC / LPG SENSOR) - 7 COLUMNS */}
-              <div className={`lg:col-span-7 premium-glass rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-500 border relative group overflow-hidden ${
+              <div className={`lg:col-span-7 premium-glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col justify-between transition-all duration-500 border relative group overflow-hidden ${
                 isVocDanger 
                   ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_40px_rgba(239,68,68,0.25)]' 
                   : 'border-white/10 hover:border-[#a3e635]/35 hover:shadow-2xl hover:shadow-[#a3e635]/5'
@@ -524,7 +610,7 @@ export default function LandingPage() {
                 </div>
  
                 {/* Visual Radial Breathing Gauge (Cinematic Hero Element) */}
-                <div className="relative w-64 h-64 mx-auto my-6 flex items-center justify-center">
+                <div className="relative w-48 h-48 sm:w-64 sm:h-64 mx-auto my-4 sm:my-6 flex items-center justify-center">
                   {/* Glowing background ring */}
                   <div className={`absolute inset-4 rounded-full blur-2xl opacity-15 transition-all duration-1000 ${
                     isVocDanger ? 'bg-red-500 animate-pulse' : 'bg-[#a3e635]'
@@ -554,7 +640,7 @@ export default function LandingPage() {
                   {/* Center Monospace Cinematic text */}
                   <div className="absolute flex flex-col items-center justify-center text-center">
                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em] font-sans">Konsentrasi</p>
-                    <h5 className={`text-6xl md:text-7xl font-black tracking-[-0.05em] leading-none my-1 font-mono transition-all duration-500 ${
+                    <h5 className={`text-5xl sm:text-6xl md:text-7xl font-black tracking-[-0.05em] leading-none my-1 font-mono transition-all duration-500 ${
                       isVocDanger ? 'text-red-400 text-glow-red' : 'text-white text-glow-green'
                     }`}>
                       {voc.toFixed(2)}
@@ -564,7 +650,7 @@ export default function LandingPage() {
                 </div>
  
                 {/* Narrative Insight & Protection Advise (Insight-driven HUD) */}
-                <div className={`mt-2 p-5 rounded-2xl border text-left transition-all duration-500 backdrop-blur-md ${
+                <div className={`mt-2 p-4 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all duration-500 backdrop-blur-md ${
                   isVocDanger 
                     ? 'bg-red-500/10 border-red-500/25 text-red-200 shadow-lg shadow-red-950/20' 
                     : 'bg-white/[0.02] border-white/5 text-slate-300'
@@ -584,13 +670,13 @@ export default function LandingPage() {
               </div>
  
               {/* SECONDARY & SUPPORTING CLUSTER PANEL (TEMP, HUM, CO2, NH3) - 5 COLUMNS */}
-              <div className="lg:col-span-5 flex flex-col gap-4">
+              <div className="lg:col-span-5 flex flex-col gap-3 sm:gap-4">
                 
                 {/* Secondary row (Temp & Hum climate) - 2 grid cards */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   
                   {/* Card Suhu (Secondary) */}
-                  <div className={`premium-glass-light rounded-3xl border p-5 text-left transition-all duration-300 group hover:-translate-y-1 ${
+                  <div className={`premium-glass-light rounded-2xl sm:rounded-3xl border p-3.5 sm:p-5 text-left transition-all duration-300 group hover:-translate-y-1 ${
                     isTempDanger 
                       ? 'border-orange-500/80 bg-orange-950/10 shadow-[0_0_20px_rgba(249,115,22,0.15)]' 
                       : 'border-white/5 hover:border-orange-500/20'
@@ -617,7 +703,7 @@ export default function LandingPage() {
                   </div>
  
                   {/* Card Kelembapan (Secondary) */}
-                  <div className={`premium-glass-light rounded-3xl border p-5 text-left transition-all duration-300 group hover:-translate-y-1 ${
+                  <div className={`premium-glass-light rounded-2xl sm:rounded-3xl border p-3.5 sm:p-5 text-left transition-all duration-300 group hover:-translate-y-1 ${
                     isHumDanger 
                       ? 'border-sky-500/80 bg-sky-950/10 shadow-[0_0_20px_rgba(56,189,248,0.15)]' 
                       : 'border-white/5 hover:border-sky-500/20'
@@ -646,10 +732,10 @@ export default function LandingPage() {
                 </div>
  
                 {/* Supporting row (CO2 & NH3 chemical breakdown) - 2 grid cards */}
-                <div className="grid grid-cols-2 gap-4 flex-1">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 flex-1">
                   
                   {/* Card CO2 (Supporting) */}
-                  <div className={`premium-glass-light rounded-3xl border p-5 text-left transition-all duration-300 group hover:-translate-y-1 flex flex-col justify-between ${
+                  <div className={`premium-glass-light rounded-2xl sm:rounded-3xl border p-3.5 sm:p-5 text-left transition-all duration-300 group hover:-translate-y-1 flex flex-col justify-between ${
                     isCo2Danger 
                       ? 'border-blue-500/80 bg-blue-950/10 shadow-[0_0_20px_rgba(59,130,246,0.15)]' 
                       : 'border-white/5 hover:border-blue-500/20'
@@ -680,7 +766,7 @@ export default function LandingPage() {
                   </div>
  
                   {/* Card NH3 (Supporting) */}
-                  <div className={`premium-glass-light rounded-3xl border p-5 text-left transition-all duration-300 group hover:-translate-y-1 flex flex-col justify-between ${
+                  <div className={`premium-glass-light rounded-2xl sm:rounded-3xl border p-3.5 sm:p-5 text-left transition-all duration-300 group hover:-translate-y-1 flex flex-col justify-between ${
                     isNh3Danger 
                       ? 'border-purple-500/80 bg-purple-950/10 shadow-[0_0_20px_rgba(167,139,250,0.15)]' 
                       : 'border-white/5 hover:border-purple-500/20'
@@ -716,8 +802,8 @@ export default function LandingPage() {
             </div>
  
             {/* INTERACTIVE CONTROLS BOX (SLIDERS) */}
-            <div className="p-8 bg-slate-950/60 border-t border-white/5 backdrop-blur-xl">
-              <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+            <div className="p-4 sm:p-6 md:p-8 bg-slate-950/60 border-t border-white/5 backdrop-blur-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="text-left">
                   <h4 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
                     <Cpu size={16} className="text-[#a3e635]" />
@@ -726,16 +812,16 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-400 mt-1 font-medium">Geser slider di bawah untuk mensimulasikan perubahan data IoT sensor dapur Anda secara langsung (live).</p>
                 </div>
  
-                <div className="flex gap-3">
+                <div className="w-full sm:w-auto flex gap-2.5 sm:gap-3">
                   <button 
                     onClick={setPresetDanger}
-                    className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 shadow-md shadow-red-600/20 hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex-1 sm:flex-none px-4 py-2.5 sm:px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 shadow-md shadow-red-600/20 hover:-translate-y-0.5 active:translate-y-0 text-center justify-center"
                   >
                     🚨 Pemicu Kebocoran Gas
                   </button>
                   <button 
                     onClick={resetSimulator}
-                    className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex-1 sm:flex-none px-4 py-2.5 sm:px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 text-center justify-center"
                   >
                     Reset Normal
                   </button>
