@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
+import { notifyAdmins } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,13 @@ export async function POST(req: Request) {
       [userId, name, email, subject, message]
     );
 
+    // Notify admins about the new complaint
+    await notifyAdmins(
+      'Pengaduan Baru',
+      `Ada pengaduan baru dari ${name} dengan subjek: "${subject}".`,
+      'alert'
+    );
+
     return NextResponse.json({ message: 'Pengaduan berhasil dikirim! Kami akan segera menghubungi Anda.' }, { status: 201 });
   } catch (e: any) {
     return NextResponse.json({ error: 'Gagal mengirim pengaduan: ' + e.message }, { status: 500 });
@@ -60,7 +68,20 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: 'Status tidak valid' }, { status: 400 });
   }
 
+  // Get complaint subject for logging
+  const [compRows]: any = await db.query('SELECT subject FROM complaints WHERE id = ?', [id]);
+  const compSubj = compRows?.[0]?.subject || 'Pengaduan';
+
   await db.query('UPDATE complaints SET status = ? WHERE id = ?', [status, id]);
+
+  // Notify admins
+  const adminName = (session as any).name || 'Admin';
+  await notifyAdmins(
+    'Status Pengaduan Diubah',
+    `${adminName} mengubah status pengaduan "${compSubj}" menjadi "${status}".`,
+    'info'
+  );
+
   return NextResponse.json({ message: 'Status pengaduan diperbarui' });
 }
 
@@ -74,6 +95,20 @@ export async function DELETE(req: Request) {
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: 'ID diperlukan' }, { status: 400 });
 
+  // Get complaint details before deleting
+  const [compRows]: any = await db.query('SELECT name, subject FROM complaints WHERE id = ?', [id]);
+  const compSubj = compRows?.[0]?.subject || 'Pengaduan';
+  const compName = compRows?.[0]?.name || '';
+
   await db.query('DELETE FROM complaints WHERE id = ?', [id]);
+
+  // Notify admins
+  const adminName = (session as any).name || 'Admin';
+  await notifyAdmins(
+    'Pengaduan Dihapus',
+    `${adminName} menghapus pengaduan dari "${compName}" dengan subjek: "${compSubj}".`,
+    'info'
+  );
+
   return NextResponse.json({ message: 'Pengaduan dihapus' });
 }

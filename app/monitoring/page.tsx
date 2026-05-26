@@ -85,7 +85,7 @@ function SummaryCard({
 }) {
   return (
     <div
-      className="relative rounded-2xl md:rounded-2xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden group transition-all duration-300 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+      className="relative rounded-2xl md:rounded-2xl border-2 border-slate-200 dark:border-slate-800 overflow-hidden group transition-all duration-300 bg-white dark:bg-slate-900 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
     >
       {/* Glow bg */}
       <div
@@ -118,7 +118,7 @@ function SummaryCard({
           </div>
 
           <div
-            className="w-10 h-10 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 flex items-center justify-center"
             style={{ background: `${color}15` }}
           >
             <Icon size={16} style={{ color }} />
@@ -129,14 +129,14 @@ function SummaryCard({
         <div className="hidden md:block">
           <div className="flex items-start justify-between mb-4">
             <div
-              className="w-10 h-10 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 flex items-center justify-center"
+              className="w-10 h-10 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 flex items-center justify-center"
               style={{ background: `${color}15` }}
             >
               <Icon size={16} style={{ color }} />
             </div>
           </div>
 
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#1E293B] dark:text-slate-400 mb-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-800 dark:text-slate-400 mb-3">
             {label}
           </p>
 
@@ -197,7 +197,7 @@ export default function MonitoringPage() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       {/* HEADER */}
       <div className="px-4 sm:px-5 md:px-8 xl:px-10 pt-7 pb-5">
         <div className="max-w-[1700px] mx-auto flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -221,7 +221,7 @@ export default function MonitoringPage() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-semibold uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition-all text-[11px] font-semibold uppercase tracking-wider active:scale-95 disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
           >
             <RefreshCw
               size={13}
@@ -286,17 +286,17 @@ export default function MonitoringPage() {
 
         {/* TABLE */}
         <div
-          className="rounded-2xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+          className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
         >
           {/* TABLE HEADER */}
-          <div className="px-4 sm:px-6 py-5 border-b border-[#E2E8F0] dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="px-4 sm:px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                 <Activity size={15} className="text-blue-400" />
               </div>
 
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-800 dark:text-slate-400">
                   Sensor Activity Log
                 </p>
 
@@ -321,7 +321,7 @@ export default function MonitoringPage() {
                 <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl animate-pulse" />
               </div>
 
-              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#1E293B] dark:text-slate-400">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-800 dark:text-slate-400">
                 Loading Sensor Data...
               </p>
             </div>
@@ -331,7 +331,7 @@ export default function MonitoringPage() {
               <div className="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
                 <table className="w-full min-w-[850px] md:min-w-[1000px]">
                   <thead>
-                    <tr className="border-b border-[#E2E8F0] dark:border-white/5">
+                    <tr className="border-b border-slate-200 dark:border-slate-800">
                       {[
                         "#",
                         "Timestamp",
@@ -344,7 +344,7 @@ export default function MonitoringPage() {
                       ].map((h) => (
                         <th
                           key={h}
-                          className="text-left px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 whitespace-nowrap"
+                          className="text-left px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-800 dark:text-slate-400 whitespace-nowrap"
                         >
                           {h}
                         </th>
@@ -375,7 +375,7 @@ export default function MonitoringPage() {
                         return (
                           <tr
                             key={row.id ?? i}
-                            className={`transition-all hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.03] ${
+                            className={`transition-all hover:bg-slate-50 dark:hover:bg-slate-800 ${
                               isDanger ? "bg-red-500/[0.03]" : ""
                             }`}
                           >
@@ -419,9 +419,9 @@ export default function MonitoringPage() {
               </div>
 
               {/* MOBILE CARDS */}
-              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-white/5">
+              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-slate-800/50">
                 {paged.length === 0 ? (
-                  <div className="text-center py-20 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-[0.3em]">
+                  <div className="text-center py-20 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-[0.3em]">
                     No sensor data available
                   </div>
                 ) : (
@@ -433,10 +433,10 @@ export default function MonitoringPage() {
                     const ts = row.created_at ?? row.timestamp;
 
                     return (
-                      <div key={row.id ?? i} className="p-5 hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-colors">
+                      <div key={row.id ?? i} className="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#FFFFFF]/5 px-2 py-1 rounded-md">
+                            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
                               #{(page - 1) * PER_PAGE + i + 1}
                             </span>
                             <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -456,23 +456,23 @@ export default function MonitoringPage() {
                         </div>
 
                         <div className="grid grid-cols-5 gap-1.5 md:gap-2">
-                          <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                          <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                             <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">CO₂</p>
                             <NumCell v={row.co2} threshold={T.co2} digits={0} />
                           </div>
-                          <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                          <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                             <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">NH₃</p>
                             <NumCell v={row.nh3} threshold={T.nh3} digits={2} />
                           </div>
-                          <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                          <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                             <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">VOC</p>
                             <NumCell v={row.voc || 0} threshold={T.voc} digits={2} />
                           </div>
-                          <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                          <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                             <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">TEMP</p>
                             <NumCell v={t} threshold={T.temp} digits={1} />
                           </div>
-                          <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                          <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                             <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">HUM</p>
                             <NumCell v={h} threshold={T.hum} digits={0} />
                           </div>
@@ -487,8 +487,8 @@ export default function MonitoringPage() {
 
           {/* PAGINATION */}
           {totalPages > 1 && (
-            <div className="px-4 sm:px-6 py-5 border-t border-[#E2E8F0] dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#1E293B] dark:text-slate-400">
+            <div className="px-4 sm:px-6 py-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-800 dark:text-slate-400">
                 Page {page} / {totalPages}
               </span>
 
@@ -498,7 +498,7 @@ export default function MonitoringPage() {
                     setPage((p) => Math.max(1, p - 1))
                   }
                   disabled={page === 1}
-                  className="px-4 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/15 disabled:opacity-30 transition-all text-xs font-semibold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
+                  className="px-4 py-2 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-800 disabled:opacity-30 transition-all text-xs font-semibold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
                 >
                   ← Prev
                 </button>

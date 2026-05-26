@@ -52,15 +52,15 @@ function RegisterForm() {
 
         {/* Banner Undangan */}
         {isInvited && (
-          <div className="mb-5 bg-[#a3e635]/10 border border-[#a3e635]/30 rounded-2xl p-4 flex items-start gap-3">
-            <div className="p-2 bg-[#a3e635]/15 rounded-xl flex-shrink-0">
-              <UserCheck size={18} className="text-[#a3e635]" />
+          <div className="mb-5 bg-[#4edea3]/10 border border-[#4edea3]/30 rounded-2xl p-4 flex items-start gap-3">
+            <div className="p-2 bg-[#4edea3]/15 rounded-xl flex-shrink-0">
+              <UserCheck size={18} className="text-[#4edea3]" />
             </div>
             <div>
-              <p className="text-[11px] font-black text-[#a3e635] uppercase tracking-widest mb-1">Undangan Diterima 🎉</p>
+              <p className="text-[11px] font-black text-[#4edea3] uppercase tracking-widest mb-1">Undangan Diterima 🎉</p>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Anda menerima undangan untuk memantau sensor SkyWatch. Daftar dengan email 
-                <strong className="text-[#a3e635] font-mono ml-1">{invitedEmail}</strong> untuk mendapatkan akses otomatis.
+                <strong className="text-[#4edea3] font-mono ml-1">{invitedEmail}</strong> untuk mendapatkan akses otomatis.
               </p>
             </div>
           </div>
@@ -68,7 +68,7 @@ function RegisterForm() {
 
         <div className="bg-[#FFFFFF] dark:bg-[#0d1425] rounded-3xl p-8 shadow-2xl border border-[#E2E8F0] dark:border-white/10">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#a3e635] flex items-center justify-center mb-4 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-lime-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-[#4edea3] flex items-center justify-center mb-4 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-emerald-500/20">
               <Wind size={32} className="text-[#0a0f1a]" strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -94,7 +94,7 @@ function RegisterForm() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   required
-                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
                   placeholder="Nama Anda"
                 />
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -112,15 +112,15 @@ function RegisterForm() {
                   readOnly={isInvited && !!invitedEmail}
                   className={`w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none transition-colors ${
                     isInvited && invitedEmail
-                      ? 'border-[#a3e635]/40 text-[#a3e635] cursor-not-allowed opacity-80'
-                      : 'border-[#E2E8F0] dark:border-white/10 focus:border-lime-500'
+                      ? 'border-[#4edea3]/40 text-[#4edea3] cursor-not-allowed opacity-80'
+                      : 'border-[#E2E8F0] dark:border-white/10 focus:border-emerald-500'
                   }`}
                   placeholder="nama@email.com"
                 />
-                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isInvited && invitedEmail ? 'text-[#a3e635]' : 'text-slate-400'}`} size={18} />
+                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isInvited && invitedEmail ? 'text-[#4edea3]' : 'text-slate-400'}`} size={18} />
               </div>
               {isInvited && invitedEmail && (
-                <p className="text-[10px] text-[#a3e635]/70 ml-1">✓ Email terkunci sesuai undangan</p>
+                <p className="text-[10px] text-[#4edea3]/70 ml-1">✓ Email terkunci sesuai undangan</p>
               )}
             </div>
 
@@ -132,7 +132,7 @@ function RegisterForm() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
                   placeholder="••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -142,7 +142,7 @@ function RegisterForm() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#a3e635] hover:bg-[#8ecb2f] text-[#0a0f1a] font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all mt-6 disabled:opacity-50"
+              className="w-full bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all mt-6 disabled:opacity-50"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : (
                 <>{isInvited ? 'Aktivasi & Mulai Monitoring' : 'Mendaftar'} <ArrowRight size={18} /></>
@@ -151,7 +151,7 @@ function RegisterForm() {
           </form>
 
           <p className="text-center mt-6 text-xs text-slate-500 font-bold">
-            Sudah punya akun? <Link href="/login" className="text-lime-500 hover:underline">Masuk di sini</Link>
+            Sudah punya akun? <Link href="/login" className="text-emerald-500 hover:underline">Masuk di sini</Link>
           </p>
         </div>
       </div>

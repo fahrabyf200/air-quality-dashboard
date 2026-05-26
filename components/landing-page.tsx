@@ -8,7 +8,40 @@ import {
   Play, Volume2, VolumeX, ShieldAlert, MessageCircle
 } from 'lucide-react';
 
+function ScrollReveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const [ref, setRef] = useState<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          setVisible(true);
+        }, delay);
+        observer.unobserve(ref);
+      }
+    }, { threshold: 0.05, rootMargin: "0px 0px -45px 0px" });
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, delay]);
+
+  return (
+    <div
+      ref={setRef as any}
+      className={`${className} transition-all duration-1000 ease-out transform ${
+        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-[0.98]"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function LandingPage() {
+  // Mobile Menu drawer state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Simulator States
   const [voc, setVoc] = useState(0.2); // VOC/LPG
   const [co2, setCo2] = useState(450); // CO2
@@ -134,11 +167,11 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="bg-[#070d1a] text-slate-100 min-h-screen relative font-sans selection:bg-[#a3e635]/30 selection:text-white">
+    <div className="bg-[#070d1a] text-slate-100 min-h-screen relative font-sans selection:bg-[#4edea3]/30 selection:text-white">
       {/* Background Neon Elements Container */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-[150px]" />
-        <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#a3e635]/5 blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#4edea3]/5 blur-[120px]" />
         <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-purple-500/5 blur-[180px]" />
       </div>
 
@@ -151,10 +184,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-lg shadow-[#a3e635]/20">
+              <div className="w-10 h-10 rounded-xl bg-[#4edea3] flex items-center justify-center shadow-lg shadow-[#4edea3]/20">
                 <Wind className="text-[#0a0f1a]" size={18} strokeWidth={2.8} />
               </div>
-              <div className="absolute inset-0 bg-[#a3e635]/30 blur-lg rounded-xl -z-10 animate-pulse" />
+              <div className="absolute inset-0 bg-[#4edea3]/30 blur-lg rounded-xl -z-10 animate-pulse" />
             </div>
             <div>
               <h1 className="text-white font-black text-sm tracking-tight leading-none uppercase">SkyWatch</h1>
@@ -163,44 +196,146 @@ export default function LandingPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            <a href="#features" className="hover:text-[#a3e635] transition-colors">Fitur Utama</a>
-            <a href="#simulator" className="hover:text-[#a3e635] transition-colors flex items-center gap-1.5">
+            <a href="#features" className="hover:text-[#4edea3] transition-colors">Fitur Utama</a>
+            <a href="#simulator" className="hover:text-[#4edea3] transition-colors flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               Demo Live
             </a>
-            <a href="#pricing" className="hover:text-[#a3e635] transition-colors">Pilihan Paket</a>
-            <a href="#about" className="hover:text-[#a3e635] transition-colors">Cara Kerja</a>
+            <a href="#pricing" className="hover:text-[#4edea3] transition-colors">Pilihan Paket</a>
+            <a href="#about" className="hover:text-[#4edea3] transition-colors">Cara Kerja</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Desktop Right Actions */}
+          <div className="hidden md:flex items-center gap-2.5">
             <Link 
               href="/login" 
-              className="px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-xs font-black uppercase tracking-wider text-slate-300 hover:text-white transition-all active:scale-95"
+              className="px-4 py-2 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white transition-all active:scale-95"
             >
               Masuk
             </Link>
             <Link 
               href="/register" 
-              className="px-5 py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-[#a3e635]/20 hover:shadow-[#a3e635]/30 active:scale-95 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/30 active:scale-95 flex items-center gap-1"
             >
-              Daftar <ArrowRight size={13} strokeWidth={2.5} />
+              Daftar <ArrowRight size={12} strokeWidth={2.5} />
             </Link>
+          </div>
+
+          {/* Mobile Right Actions (Matches Image 1) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link 
+              href="/login" 
+              className="px-3.5 py-1.5 rounded-lg border border-white/20 bg-[#070d1a] text-[10px] font-black uppercase tracking-widest text-white transition-all active:scale-95 flex items-center justify-center h-8"
+              style={{ letterSpacing: '0.05em' }}
+            >
+              MASUK
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="w-8 h-8 rounded-lg border border-white/20 bg-white/[0.01] hover:bg-white/[0.05] flex items-center justify-center text-slate-300 hover:text-white transition-all"
+              aria-label="Buka Menu"
+            >
+              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </header>
+
+      {/* MOBILE MENU DRAWER OVERLAY */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[200] md:hidden bg-[#070d1a]/98 backdrop-blur-2xl flex flex-col justify-between p-6 animate-in fade-in duration-300">
+          <div>
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-5 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#4edea3] flex items-center justify-center">
+                  <Wind className="text-[#0a0f1a]" size={16} strokeWidth={2.8} />
+                </div>
+                <div>
+                  <h1 className="text-white font-black text-xs uppercase leading-none">SkyWatch</h1>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Air Analytics</p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white"
+                aria-label="Tutup Menu"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            {/* Links */}
+            <nav className="flex flex-col gap-5 pt-8 text-xs font-bold uppercase tracking-wider text-slate-400">
+              <a 
+                href="#features" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Fitur Utama
+              </a>
+              <a 
+                href="#simulator" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02] flex items-center justify-between"
+              >
+                <span>Demo Live</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+              </a>
+              <a 
+                href="#pricing" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Pilihan Paket
+              </a>
+              <a 
+                href="#about" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Cara Kerja
+              </a>
+            </nav>
+          </div>
+
+          {/* Action buttons at bottom */}
+          <div className="space-y-3 pb-8">
+            <Link 
+              href="/login" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-white transition-all block"
+            >
+              Masuk
+            </Link>
+            <Link 
+              href="/register" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center text-xs font-black uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20"
+            >
+              Daftar
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* HERO SECTION */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Hero Left */}
-          <div className="lg:col-span-7 space-y-6 text-left">
+          <ScrollReveal className="lg:col-span-7 space-y-6 text-left" delay={0}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
               <Cpu size={12} /> IoT-Powered Smart System
             </div>
             
             <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.08]" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Dapur Aman,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-lime-400">Kerja Nyaman.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4edea3] to-[#89ceff]">Kerja Nyaman.</span>
             </h2>
             
             <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl">
@@ -210,7 +345,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <Link 
                 href="/register" 
-                className="px-8 py-4.5 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#a3e635]/20 hover:shadow-[#a3e635]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
+                className="px-8 py-4.5 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
               >
                 Mulai Monitoring Sekarang
                 <ArrowRight size={16} strokeWidth={2.8} />
@@ -235,15 +370,15 @@ export default function LandingPage() {
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Dipantau Sekaligus</p>
               </div>
               <div>
-                <p className="text-2xl md:text-3xl font-black text-[#a3e635]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Premium</p>
+                <p className="text-2xl md:text-3xl font-black text-[#4edea3]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Premium</p>
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">WhatsApp & Sound Alert</p>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Hero Right: Floating Device Presentation */}
-          <div className="lg:col-span-5 relative flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#a3e635]/10 rounded-full blur-[100px] pointer-events-none" />
+          <ScrollReveal className="lg:col-span-5 relative flex justify-center items-center" delay={150}>
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#4edea3]/10 rounded-full blur-[100px] pointer-events-none" />
             
             {/* Animated Device Mockup */}
             <div className="relative rounded-[2.5rem] border border-white/10 p-6 bg-slate-900/60 backdrop-blur-3xl shadow-2xl w-full max-w-sm hover:scale-[1.01] transition-transform duration-500 group">
@@ -260,7 +395,7 @@ export default function LandingPage() {
 
               <div className="space-y-3.5">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-[#a3e635]/10 border border-[#a3e635]/20 rounded-lg text-[#a3e635]">
+                  <div className="p-2 bg-[#4edea3]/10 border border-[#4edea3]/20 rounded-lg text-[#4edea3]">
                     <ShieldCheck size={16} />
                   </div>
                   <p className="text-xs font-black uppercase tracking-wider text-white">SkyWatch IoT Node-01</p>
@@ -272,34 +407,36 @@ export default function LandingPage() {
 
                 <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 font-mono">
                   <span>Model: SW-ESP32-V2</span>
-                  <span className="text-[#a3e635] font-bold">Online</span>
+                  <span className="text-[#4edea3] font-bold">Online</span>
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* SECTION INTERACTIVE SIMULATOR (SANDBOX) */}
       <section id="simulator" className="py-20 bg-slate-950/30 border-y border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#a3e635]/10 border border-[#a3e635]/20 text-[#a3e635] text-[10px] font-black uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-ping" />
-              Eksplorasi Interaktif
+          <ScrollReveal delay={0}>
+            <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#4edea3]/10 border border-[#4edea3]/20 text-[#4edea3] text-[10px] font-black uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" />
+                Eksplorasi Interaktif
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                IoT Dashboard Live Sandbox
+              </h3>
+              <p className="text-slate-400 text-sm">
+                Cobalah simulator dashboard di bawah! Geser slider kontrol di panel bawah untuk mensimulasikan kejadian gas bocor atau kenaikan suhu ekstrem, dan saksikan bagaimana sistem SkyWatch merespon seketika.
+              </p>
             </div>
-            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              IoT Dashboard Live Sandbox
-            </h3>
-            <p className="text-slate-400 text-sm">
-              Cobalah simulator dashboard di bawah! Geser slider kontrol di panel bawah untuk mensimulasikan kejadian gas bocor atau kenaikan suhu ekstrem, dan saksikan bagaimana sistem SkyWatch merespon seketika.
-            </p>
-          </div>
+          </ScrollReveal>
 
           {/* DANGER EMERGENCY MODAL PREVIEW */}
           {isVocDanger && !simulatedAlarmAck && (
-            <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/60 backdrop-blur-sm px-4">
-              <div className="bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
+            <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
+              <div className="bg-[#070d1a]/90 backdrop-blur-xl border-2 border-red-500/80 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.35)] animate-in zoom-in duration-300">
                 <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                   <AlertTriangle size={40} className="text-red-500 animate-ping absolute opacity-30" />
                   <AlertTriangle size={40} className="text-red-500 relative z-10" />
@@ -338,7 +475,7 @@ export default function LandingPage() {
           )}
 
           {/* SIMULATOR DASHBOARD CONTAINER */}
-          <div className="rounded-[2rem] border border-white/10 overflow-hidden bg-[#0a1020]/90 shadow-2xl relative">
+          <ScrollReveal delay={100} className="rounded-[2rem] border border-white/10 overflow-hidden bg-[#0a1020]/90 shadow-2xl relative">
             
             {/* Simulator Header */}
             <div className="px-6 py-4.5 bg-slate-900/80 border-b border-white/5 flex flex-wrap items-center justify-between gap-4">
@@ -356,7 +493,7 @@ export default function LandingPage() {
                   onClick={() => setSoundEnabled(!soundEnabled)}
                   className={`p-2 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all ${
                     soundEnabled 
-                      ? 'bg-[#a3e635]/10 border-[#a3e635]/25 text-[#a3e635]' 
+                      ? 'bg-[#4edea3]/10 border-[#4edea3]/25 text-[#4edea3]' 
                       : 'bg-white/[0.02] border-white/10 text-slate-400 hover:text-white'
                   }`}
                   title={soundEnabled ? "Nonaktifkan Alarm" : "Aktifkan Alarm"}
@@ -476,7 +613,7 @@ export default function LandingPage() {
               }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5">
-                    <Activity size={14} className="text-[#a3e635]" />
+                    <Activity size={14} className="text-[#4edea3]" />
                   </div>
                   <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
                     isVocDanger ? 'bg-red-500 border-red-500/25 text-red-400 font-black animate-ping' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
@@ -484,13 +621,13 @@ export default function LandingPage() {
                     {isVocDanger ? 'LEAK' : 'Safe'}
                   </span>
                 </div>
-                <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-wider mb-1">VOC (Kebocoran Gas)</p>
+                <p className="text-[9px] font-black text-[#4edea3] uppercase tracking-wider mb-1">VOC (Kebocoran Gas)</p>
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-2xl font-black text-white font-mono" style={{ color: isVocDanger ? '#f87171' : undefined }}>{voc.toFixed(2)}</span>
                   <span className="text-slate-400 text-xs font-bold">PPM</span>
                 </div>
                 <div className="h-1 bg-white/5 rounded-full overflow-hidden mb-3">
-                  <div className="h-full bg-[#a3e635] transition-all duration-300" style={{ width: `${Math.min((voc / thresholds.voc) * 100, 100)}%` }} />
+                  <div className="h-full bg-[#4edea3] transition-all duration-300" style={{ width: `${Math.min((voc / thresholds.voc) * 100, 100)}%` }} />
                 </div>
                 <p className="text-[9.5px] text-slate-400 font-bold leading-normal font-mono">Batas: {thresholds.voc} PPM</p>
               </div>
@@ -556,7 +693,7 @@ export default function LandingPage() {
               <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                 <div className="text-left">
                   <h4 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
-                    <Cpu size={14} className="text-[#a3e635]" />
+                    <Cpu size={14} className="text-[#4edea3]" />
                     Simulator Controller Panel
                   </h4>
                   <p className="text-[10px] text-slate-400">Geser indikator di bawah untuk mensimulasikan perubahan data IoT sensor dapur Anda secara live.</p>
@@ -596,7 +733,7 @@ export default function LandingPage() {
                       setVoc(parseFloat(e.target.value));
                       if (parseFloat(e.target.value) <= thresholds.voc) setSimulatedAlarmAck(false);
                     }}
-                    className="w-full accent-[#a3e635]"
+                    className="w-full accent-[#4edea3]"
                   />
                   <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase">
                     <span>Aman (0.2)</span>
@@ -648,106 +785,109 @@ export default function LandingPage() {
               </div>
             </div>
 
-          </div>
+          </ScrollReveal>
 
-          <div className="text-center mt-8">
+          <ScrollReveal delay={200} className="text-center mt-8">
             <Link 
               href="/register" 
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#a3e635]/10 hover:bg-[#a3e635]/20 border border-[#a3e635]/30 text-[#a3e635] text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#4edea3]/10 hover:bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Hubungkan Alat Sensor Fisik Anda Sendiri
               <ChevronRight size={14} strokeWidth={2.5} />
             </Link>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* CORE FEATURES SECTION */}
       <section id="features" className="py-20 max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
-            Fitur Teknologi
+        <ScrollReveal delay={0}>
+          <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
+              Fitur Teknologi
+            </div>
+            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              Deteksi Dini Untuk Keamanan Penuh
+            </h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Dilengkapi dengan fitur canggih terintegrasi yang menjamin Anda langsung sigap bertindak saat terjadi kebocoran gas LPG di area dapur.
+            </p>
           </div>
-          <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            Deteksi Dini Untuk Keamanan Penuh
-          </h3>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Dilengkapi dengan fitur canggih terintegrasi yang menjamin Anda langsung sigap bertindak saat terjadi kebocoran gas LPG di area dapur.
-          </p>
-        </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Feature 1 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <ShieldAlert size={22} />
+          <ScrollReveal delay={0} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <ShieldAlert size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Deteksi LPG Super Sensitif</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Menggunakan sensor VOC canggih yang mendeteksi partikel gas elpiji mentah (propana dan butana) yang mengendap sebelum gas tersebut sempat tersulut oleh titik api.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Feature 2 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <Volume2 size={22} />
+          <ScrollReveal delay={100} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <Volume2 size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Sirene & Alarm Suara Browser</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Begitu sensor membaca adanya gas melampaui batas aman, browser Anda akan langsung membunyikan suara sirene kencang yang berfungsi membangunkan/mengevakuasi orang.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Feature 3 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <Layers size={22} />
+          <ScrollReveal delay={200} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <Layers size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Multi-Device & Multi-User</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Hubungkan beberapa sensor di berbagai ruangan (misal: area dapur, tabung gas luar, dsb) dan bagikan akses monitoring kepada staf, karyawan, atau anggota keluarga Anda.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Feature 4 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <Activity size={22} />
+          <ScrollReveal delay={0} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <Activity size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Analisis Grafik Tren 24 Jam</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Pantau kestabilan temperatur, sirkulasi gas CO2 sisa pembakaran, dan tingkat kelembapan ruangan Anda melalui grafik tren interaktif untuk memastikan kelancaran ventilasi dapur.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Feature 5 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <Bell size={22} />
+          <ScrollReveal delay={100} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <Bell size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Notifikasi Darurat WhatsApp</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Menerima notifikasi darurat langsung di WhatsApp saat level gas dapur kritis, menjaga keamanan Anda meskipun Anda sedang bepergian jauh dari rumah atau restoran.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Feature 6 */}
-          <div className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#a3e635]/30 transition-all hover:translate-y-[-4px] group">
-            <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center text-[#a3e635] mb-6 group-hover:scale-110 transition-transform">
-              <Check size={22} />
+          <ScrollReveal delay={200} className="rounded-3xl border border-white/5 p-8 bg-[#0a1020]/40 backdrop-blur-md text-left hover:border-[#4edea3]/30 transition-all hover:translate-y-[-4px] group">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center text-[#4edea3] mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+              <Check size={16} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <h4 className="text-lg font-black text-white mb-3">Dukungan Pengaduan Instan</h4>
             <p className="text-slate-400 text-xs leading-relaxed">
               Alami kendala pada alat sensor atau sistem? Ajukan laporan keluhan atau hubungi admin teknis secara instan melalui sistem bantuan WhatsApp terintegrasi.
             </p>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* SECTION PRICING */}
       <section id="pricing" className="py-20 bg-slate-950/20 border-t border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">
+          <ScrollReveal delay={0}>
           <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black uppercase tracking-wider">
               Pilihan Langganan
@@ -759,170 +899,168 @@ export default function LandingPage() {
               Mulai gratis untuk pengenalan dasar, atau upgrade ke Premium untuk mengaktifkan dashboard nirkabel real-time dan notifikasi alarm darurat.
             </p>
           </div>
+        </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-            
-            {/* Paket 1 Bulan — Bundle Alat + Web */}
-            <div className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
-              <div className="space-y-4">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bundle Alat + Web</p>
-                <h4 className="text-xl font-black text-white">Langganan 1 Bulan</h4>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">Rp 349.000</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Alat + Web 1 Bln</span>
-                </div>
-                
-                <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                  <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
-                  <li className="flex items-center gap-2">✓ Dashboard Web Monitoring</li>
-                  <li className="flex items-center gap-2">✓ Multi-device &amp; Invite Pegawai</li>
-                  <li className="flex items-center gap-2">✓ Notifikasi &amp; Laporan Real-time</li>
-                </ul>
-              </div>
-
-              <Link 
-                href="/register" 
-                className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
-              >
-                Pilih Paket
-              </Link>
-            </div>
-
-            {/* Paket 1 Tahun — Bundle Best Value (Featured) */}
-            <div className="rounded-3xl border-2 border-[#a3e635] bg-[#a3e635]/5 p-8 flex flex-col justify-between hover:border-[#b6f041] transition-all text-left relative shadow-xl shadow-[#a3e635]/5">
-              <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[9px] font-black uppercase tracking-widest">
-                Hemat
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
+          
+          {/* Paket 1 Bulan — Bundle Alat + Web */}
+          <ScrollReveal delay={0} className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
+            <div className="space-y-4">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bundle Alat + Web</p>
+              <h4 className="text-xl font-black text-white">Langganan 1 Bulan</h4>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-white">Rp 349.000</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Alat + Web 1 Bln</span>
               </div>
               
-              <div className="space-y-4">
-                <p className="text-[10px] font-black text-[#a3e635] uppercase tracking-widest">Bundle Alat + Web</p>
-                <h4 className="text-xl font-black text-white">Langganan 1 Tahun</h4>
-                <div className="flex flex-col">
-                  <span className="text-xs text-slate-500 line-through font-bold">Rp 749.000</span>
-                  <span className="text-3xl font-black text-[#a3e635]">Rp 599.000</span>
-                  <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-1">Alat + Web 12 Bln (Best Offer)</span>
-                </div>
-                
-                <ul className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-white/10">
-                  <li className="flex items-center gap-2 font-bold text-[#a3e635]">✓ Semua Fitur Paket Bulanan</li>
-                  <li className="flex items-center gap-2">✓ Akses 12 Bulan Penuh</li>
-                  <li className="flex items-center gap-2">✓ Harga Lebih Hemat</li>
-                  <li className="flex items-center gap-2">✓ Prioritas Dukungan CS</li>
-                </ul>
-              </div>
-
-              <Link 
-                href="/register" 
-                className="mt-8 w-full py-4 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest transition-all block shadow-lg shadow-[#a3e635]/20 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Pilih Paket
-              </Link>
+              <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
+                <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
+                <li className="flex items-center gap-2">✓ Dashboard Web Monitoring</li>
+                <li className="flex items-center gap-2">✓ Multi-device &amp; Invite Pegawai</li>
+                <li className="flex items-center gap-2">✓ Notifikasi &amp; Laporan Real-time</li>
+              </ul>
             </div>
 
-            {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
-            <div className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
-              <div className="space-y-4">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
-                <h4 className="text-xl font-black text-white">Hanya Beli Alat</h4>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">Rp 249.000</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Modul Sensor ESP32 Saja</span>
-                </div>
-                
-                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 my-2">
-                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
-                </div>
-                
-                <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                  <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
-                  <li className="flex items-center gap-2 line-through opacity-50">✗ Akses Dashboard Web</li>
-                  <li className="flex items-center gap-2 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
-                  <li className="flex items-center gap-2">✓ Bisa Upgrade Kapan Saja</li>
-                </ul>
-              </div>
+            <Link 
+              href="/register" 
+              className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
+            >
+              Pilih Paket
+            </Link>
+          </ScrollReveal>
 
-              <Link 
-                href="/register" 
-                className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
-              >
-                Beli Alat Saja
-              </Link>
+          {/* Paket 1 Tahun — Bundle Best Value (Featured) */}
+          <ScrollReveal delay={100} className="rounded-3xl border-2 border-[#4edea3] bg-[#4edea3]/5 p-8 flex flex-col justify-between hover:border-[#5cebb2] transition-all text-left relative shadow-xl shadow-[#4edea3]/5">
+            <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[9px] font-black uppercase tracking-widest">
+              Hemat
             </div>
+            
+            <div className="space-y-4">
+              <p className="text-[10px] font-black text-[#4edea3] uppercase tracking-widest">Bundle Alat + Web</p>
+              <h4 className="text-xl font-black text-white">Langganan 1 Tahun</h4>
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-500 line-through font-bold">Rp 749.000</span>
+                <span className="text-3xl font-black text-[#4edea3]">Rp 599.000</span>
+                <span className="text-[9px] text-[#4edea3]/80 font-black uppercase tracking-wider mt-1">Alat + Web 12 Bln (Best Offer)</span>
+              </div>
+              
+              <ul className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-white/10">
+                <li className="flex items-center gap-2 font-bold text-[#4edea3]">✓ Semua Fitur Paket Bulanan</li>
+                <li className="flex items-center gap-2">✓ Akses 12 Bulan Penuh</li>
+                <li className="flex items-center gap-2">✓ Harga Lebih Hemat</li>
+                <li className="flex items-center gap-2">✓ Prioritas Dukungan CS</li>
+              </ul>
+            </div>
+
+            <Link 
+              href="/register" 
+              className="mt-8 w-full py-4 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Pilih Paket
+            </Link>
+          </ScrollReveal>
+
+          {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
+          <ScrollReveal delay={200} className="rounded-3xl border border-white/5 bg-[#0a1020]/20 p-8 flex flex-col justify-between hover:border-slate-700 transition-all text-left">
+            <div className="space-y-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
+              <h4 className="text-xl font-black text-white">Hanya Beli Alat</h4>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-white">Rp 249.000</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Modul Sensor ESP32 Saja</span>
+              </div>
+              
+              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 my-2">
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+              </div>
+              
+              <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
+                <li className="flex items-center gap-2">✓ Alat Sensor ESP32 Fisik</li>
+                <li className="flex items-center gap-2 line-through opacity-50">✗ Akses Dashboard Web</li>
+                <li className="flex items-center gap-2 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
+                <li className="flex items-center gap-2">✓ Bisa Upgrade Kapan Saja</li>
+              </ul>
+            </div>
+
+            <Link 
+              href="/register" 
+              className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
+            >
+              Beli Alat Saja
+            </Link>
+          </ScrollReveal>
 
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/5 bg-[#050912] py-12 text-slate-500 text-sm">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 text-left">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#a3e635] flex items-center justify-center">
-                <Wind className="text-[#0a0f1a]" size={14} strokeWidth={2.8} />
+      <footer className="w-full border-t border-slate-200 dark:border-white/5 bg-slate-100/90 dark:bg-[#0b0f10]/95 backdrop-blur-md transition-colors mt-auto">
+        <div className="max-w-7xl mx-auto py-8 md:py-12 px-6 md:px-10 xl:px-12 text-slate-600 dark:text-slate-400 text-xs transition-colors">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12 text-left">
+            {/* Column 1: Brand & Socials */}
+            <div className="md:col-span-5 space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#4edea3] flex items-center justify-center">
+                  <Wind className="text-[#0a0f1a]" size={16} strokeWidth={2.8} />
+                </div>
+                <div>
+                  <h5 className="text-slate-900 dark:text-white font-black uppercase text-sm tracking-wider leading-none">SkyWatch</h5>
+                  <p className="text-[9px] text-[#059669] dark:text-[#4edea3] font-bold uppercase tracking-[0.2em] mt-0.5">Air Analytics</p>
+                </div>
               </div>
-              <h5 className="text-white font-black uppercase text-sm tracking-wider">SkyWatch</h5>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px] max-w-sm">
+                Sistem IoT terintegrasi untuk pemantauan kualitas sirkulasi udara dan proteksi darurat kebocoran gas dapur secara real-time.
+              </p>
+              {/* WhatsApp Contact Button */}
+              <div className="pt-2">
+                <a 
+                  href="https://wa.me/6285792524863?text=Halo%20Admin%20SkyWatch" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onClick={() => fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {})}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20c45c] text-white text-xs font-bold transition-all shadow-md active:scale-95 hover:scale-[1.02] shrink-0"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  <span>WhatsApp CS</span>
+                </a>
+              </div>
             </div>
-            <p className="text-slate-400 leading-relaxed text-[13px]">
-              Sistem Internet of Things (IoT) terintegrasi untuk pemantauan kualitas sirkulasi udara dan proteksi darurat kebocoran gas dapur secara real-time.
-            </p>
+
+            {/* Column 2: Navigasi */}
+            <div className="md:col-span-3 space-y-4">
+              <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">Navigasi</h6>
+              <ul className="space-y-2.5 font-semibold text-slate-500 dark:text-slate-400">
+                <li><a href="#features" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Fitur Utama</a></li>
+                <li><a href="#simulator" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Demo Live</a></li>
+                <li><a href="#pricing" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Pilihan Paket</a></li>
+                <li><Link href="/login" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Masuk Portal</Link></li>
+              </ul>
+            </div>
+
+            {/* Column 3: Fitur Sistem */}
+            <div className="md:col-span-4 space-y-4">
+              <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">Fitur Sistem</h6>
+              <ul className="space-y-2.5 font-semibold text-slate-500 dark:text-slate-400">
+                <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Dashboard IoT Real-time</span></li>
+                <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Mikrokontroler ESP32</span></li>
+                <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Sirene Alarm Browser</span></li>
+                <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Notifikasi WhatsApp Otomatis</span></li>
+              </ul>
+            </div>
           </div>
 
-          <div>
-            <h6 className="text-white font-bold uppercase tracking-wider mb-4">Navigasi</h6>
-            <ul className="space-y-2.5 font-medium">
-              <li><a href="#features" className="hover:text-white transition-colors">Fitur Utama</a></li>
-              <li><a href="#simulator" className="hover:text-white transition-colors">Demo Simulator</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Harga Paket</a></li>
-              <li><Link href="/login" className="hover:text-white transition-colors">Masuk Dashboard</Link></li>
-            </ul>
-          </div>
+          <div className="border-t border-slate-200 dark:border-white/10 my-6"></div>
 
-          <div>
-            <h6 className="text-white font-bold uppercase tracking-wider mb-4">Fitur Teknis</h6>
-            <ul className="space-y-2.5 font-medium">
-              <li>Sensor VOC / LPG Gas</li>
-              <li>Sensor CO2 Pembakaran</li>
-              <li>Titik Deteksi Api Suhu</li>
-              <li>Peringatan Sirene Browser</li>
-            </ul>
-          </div>
-
-          <div>
-            <h6 className="text-white font-bold uppercase tracking-wider mb-4">Kontak Layanan</h6>
-            <p className="text-slate-400 leading-relaxed mb-3 text-[13px]">
-              Layanan CS, Bantuan Teknis Alat, &amp; Konsultasi Operasional Hubungi:
-            </p>
-            <a 
-              href="https://wa.me/6285792524863?text=Halo%20Admin%20SkyWatch%20%F0%9F%91%8B%2C%20saya%20ingin%20berkonsultasi%20mengenai%20alat%20dan%20layanan%20CS."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 font-bold text-[#a3e635] hover:text-[#b6f041] font-mono transition-all group active:scale-95"
-            >
-              <svg 
-                viewBox="0 0 24 24" 
-                fill="currentColor" 
-                className="w-4.5 h-4.5 text-[#a3e635] group-hover:scale-110 transition-transform"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              +62 857-9252-4863
-            </a>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 font-medium text-xs">
-          <p>© {new Date().getFullYear()} SkyWatch Air Analytics. Hak Cipta Dilindungi.</p>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635]" /> Next.js 15 App
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> MySQL DB
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400" /> ESP32 IoT Node
-            </span>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 font-semibold text-[11px] text-slate-500 dark:text-slate-400">
+            <p>© {new Date().getFullYear()} SkyWatch. All rights reserved.</p>
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-slate-800 dark:hover:text-white transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="#" className="hover:text-slate-800 dark:hover:text-white transition-colors">Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>

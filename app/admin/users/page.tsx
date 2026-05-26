@@ -57,8 +57,8 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
   if (isActive) {
     return (
       <div className="text-left">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-[#a3e635]/10 text-[#6b9c1a] dark:text-[#a3e635] border-[#a3e635]/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-[#4edea3]/10 text-[#059669] dark:text-[#4edea3] border-[#4edea3]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse" />
           Premium
         </span>
         <p className="text-[10px] text-slate-400 font-mono mt-1">{daysLeft}h lagi</p>
@@ -75,8 +75,8 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-sm px-4">
-      <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+      <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl animate-in zoom-in duration-200">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-black text-slate-900 dark:text-white">{title}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
@@ -92,14 +92,14 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] font-semibold text-slate-400 dark:text-[#1E293B] dark:text-slate-400 uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</label>
       {children}
     </div>
   );
 }
 
 const inputClass = "w-full bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-colors";
-const selectClass = "w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 transition-colors";
+const selectClass = "w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 transition-colors";
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -154,7 +154,7 @@ export default function AdminUsersPage() {
     finally { setLoading(false); }
   }, [router]);
 
-  useEffect(() => { fontAwesome: fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const showSuccess = (msg: string) => {
     setSuccess(msg);
@@ -232,7 +232,7 @@ export default function AdminUsersPage() {
   const freeCount = users.filter(u => u.role !== 'admin').length - premiumCount;
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
       {/* CREATE MODAL */}
       {createModal && (
         <Modal title="Tambah User Baru" onClose={() => setCreateModal(false)}>
@@ -293,8 +293,8 @@ export default function AdminUsersPage() {
 
       {/* CONFIRM DELETE MODAL */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 dark:border-red-500/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <UserX size={26} className="text-red-500" />
             </div>
@@ -327,7 +327,7 @@ export default function AdminUsersPage() {
         {[
           { label: 'Total Pengguna', value: users.length, color: '#8b5cf6', icon: Users },
           { label: 'Administrator', value: adminCount, color: '#f59e0b', icon: Crown },
-          { label: 'Premium Active', value: premiumCount, color: '#a3e635', icon: ShieldAlert },
+          { label: 'Premium Active', value: premiumCount, color: '#4edea3', icon: ShieldAlert },
           { label: 'Free Member', value: freeCount, color: '#64748b', icon: UserCircle },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
@@ -383,7 +383,7 @@ export default function AdminUsersPage() {
                 className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/40 w-48 transition-colors shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none" />
             </div>
             <button onClick={fetchUsers} disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50">
+              className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50">
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
           </div>
@@ -402,19 +402,19 @@ export default function AdminUsersPage() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
                     {['#', 'Pengguna', 'Email', 'Role', 'Langganan', 'Data Sensor', 'Bergabung', 'Aksi'].map(h => (
-                      <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 dark:text-[#1E293B] dark:text-slate-400">{h}</th>
+                      <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">Tidak ada pengguna</td></tr>
+                    <tr><td colSpan={8} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">Tidak ada pengguna</td></tr>
                   ) : filtered.map((u, i) => (
                     <tr key={u.id} className={`transition-all hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] ${u.id === session?.id ? 'bg-purple-500/[0.04]' : ''}`}>
                       <td className="px-5 py-4 text-slate-500 dark:text-slate-600 font-mono text-xs">{i + 1}</td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase flex-shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-300 uppercase flex-shrink-0">
                             {u.name?.charAt(0) || '?'}
                           </div>
                           <div>
@@ -450,7 +450,7 @@ export default function AdminUsersPage() {
                               <button
                                 onClick={() => handleSubscription(u.id, 'activate_1month')}
                                 disabled={subLoading === u.id}
-                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#a3e635]/10 text-[#5a8a0a] dark:text-[#a3e635] border border-[#a3e635]/30 hover:bg-[#a3e635]/20 transition-all disabled:opacity-50 whitespace-nowrap"
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 hover:bg-[#4edea3]/20 transition-all disabled:opacity-50 whitespace-nowrap"
                                 title="Aktifkan Premium 1 Bulan"
                               >
                                 {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />}
@@ -507,7 +507,7 @@ export default function AdminUsersPage() {
                 <div key={u.id} className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-sm font-semibold text-[#1E293B] dark:text-slate-300 uppercase">
                         {u.name?.charAt(0) || '?'}
                       </div>
                       <div>
@@ -534,7 +534,7 @@ export default function AdminUsersPage() {
                   {u.role !== 'admin' && (
                     <div className="flex gap-2 mb-2">
                       <button onClick={() => handleSubscription(u.id, 'activate_1month')} disabled={subLoading === u.id}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#a3e635]/10 text-[#5a8a0a] dark:text-[#a3e635] border border-[#a3e635]/30 disabled:opacity-50">
+                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 disabled:opacity-50">
                         {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />} 1 Bln
                       </button>
                       <button onClick={() => handleSubscription(u.id, 'activate_1year')} disabled={subLoading === u.id}

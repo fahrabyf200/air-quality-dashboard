@@ -88,18 +88,18 @@ export default function EducationPage() {
         </div>
       </div>
 
-      <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-5xl mx-auto space-y-5">
+      <div className="px-6 md:px-10 xl:px-12 pb-8 space-y-5 w-full">
 
         {/* ABOUT SYSTEM SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
           <div className="md:col-span-2 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none transition-all flex flex-col justify-between">
             <div>
-              <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-[0.25em] mb-2">Tujuan Proyek</p>
+              <p className="text-[9px] font-black text-[#4edea3] uppercase tracking-[0.25em] mb-2">Tujuan Proyek</p>
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 Sistem Deteksi Dini & Mitigasi Kebocoran Gas Dapur
               </h2>
               <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed mb-4">
-                <strong>SkyWatch</strong> dirancang khusus sebagai solusi preventif rumah tangga modern untuk memitigasi bahaya kebocoran gas LPG dan polusi udara dapur secara real-time. Dengan integrasi mikrokontroler <strong className="text-[#a3e635]">ESP32</strong>, sensor gas <strong className="text-[#a3e635]">MQ Series</strong>, serta sensor suhu-kelembapan <strong className="text-[#a3e635]">DHT22</strong>, alat ini mampu memberikan sinyal evakuasi instan sebelum potensi ledakan atau kebakaran terjadi.
+                <strong>SkyWatch</strong> dirancang khusus sebagai solusi preventif rumah tangga modern untuk memitigasi bahaya kebocoran gas LPG dan polusi udara dapur secara real-time. Dengan integrasi mikrokontroler <strong className="text-[#4edea3]">ESP32</strong>, sensor gas <strong className="text-[#4edea3]">MQ Series</strong>, serta sensor suhu-kelembapan <strong className="text-[#4edea3]">DHT22</strong>, alat ini mampu memberikan sinyal evakuasi instan sebelum potensi ledakan atau kebakaran terjadi.
               </p>
             </div>
             <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-white/5 text-[10px] text-slate-500 font-mono">
@@ -107,14 +107,14 @@ export default function EducationPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#a3e635]/5 p-6 transition-all flex flex-col justify-between group">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-[#4edea3]/40 dark:border-[#4edea3]/20 bg-[#4edea3]/5 p-6 transition-all flex flex-col justify-between group">
             {/* Glow Lampu */}
             <div 
               className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-              style={{ backgroundColor: '#a3e635' }} 
+              style={{ backgroundColor: '#4edea3' }} 
             />
             <div className="relative z-10">
-              <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-[0.25em] mb-2">Cara Kerja IoT</p>
+              <p className="text-[9px] font-black text-[#4edea3] uppercase tracking-[0.25em] mb-2">Cara Kerja IoT</p>
               <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 Bagaimana Alat Bekerja?
               </h2>
@@ -125,7 +125,7 @@ export default function EducationPage() {
                   { num: "03", text: "Dashboard SkyWatch menganalisis batas aman, memberikan alarm visual, serta log histori deteksi lengkap." }
                 ].map((step, idx) => (
                   <div key={idx} className="flex gap-2">
-                    <span className="text-xs font-black text-[#a3e635] font-mono shrink-0">{step.num}</span>
+                    <span className="text-xs font-black text-[#4edea3] font-mono shrink-0">{step.num}</span>
                     <p className="text-slate-600 dark:text-slate-300 text-[10px] leading-relaxed">{step.text}</p>
                   </div>
                 ))}
@@ -167,7 +167,7 @@ export default function EducationPage() {
               >
                 <div className="flex items-center gap-3">
                   <span style={{ color: topic.color }}>{topic.icon}</span>
-                  <span className={`font-semibold text-sm uppercase tracking-wide transition-colors ${isOpen ? 'text-slate-900 dark:text-white' : 'text-[#1E293B] dark:text-slate-400 dark:text-slate-300'}`}>
+                  <span className={`font-semibold text-sm uppercase tracking-wide transition-colors ${isOpen ? 'text-slate-900 dark:text-white' : 'text-[#1E293B] dark:text-slate-300'}`}>
                     {topic.label}
                   </span>
                   <span
@@ -213,7 +213,7 @@ export default function EducationPage() {
                       </div>
                       <div className="mt-5 space-y-3">
                         <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.06] px-4 py-3 transition-colors shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
-                          <p className="text-[9px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
+                          <p className="text-[9px] font-semibold text-[#1E293B] dark:text-slate-500 uppercase tracking-widest mb-1.5">💡 Tips Pencegahan</p>
                           <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{topic.tips}</p>
                         </div>
                       </div>

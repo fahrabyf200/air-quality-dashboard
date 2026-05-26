@@ -1,26 +1,181 @@
+/* ================================================================
+   ECO-TECH HIGH-CONTRAST — Design System Tokens
+   SkyWatch Air Quality Dashboard
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Konfigurasi tema bawaan Anda */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Typography ── */
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Eco-Tech Dark Surfaces ──────────────────────────────────── */
+  --color-slate-955: #0b0f10;   /* surface-container-lowest */
+  --color-slate-950: #101415;   /* background / surface */
+  --color-slate-900: #1d2022;   /* surface-container (cards) */
+  --color-slate-850: #272a2c;   /* surface-container-high */
+  --color-slate-800: #323537;   /* surface-container-highest */
+  --color-slate-750: #3c4a42;   /* outline-variant (borders) */
+  --color-slate-700: #86948a;   /* outline (subtle borders) */
+  --color-slate-500: #bbcabf;   /* on-surface-variant (muted text) */
+  --color-slate-300: #e0e3e5;   /* on-surface (main text) */
+  --color-slate-200: #cbd5e1;   /* slightly dimmer text / light border */
+  --color-slate-100: #f1f5f9;   /* light surfaces */
+  --color-slate-55: #e2e8f0;
+  --color-slate-150: #cbd5e1;
+  --color-slate-250: #cbd5e1;
+  --color-slate-350: #cbd5e1;
+  --color-slate-450: #a0afa6;
+  --color-slate-455: #a0afa6;
+  --color-slate-550: #8e9f95;
+  --color-slate-555: #8e9f95;
+
+  /* ── Primary — Emerald Teal #4edea3 ─────────────────────────── */
+  --color-emerald-400: #6ffbbe;   /* primary-fixed */
+  --color-emerald-500: #4edea3;   /* primary ← MAIN */
+  --color-emerald-600: #10b981;   /* primary-container / on-primary-container */
+  --color-emerald-700: #059669;   /* inverse-primary */
+  --color-emerald-900: #003824;   /* on-primary (text ON primary bg) */
+  --color-emerald-950: #002113;   /* on-primary-fixed */
+
+  /* ── Secondary — Sky Blue #89ceff ───────────────────────────── */
+  --color-sky-300: #c9e6ff;       /* secondary-fixed */
+  --color-sky-400: #89ceff;       /* secondary ← ACCENT */
+  --color-sky-500: #00a2e6;       /* secondary-container */
+  --color-sky-900: #00344d;       /* on-secondary */
+  --color-sky-950: #001e2f;       /* on-secondary-fixed */
+
+  /* ── Tertiary — Amber #ffb95f ───────────────────────────────── */
+  --color-amber-300: #ffddb8;     /* tertiary-fixed */
+  --color-amber-400: #ffb95f;     /* tertiary ← WARNING */
+  --color-amber-500: #e29100;     /* tertiary-container */
+  --color-amber-900: #472a00;     /* on-tertiary */
+
+  /* ── Error — Soft Red #ffb4ab ───────────────────────────────── */
+  --color-red-300: #ffdad6;       /* on-error-container */
+  --color-red-400: #ffb4ab;       /* error */
+  --color-red-700: #93000a;       /* error-container */
+  --color-red-900: #690005;       /* on-error */
 }
 
-/* Pemicu mode gelap */
+/* ── Dark mode variant ─────────────────────────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Menambahkan utilitas kustom sesuai standar Tailwind v4 */
+/* ── Utilities ─────────────────────────────────────────────────── */
 @utility no-scrollbar {
-  -ms-overflow-style: none; /* IE dan Edge */
-  scrollbar-width: none;    /* Firefox */
-  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none;          /* Chrome, Safari, dan Opera */
+    display: none;
   }
 }
 
+/* ── Base layer ────────────────────────────────────────────────── */
 @layer base {
   body {
     @apply antialiased;
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
   }
+
+  /* Inter variable-weight headings with instrument-panel feel */
+  h1, h2, h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* ── LIGHT MODE: high-contrast colors ─────────────────────────── */
+:root:not(.dark) {
+  --color-slate-950: #0f172a;
+  --color-slate-900: #1e293b;
+  --color-slate-800: #334155;
+  --color-slate-700: #475569;
+  --color-slate-650: #57687a;
+  --color-slate-500: #64748b;   /* Muted text is now a highly readable Slate 500! */
+  --color-slate-400: #94a3b8;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-slate-50:  #f8fafc;
+  --color-slate-55:  #f3f6f9;
+  --color-slate-150: #e2e8f0;
+  --color-slate-250: #cbd5e1;
+  --color-slate-350: #94a3b8;
+  --color-slate-450: #64748b;
+  --color-slate-455: #5a697c;
+  --color-slate-550: #475569;
+  --color-slate-555: #3e4c5f;
+}
+
+/* ================================================================
+   Custom Navigation, Borders, and Animations
+   ================================================================ */
+:root {
+  --text-muted: var(--color-slate-500);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-muted) !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  position: relative;
+}
+
+.nav-item.active {
+  background-color: var(--color-emerald-500) !important;
+  color: var(--color-emerald-900) !important;
+}
+
+/* Light Mode: Make borders of cards/boxes slightly thicker (excluding structural header/footer/table borders) */
+:root:not(.dark) .border:not(header):not(footer):not(thead):not(tr) {
+  border-width: 1.5px !important;
+}
+:root:not(.dark) .border-t:not(header):not(footer):not(thead):not(tr) {
+  border-top-width: 1.5px !important;
+}
+:root:not(.dark) .border-b:not(header):not(footer):not(thead):not(tr) {
+  border-bottom-width: 1.5px !important;
+}
+:root:not(.dark) .border-l:not(header):not(footer):not(thead):not(tr) {
+  border-left-width: 1.5px !important;
+}
+:root:not(.dark) .border-r:not(header):not(footer):not(thead):not(tr) {
+  border-right-width: 1.5px !important;
+}
+
+:root:not(.dark) .border-t-\[1\.5px\]:not(header):not(footer) {
+  border-top-width: 1.5px !important;
+}
+
+/* Page transitions */
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: fadeInPage 0.35s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }

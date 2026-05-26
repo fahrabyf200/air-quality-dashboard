@@ -97,11 +97,11 @@ export default function AdminSalesPage() {
     'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
       {/* Create Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">Catat Transaksi Baru</h2>
               <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
@@ -112,7 +112,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pilih Pengguna</label>
                 <select value={form.user_id} onChange={e => setForm({ ...form, user_id: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option value="">-- Pilih pengguna --</option>
                   {users.map(u => (
                     <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
@@ -122,7 +122,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paket</label>
                 <select value={form.package_name} onChange={e => setForm({ ...form, package_name: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option>1 Bulan</option>
                   <option>1 Tahun</option>
                 </select>
@@ -135,7 +135,7 @@ export default function AdminSalesPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode Pembayaran</label>
                 <select value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
+                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
                   <option>Transfer Bank</option>
                   <option>GoPay</option>
                   <option>OVO</option>
@@ -153,7 +153,7 @@ export default function AdminSalesPage() {
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowForm(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
                 <button onClick={handleCreate} disabled={saving || !form.user_id || !form.amount}
-                  className="flex-1 py-3 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20">
+                  className="flex-1 py-3 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20">
                   {saving ? 'Menyimpan...' : 'Simpan Transaksi'}
                 </button>
               </div>
@@ -168,7 +168,7 @@ export default function AdminSalesPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Penjualan</h1>
           <p className="text-slate-500 text-xs mt-1 font-mono">Log transaksi langganan premium</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-[11px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20 transition-all">
+        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-[11px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20 transition-all">
           <Plus size={13} /> Catat Transaksi
         </button>
       </div>
@@ -183,7 +183,7 @@ export default function AdminSalesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'Total Transaksi',    value: stats?.total_transactions ?? 0,          format: 'number', color: '#8b5cf6', icon: CreditCard },
-          { label: 'Total Pendapatan',   value: stats?.total_revenue ?? 0,              format: 'rupiah', color: '#a3e635', icon: TrendingUp },
+          { label: 'Total Pendapatan',   value: stats?.total_revenue ?? 0,              format: 'rupiah', color: '#4edea3', icon: TrendingUp },
           { label: 'Pendapatan Bulan Ini', value: stats?.this_month_revenue ?? 0,       format: 'rupiah', color: '#3b82f6', icon: Calendar },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
@@ -212,7 +212,7 @@ export default function AdminSalesPage() {
       {/* Table */}
       <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center gap-3">
-          <DollarSign size={16} className="text-[#a3e635]" />
+          <DollarSign size={16} className="text-[#4edea3]" />
           <p className="text-xs font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Riwayat Transaksi ({transactions.length})</p>
           <button onClick={fetchData} disabled={loading} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-all">
             <RefreshCw size={10} className={loading ? 'animate-spin' : ''} /> Refresh
@@ -221,7 +221,7 @@ export default function AdminSalesPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-20 gap-3">
-            <RefreshCw size={20} className="animate-spin text-[#a3e635]" />
+            <RefreshCw size={20} className="animate-spin text-[#4edea3]" />
             <span className="text-xs font-black uppercase tracking-widest text-slate-400 animate-pulse">Memuat data...</span>
           </div>
         ) : transactions.length === 0 ? (
@@ -247,7 +247,7 @@ export default function AdminSalesPage() {
                         <p className="text-[10px] text-slate-400 font-mono">{t.user_email || '—'}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#a3e635]/10 text-[#5a8a0a] dark:text-[#a3e635] border border-[#a3e635]/20">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/20">
                           {t.package_name}
                         </span>
                       </td>
@@ -274,7 +274,7 @@ export default function AdminSalesPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">{t.user_name || '—'}</p>
                     <p className="text-[10px] text-slate-400 font-mono mt-0.5">{t.package_name} · {t.payment_method}</p>
-                    <p className="font-black text-[#a3e635] mt-1 text-sm">{formatRupiah(t.amount)}</p>
+                    <p className="font-black text-[#4edea3] mt-1 text-sm">{formatRupiah(t.amount)}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-[10px] text-slate-400 font-mono">{new Date(t.created_at).toLocaleDateString('id-ID')}</p>

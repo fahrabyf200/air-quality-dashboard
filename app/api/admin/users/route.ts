@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
+import { notifyAdmins } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,6 +109,13 @@ export async function PATCH(req: Request) {
         [id, user.name, user.email, 'Langganan 1 Bulan', 349000, 'Manual Admin', 'Diaktifkan & diakumulasi otomatis oleh sistem']
       );
 
+      // Notify admins
+      await notifyAdmins(
+        'Aktivasi Premium',
+        `${(session as any).name || 'Admin'} mengaktifkan paket Premium 1 Bulan untuk user ${user.name} (${user.email}).`,
+        'info'
+      );
+
       return NextResponse.json({ message: 'Langganan 1 Bulan berhasil diakumulasi & transaksi dicatat!' });
     }
     if (subscription_action === 'activate_1year') {
@@ -125,6 +133,13 @@ export async function PATCH(req: Request) {
         [id, user.name, user.email, 'Langganan 1 Tahun', 599000, 'Manual Admin', 'Diaktifkan & diakumulasi otomatis oleh sistem']
       );
 
+      // Notify admins
+      await notifyAdmins(
+        'Aktivasi Premium',
+        `${(session as any).name || 'Admin'} mengaktifkan paket Premium 1 Tahun untuk user ${user.name} (${user.email}).`,
+        'info'
+      );
+
       return NextResponse.json({ message: 'Langganan 1 Tahun berhasil diakumulasi & transaksi dicatat!' });
     }
     if (subscription_action === 'deactivate') {
@@ -132,6 +147,14 @@ export async function PATCH(req: Request) {
         `UPDATE users SET subscription_status = 'free', subscription_end_date = NULL WHERE id = ?`,
         [id]
       );
+
+      // Notify admins
+      await notifyAdmins(
+        'Deaktivasi Premium',
+        `${(session as any).name || 'Admin'} menonaktifkan paket Premium untuk user ${user.name} (${user.email}).`,
+        'info'
+      );
+
       return NextResponse.json({ message: 'Akses premium dinonaktifkan.' });
     }
     return NextResponse.json({ error: 'Aksi subscription tidak valid' }, { status: 400 });
@@ -142,7 +165,19 @@ export async function PATCH(req: Request) {
     if (!['admin', 'user'].includes(role)) {
       return NextResponse.json({ error: 'Role tidak valid' }, { status: 400 });
     }
+    // Get user details first
+    const [uRows]: any = await db.query('SELECT name, email FROM users WHERE id = ?', [id]);
+    const uName = uRows?.[0]?.name || '';
+
     await db.query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
+
+    // Notify admins
+    await notifyAdmins(
+      'Role Pengguna Diubah',
+      `${(session as any).name || 'Admin'} mengubah role pengguna ${uName} menjadi ${role}.`,
+      'info'
+    );
+
     return NextResponse.json({ message: 'Role berhasil diupdate' });
   }
 
@@ -165,7 +200,20 @@ export async function PATCH(req: Request) {
   }
 
   values.push(id);
+
+  // Get old user details for logging
+  const [oldRows]: any = await db.query('SELECT name, email FROM users WHERE id = ?', [id]);
+  const oldUser = oldRows?.[0] || {};
+
   await db.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
+
+  // Notify admins
+  await notifyAdmins(
+    'Profil Pengguna Diupdate',
+    `${(session as any).name || 'Admin'} memperbarui data profil pengguna ${oldUser.name || ''} (${oldUser.email || ''}).`,
+    'info'
+  );
+
   return NextResponse.json({ message: 'User berhasil diupdate' });
 }
 
@@ -188,6 +236,18 @@ export async function DELETE(req: Request) {
     await db.query('UPDATE sensor_data SET user_id = NULL WHERE user_id = ?', [id]);
   } catch { }
 
+  // Get user details before deleting
+  const [delRows]: any = await db.query('SELECT name, email FROM users WHERE id = ?', [id]);
+  const delUser = delRows?.[0] || {};
+
   await db.query('DELETE FROM users WHERE id = ?', [id]);
+
+  // Notify admins
+  await notifyAdmins(
+    'Pengguna Dihapus',
+    `${(session as any).name || 'Admin'} menghapus akun pengguna: ${delUser.name || ''} (${delUser.email || ''}).`,
+    'info'
+  );
+
   return NextResponse.json({ message: 'User berhasil dihapus' });
 }

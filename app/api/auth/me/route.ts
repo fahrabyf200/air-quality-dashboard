@@ -13,7 +13,7 @@ export async function GET() {
 
     // Query user data dynamically from DB to get fresh values (role, device_id, etc.)
     const [rows]: any = await db.execute(
-      'SELECT id, name, email, role, device_id, created_at, subscription_status, subscription_end_date FROM users WHERE id = ?',
+      'SELECT id, name, email, role, device_id, created_at, subscription_status, subscription_end_date, profile_pic FROM users WHERE id = ?',
       [(session as any).id]
     );
 
