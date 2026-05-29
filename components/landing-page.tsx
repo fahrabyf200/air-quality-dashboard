@@ -354,7 +354,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
  
@@ -764,7 +764,7 @@ export default function LandingPage() {
 
           </div>
 
-          <ScrollReveal delay={200} className="text-center mt-8">
+          <div className="text-center mt-8">
             <Link 
               href="/register" 
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#4edea3]/10 hover:bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -772,7 +772,7 @@ export default function LandingPage() {
               Hubungkan Alat Sensor Fisik Anda Sendiri
               <ChevronRight size={14} strokeWidth={2.5} />
             </Link>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
 
