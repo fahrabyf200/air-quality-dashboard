@@ -27,7 +27,7 @@ jobs:
 
       # 4. Build dan Push Docker Image
       - name: 🏗️ Build and Push Docker Image
-        uses: docker/build-push-action@v6  # ✅ Node.js 24 compatible (was @v4)
+        uses: docker/build-push-action@v6
         with:
           context: .          # Root repo sebagai build context
           file: ./Dockerfile  # Path eksplisit ke Dockerfile
@@ -35,13 +35,13 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/skywatch-app:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-        env:
-          # Env vars untuk build Next.js
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          # ✅ build-args = diteruskan MASUK ke dalam Docker build
+          build-args: |
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
 
       # 5. TAHAP CD: Deploy ke Vercel (Production)
       - name: 🌐 Deploy to Vercel

@@ -10,7 +10,22 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Terima build-args dari GitHub Actions CI/CD
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_NAME
+
+# Jadikan env vars saat npm run build berjalan
+ENV DB_HOST=$DB_HOST
+ENV DB_PORT=$DB_PORT
+ENV DB_USER=$DB_USER
+ENV DB_PASSWORD=$DB_PASSWORD
+ENV DB_NAME=$DB_NAME
 ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN npm run build
 
 # Stage 3: Production runner
