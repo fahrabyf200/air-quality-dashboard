@@ -1,0 +1,54 @@
+name: SkyWatch CI/CD to Vercel
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    name: 🚀 Build Docker & Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout kode
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4  # ✅ Node.js 24 compatible (was @v3)
+
+      # 2. TAHAP CI: Login ke Docker Hub
+      - name: 🐳 Login to Docker Hub
+        uses: docker/login-action@v3  # ✅ Node.js 24 compatible (was @v2)
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 3. Setup Docker Buildx
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4. Build dan Push Docker Image
+      - name: 🏗️ Build and Push Docker Image
+        uses: docker/build-push-action@v6  # ✅ Node.js 24 compatible (was @v4)
+        with:
+          context: .          # Root repo sebagai build context
+          file: ./Dockerfile  # Path eksplisit ke Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/skywatch-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          # Env vars untuk build Next.js
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      # 5. TAHAP CD: Deploy ke Vercel (Production)
+      - name: 🌐 Deploy to Vercel
+        uses: amondnet/vercel-action@v25  # ✅ Versi terbaru
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: ./
