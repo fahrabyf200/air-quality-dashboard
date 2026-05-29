@@ -33,7 +33,7 @@ function StatCard({ label, value, icon: Icon, color, sub }: {
   sub?: string;
 }) {
   return (
-    <div className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] p-5 overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none">
+    <div className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-700 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
       {/* Glow Lampu (Brightened in Light Mode) */}
       <div 
         className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
@@ -42,7 +42,7 @@ function StatCard({ label, value, icon: Icon, color, sub }: {
 
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex items-start justify-between mb-5">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm">
             <Icon size={16} style={{ color }} />
           </div>
         </div>
@@ -61,13 +61,13 @@ function StatCard({ label, value, icon: Icon, color, sub }: {
 function RoleBadge({ role }: { role?: string }) {
   if (role === 'admin') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-500 border border-purple-500/20">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
         <Crown size={10} /> Admin
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 border border-[#E2E8F0] dark:border-white/10">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-850 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
       <UserCircle size={10} /> User
     </span>
   );
@@ -86,9 +86,12 @@ export default function AdminPage() {
   const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
-      if (d.user) setSession(d.user);
-    });
+    fetch('/api/auth/me')
+      .then(r => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
+      .then(d => {
+        if (d.user) setSession(d.user);
+      })
+      .catch(() => {});
   }, []);
 
   const fetchUsers = useCallback(async () => {
@@ -167,11 +170,11 @@ export default function AdminPage() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#060410] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       {/* Confirm Delete Modal */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#0d1525] border border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 dark:border-red-500/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <UserX size={28} className="text-red-500" />
             </div>
@@ -183,7 +186,7 @@ export default function AdminPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:border-slate-300 dark:hover:border-white/20 transition-all"
+                className="flex-1 py-3 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-black text-sm hover:border-slate-350 dark:hover:border-slate-700 transition-all"
               >
                 Batal
               </button>
@@ -198,7 +201,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="px-6 md:px-8 pb-10 space-y-6 max-w-7xl mx-auto pt-8">
+      <div className="px-6 md:px-10 xl:px-12 pb-10 space-y-6 w-full pt-8">
 
         {/* Error */}
         {error && (
@@ -219,10 +222,10 @@ export default function AdminPage() {
         </div>
 
         {/* USER TABLE */}
-        <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)]">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
 
           {/* Table Header */}
-          <div className="px-6 py-5 border-b border-[#E2E8F0] dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
                 <Users size={15} className="text-purple-400" />
@@ -235,7 +238,7 @@ export default function AdminPage() {
             <button
               onClick={() => { fetchUsers(); fetchStats(); }}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
             >
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
               Refresh
@@ -255,23 +258,23 @@ export default function AdminPage() {
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E2E8F0] dark:border-white/5">
+                    <tr className="border-b border-slate-200 dark:border-slate-800">
                       {['#', 'Nama', 'Email', 'Role', 'Terdaftar', 'Aksi'].map(h => (
-                        <th key={h} className="text-left px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
+                        <th key={h} className="text-left px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-800 dark:text-slate-400">
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
                     {users.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+                        <td colSpan={6} className="text-center py-16 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
                           Belum ada pengguna terdaftar
                         </td>
                       </tr>
                     ) : users.map((u, i) => (
-                      <tr key={u.id} className={`transition-all hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] ${u.id === session?.id ? 'bg-purple-500/[0.03]' : ''}`}>
+                      <tr key={u.id} className={`transition-all hover:bg-slate-50 dark:hover:bg-slate-800/40 ${u.id === session?.id ? 'bg-purple-500/[0.03]' : ''}`}>
                         <td className="px-6 py-4 text-slate-500 font-mono text-xs">{i + 1}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -344,13 +347,13 @@ export default function AdminPage() {
               </div>
 
               {/* MOBILE CARDS */}
-              <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-white/5">
+              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-slate-800/50">
                 {users.length === 0 ? (
-                  <div className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+                  <div className="text-center py-16 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
                     Belum ada pengguna terdaftar
                   </div>
                 ) : users.map((u) => (
-                  <div key={u.id} className={`p-5 ${u.id === session?.id ? 'bg-purple-500/[0.03]' : 'hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02]'} transition-colors`}>
+                  <div key={u.id} className={`p-5 ${u.id === session?.id ? 'bg-purple-500/[0.03]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'} transition-colors`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-sm font-black text-slate-700 dark:text-slate-300 uppercase">
@@ -410,10 +413,10 @@ export default function AdminPage() {
             { label: 'Pengaturan Threshold', desc: 'Ubah ambang batas peringatan', icon: Cpu, href: '/admin/thresholds', color: '#f59e0b' },
           ].map(item => (
             <button key={item.href} onClick={() => router.push(item.href)}
-              className="relative text-left p-5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] hover:border-slate-300 dark:hover:border-white/20 hover:shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] transition-all group overflow-hidden"
+              className="relative text-left p-5 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] transition-all group overflow-hidden"
             >
               <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full blur-2xl opacity-15 group-hover:opacity-25 transition-opacity pointer-events-none" style={{ background: item.color }} />
-              <div className="p-2.5 rounded-xl border border-slate-100 dark:border-white/8 w-fit mb-3" style={{ background: `${item.color}15` }}>
+              <div className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 w-fit mb-3" style={{ background: `${item.color}15` }}>
                 <item.icon size={16} style={{ color: item.color }} />
               </div>
               <p className="text-sm font-black text-slate-900 dark:text-white mb-1">{item.label}</p>

@@ -93,11 +93,11 @@ export default function AdminComplaintsPage() {
   const resolvedCount = complaints.filter(c => c.status === 'resolved').length;
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
       {/* Detail Modal */}
       {selected && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-3xl p-7 max-w-lg w-full shadow-2xl">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-3xl p-7 max-w-lg w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">Detail Pengaduan #{selected.id}</h2>
               <button onClick={() => setSelected(null)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
@@ -110,7 +110,7 @@ export default function AdminComplaintsPage() {
                 <div><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Email</p><p className="font-bold text-slate-900 dark:text-white font-mono text-xs">{selected.email}</p></div>
               </div>
               <div><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Subjek</p><p className="text-sm font-bold text-slate-900 dark:text-white">{selected.subject}</p></div>
-              <div><p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mb-0.5">Pesan</p><p className="text-sm text-[#1E293B] dark:text-slate-400 dark:text-slate-300 leading-relaxed">{selected.message}</p></div>
+              <div><p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mb-0.5">Pesan</p><p className="text-sm text-[#1E293B] dark:text-slate-300 leading-relaxed">{selected.message}</p></div>
               <div className="flex items-center justify-between"><StatusBadge status={selected.status} /><span className="text-[10px] text-slate-400 font-mono">{new Date(selected.created_at).toLocaleString('id-ID')}</span></div>
             </div>
             <div className="flex flex-wrap gap-2">

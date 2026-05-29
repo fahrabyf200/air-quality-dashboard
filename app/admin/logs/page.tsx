@@ -85,7 +85,7 @@ export default function AdminLogsPage() {
   const dangerRate = rows.length ? ((dangerRows.length / rows.length) * 100).toFixed(1) : '0';
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -93,7 +93,7 @@ export default function AdminLogsPage() {
           <p className="text-slate-500 text-xs mt-1 font-mono">Riwayat kejadian dan deteksi sensor</p>
         </div>
         <button onClick={() => fetchData(selectedUser?.id ?? null)} disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
@@ -110,7 +110,7 @@ export default function AdminLogsPage() {
               selectedUser ? 'bg-purple-500/15 border-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none'
             }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-[#FFFFFF]/10 text-[#1E293B] dark:text-slate-400 dark:text-slate-400'}`}>
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-[#FFFFFF]/10 text-[#1E293B] dark:text-slate-400'}`}>
                 {selectedUser ? selectedUser.name.charAt(0) : '?'}
               </div>
               <span>{selectedUser ? selectedUser.name : 'Semua Pengguna'}</span>
@@ -119,7 +119,7 @@ export default function AdminLogsPage() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 w-72 bg-[#FFFFFF] dark:bg-[#0d0720] border border-[#E2E8F0] dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+            <div className="absolute top-full left-0 mt-2 w-72 bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
               <button onClick={() => handleSelectUser(null)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/5 ${!selectedUser ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
                 <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#FFFFFF]/10 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center">
@@ -135,7 +135,7 @@ export default function AdminLogsPage() {
                 {users.map(u => (
                   <button key={u.id} onClick={() => handleSelectUser(u)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/5 ${selectedUser?.id === u.id ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-xs font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-300 uppercase flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-xs font-semibold text-[#1E293B] dark:text-slate-300 uppercase flex-shrink-0">
                       {u.name.charAt(0)}
                     </div>
                     <div className="text-left min-w-0">
@@ -227,7 +227,7 @@ export default function AdminLogsPage() {
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat log...</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 dark:text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+          <div className="text-center py-20 text-slate-400 text-sm font-semibold uppercase tracking-widest">
             Tidak ada log
           </div>
         ) : (

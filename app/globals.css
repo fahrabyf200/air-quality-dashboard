@@ -1,24 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=IBM+Plex+Mono:wght@100..700&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
 
 @theme {
-  /* Konfigurasi tema premium */
-  --font-sans: "Plus Jakarta Sans", var(--font-geist-sans), sans-serif;
-  --font-mono: "IBM Plex Mono", var(--font-geist-mono), monospace;
-  --font-display: "Outfit", sans-serif;
+  /* Konfigurasi tema bawaan Anda */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 /* Pemicu mode gelap */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Menambahkan utilitas kustom sesuai standar Tailwind v4 */
+/* ── Utilities ─────────────────────────────────────────────────── */
 @utility no-scrollbar {
-  -ms-overflow-style: none; /* IE dan Edge */
-  scrollbar-width: none;    /* Firefox */
-  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none;          /* Chrome, Safari, dan Opera */
+    display: none;
   }
 }
 
@@ -58,33 +55,9 @@
   text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
 }
 
+/* ── Base layer ────────────────────────────────────────────────── */
 @layer base {
   body {
-    @apply antialiased font-sans bg-[#070d1a];
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply antialiased;
   }
 }
-
-/* Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(0.5deg); }
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.25; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(1.08); }
-}
-
-@keyframes stagger-fade {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-    filter: blur(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}

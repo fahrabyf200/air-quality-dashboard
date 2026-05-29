@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { notifyAdmins } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -23,6 +24,13 @@ export async function POST(req: Request) {
     await db.execute(
       'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
       [name, email, hashedPassword]
+    );
+
+    // Notifikasi admin tentang user baru
+    await notifyAdmins(
+      'Pengguna Baru Mendaftar',
+      `${name} (${email}) baru saja mendaftar akun di SkyWatch.`,
+      'info'
     );
 
     return NextResponse.json({ message: "Registrasi berhasil" }, { status: 201 });

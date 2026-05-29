@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SkyWatch - Fresh Eco-Tech UX Showcase</title>
+    <!-- Tailwind CSS with Forms and Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Google Fonts: Outfit (headings) & Inter (body) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols for Outlined Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981', // emerald-500
+                            600: '#059669', // emerald-600
+                            700: '#047857'  // emerald-700
+                        },
+                        slate: {
+                            950: '#0b0f19'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Smooth transitions */
+        .transition-all-300 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Material Symbols adjustment */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        /* Blinking neon status badge */
+        .neon-status-pulse {
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                opacity: 0.4;
+                box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+            }
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 12px rgba(16, 185, 129, 0.9);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Sparkline animation */
+        .sparkline-path {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: draw-sparkline 2s forwards ease-in-out;
+        }
+
+        @keyframes draw-sparkline {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen transition-colors duration-300">
+
+    <!-- Top Showcase Selector Controls (Not part of actual app, just for presentation/viewing) -->
+    <div id="showcase-header" class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-3 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-[100] shadow-sm transition-colors">
+        <div class="flex items-center gap-2">
+            <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 p-1.5 rounded-lg">
+                <span class="material-symbols-outlined text-xl">palette</span>
+            </span>
+            <div>
+                <h1 class="text-sm font-display font-black uppercase tracking-wider text-slate-900 dark:text-white leading-none">SkyWatch Redesign</h1>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">UX/UI Showcase • Fresh Eco-Tech Minimalist</p>
+            </div>
+        </div>
+
+        <!-- Mode Selectors -->
+        <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+            <button onclick="switchShowcaseMode('live')" id="btn-showcase-live" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm">
+                <span class="material-symbols-outlined text-sm">devices</span>
+                Live App Preview
+            </button>
+            <button onclick="switchShowcaseMode('figma')" id="btn-showcase-figma" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                <span class="material-symbols-outlined text-sm">grid_view</span>
+                Figma Canvas Board (Side-by-Side)
+            </button>
+        </div>
+
+        <!-- Global Settings Toggle (Syncs both light/dark theme) -->
+        <div class="flex items-center gap-4">
+            <button onclick="toggleGlobalTheme()" class="flex items-center gap-2 text-xs font-bold bg-slate-50 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-350 transition-all">
+                <span class="material-symbols-outlined text-base" id="theme-toggle-icon">dark_mode</span>
+                <span id="theme-toggle-text">Dark Mode</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEWPORT 1: LIVE INTERACTIVE APP VIEW      -->
+    <!-- ========================================== -->
+    <div id="live-app-viewport" class="flex flex-col min-h-[calc(100vh-60px)] transition-all">
+        <!-- Application Top Navbar -->
+        <header class="flex justify-between items-center h-16 px-6 w-full sticky top-[58px] z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+            <!-- Brand & Status pulse -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-500 font-bold text-2xl">eco</span>
+                    <span class="font-display font-black text-xl text-slate-950 dark:text-white tracking-tight">SkyWatch</span>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 px-2.5 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full neon-status-pulse"></span>
+                    <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">● ESP32 Network: Active</span>
+                </div>
+            </div>
+
+            <!-- Navbar Center Search & Right controls -->
+            <div class="flex items-center gap-4">
+                <!-- Search bar -->
+                <div class="hidden md:flex items-center relative w-64">
+                    <span class="material-symbols-outlined absolute left-3 text-slate-400 text-lg">search</span>
+                    <input type="text" placeholder="Search parameters, nodes..." class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 pl-10 pr-4 py-1.5 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 transition-all"/>
+                </div>
+
+                <!-- Theme switch (Internal trigger) -->
+                <button onclick="toggleGlobalTheme()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-450 border border-slate-200 dark:border-slate-700 transition-all">
+                    <span class="material-symbols-outlined text-lg">light_mode</span>
+                </button>
+
+                <!-- Notifications bell with red badge -->
+                <div class="relative group">
+                    <button class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-450 border border-slate-200 dark:border-slate-700 transition-all">
+                        <span class="material-symbols-outlined text-lg">notifications</span>
+                    </button>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+                </div>
+
+                <div class="w-px h-6 bg-slate-200 dark:bg-slate-800"></div>
+
+                <!-- Circular User Profile Dropdown -->
+                <div class="flex items-center gap-3 pl-2 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-xs font-bold text-slate-900 dark:text-white leading-tight">Agna Putra</div>
+                        <div class="text-[9px] text-emerald-500 font-extrabold uppercase tracking-widest">System Admin</div>
+                    </div>
+                    <div class="relative">
+                        <img alt="Agna Putra Profile Avatar" class="w-9 h-9 rounded-xl object-cover border-2 border-emerald-500 hover:scale-105 transition-all shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb0cs8uOpq31babi42vZx9UJDKid3XV6uFFmpxL3wQEcAdnT6tzYiZ25zERt2q9Y3RiZWGl_2GjrEdSPxlquZarU-ZR6DyAa9wRBJubB6fdPkC1anGrD2mS4z7qAS1bemWpAtzyhpByzZ2mqC3o_b1L_nPlmPY3Qk8KmFnU-MtHauzDHTDFEzxji5ix30s10NU6_2SARG54BONsgP3qWg5OgeQX4DXFmbxa83QVrYnTioIfpawdf7iWUDfZ4y0jZbwITkVmvUIEA"/>
+                        <span class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 relative">
+            <!-- Left Sidebar Navigation -->
+            <aside class="w-64 fixed left-0 top-[122px] h-[calc(100vh-122px)] py-6 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-colors z-40">
+                <div class="space-y-6">
+                    <!-- Navigation Category 1 -->
+                    <div>
+                        <p class="px-6 text-[9px] font-black tracking-[0.25em] text-slate-400 dark:text-slate-500 uppercase mb-3">Monitoring</p>
+                        <nav class="space-y-1 px-3">
+                            <button onclick="switchLivePage('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-l-2 border-emerald-500">
+                                <span class="material-symbols-outlined text-base">grid_view</span>
+                                Dashboard Overview
+                            </button>
+                            <button onclick="switchLivePage('logs')" id="nav-logs" class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
+                                <span class="material-symbols-outlined text-base">format_list_bulleted</span>
+                                Real-time Data Logs
+                            </button>
+                            <button onclick="switchLivePage('reports')" id="nav-reports" class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
+                                <span class="material-symbols-outlined text-base">analytics</span>
+                                Analytical Reports
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Navigation Category 2 (Conditional Admin) -->
+                    <div>
+                        <p class="px-6 text-[9px] font-black tracking-[0.25em] text-slate-400 dark:text-slate-500 uppercase mb-3">Management</p>
+                        <nav class="space-y-1 px-3">
+                            <button onclick="switchLivePage('admin')" id="nav-admin" class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
+                                <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+                                Admin Settings
+                            </button>
+                            <button onclick="switchLivePage('profile')" id="nav-profile" class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
+                                <span class="material-symbols-outlined text-base">account_circle</span>
+                                User Profile
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Active IoT connection status block -->
+                <div class="px-4">
+                    <div class="bg-emerald-50/50 dark:bg-slate-800/40 rounded-2xl p-4 border border-emerald-100/60 dark:border-slate-700/50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">ESP32 Status</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-white">NODE_KITCHEN_01</p>
+                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Connected (v2.4.1)</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Workspace Container -->
+            <main class="flex-grow pl-64 min-h-[calc(100vh-122px)] bg-slate-50 dark:bg-slate-950 transition-colors p-8">
+                <div class="max-w-6xl mx-auto" id="live-page-content-wrapper">
+                    <!-- Page Contents will be injected here by Javascript -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEWPORT 2: FIGMA BOARD SIDE-BY-SIDE CANVAS-->
+    <!-- ========================================== -->
+    <div id="figma-board-viewport" class="hidden p-8 bg-slate-200 dark:bg-slate-950 min-h-[calc(100vh-60px)] transition-colors overflow-x-auto">
+        <div class="flex gap-8 pb-10 min-w-[max-content] items-start">
+            
+            <!-- FIGMA CELL 1: Dashboard Overview -->
+            <div class="w-[450px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-2xl shadow-xl flex-shrink-0">
+                <div class="border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex justify-between items-center bg-slate-100 dark:bg-slate-850 rounded-t-2xl">
+                    <span class="text-xs font-display font-black text-slate-800 dark:text-white uppercase tracking-wider">Page 1: Dashboard Overview</span>
+                    <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Main View</span>
+                </div>
+                <div class="p-5 max-h-[700px] overflow-y-auto" id="figma-page-dashboard-container">
+                    <!-- Dashboard Code Injected Here -->
+                </div>
+            </div>
+
+            <!-- FIGMA CELL 2: Real-time Data Logs -->
+            <div class="w-[500px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-2xl shadow-xl flex-shrink-0">
+                <div class="border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex justify-between items-center bg-slate-100 dark:bg-slate-850 rounded-t-2xl">
+                    <span class="text-xs font-display font-black text-slate-800 dark:text-white uppercase tracking-wider">Page 2: Real-time Data Logs</span>
+                    <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Monitoring</span>
+                </div>
+                <div class="p-5 max-h-[700px] overflow-y-auto" id="figma-page-logs-container">
+                    <!-- Logs Code Injected Here -->
+                </div>
+            </div>
+
+            <!-- FIGMA CELL 3: Analytical Reports -->
+            <div class="w-[520px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-2xl shadow-xl flex-shrink-0">
+                <div class="border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex justify-between items-center bg-slate-100 dark:bg-slate-850 rounded-t-2xl">
+                    <span class="text-xs font-display font-black text-slate-800 dark:text-white uppercase tracking-wider">Page 3: Analytical Reports</span>
+                    <span class="bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Reports</span>
+                </div>
+                <div class="p-5 max-h-[700px] overflow-y-auto" id="figma-page-reports-container">
+                    <!-- Reports Code Injected Here -->
+                </div>
+            </div>
+
+            <!-- FIGMA CELL 4: User Profile & Preferences -->
+            <div class="w-[480px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-2xl shadow-xl flex-shrink-0">
+                <div class="border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex justify-between items-center bg-slate-100 dark:bg-slate-850 rounded-t-2xl">
+                    <span class="text-xs font-display font-black text-slate-800 dark:text-white uppercase tracking-wider">Page 4: Profile &amp; Preferences</span>
+                    <span class="bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">User settings</span>
+                </div>
+                <div class="p-5 max-h-[700px] overflow-y-auto" id="figma-page-profile-container">
+                    <!-- Profile Code Injected Here -->
+                </div>
+            </div>
+
+            <!-- FIGMA CELL 5: Admin & Management Panel -->
+            <div class="w-[500px] bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-2xl shadow-xl flex-shrink-0">
+                <div class="border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex justify-between items-center bg-slate-100 dark:bg-slate-850 rounded-t-2xl">
+                    <span class="text-xs font-display font-black text-slate-800 dark:text-white uppercase tracking-wider">Page 5: Admin &amp; Management Panel</span>
+                    <span class="bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Admin view</span>
+                </div>
+                <div class="p-5 max-h-[700px] overflow-y-auto" id="figma-page-admin-container">
+                    <!-- Admin Code Injected Here -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TEMPLATES FOR INDIVIDUAL PAGE VIEWS        -->
+    <!-- ========================================== -->
+
+    <!-- PAGE 1: DASHBOARD OVERVIEW TEMPLATE -->
+    <template id="template-dashboard">
+        <!-- Header row -->
+        <div class="mb-6">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-500">Live Analytics</span>
+            <h2 class="text-2xl font-display font-black text-slate-900 dark:text-white mt-0.5">Air Quality Dashboard</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Real-time status of nodes in your coverage network.</p>
+        </div>
+
+        <!-- Top Alert Banner -->
+        <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 p-4 rounded-xl flex items-center gap-3 relative overflow-hidden">
+            <div class="absolute left-0 inset-y-0 w-1 bg-emerald-500"></div>
+            <span class="material-symbols-outlined text-emerald-500 text-xl font-bold">check_circle</span>
+            <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-450">All room conditions are excellent. Air circulation is optimal.</p>
+        </div>
+
+        <!-- 4-Column Metric Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+            <!-- CO2 Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Carbon Dioxide</span>
+                    <span class="material-symbols-outlined text-blue-500 bg-blue-50 dark:bg-blue-950/30 p-2 rounded-xl text-base">co2</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-3xl font-black font-display text-slate-950 dark:text-white" style="font-family: 'Outfit';">380</span>
+                    <span class="text-slate-500 font-bold text-xs ml-1">PPM</span>
+                </div>
+                <!-- Sparkline Trend Graph -->
+                <div class="h-6 w-full mt-2">
+                    <svg class="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                        <path class="sparkline-path" fill="none" stroke="#3b82f6" stroke-width="1.5" d="M0,15 L10,12 L20,18 L30,8 L40,14 L50,10 L60,16 L70,9 L80,11 L90,5 L100,7"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 mt-2 font-mono">
+                    <span>MIN: 340 PPM</span>
+                    <span>MAX: 410 PPM</span>
+                </div>
+            </div>
+
+            <!-- NH3 Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Amonia Gas</span>
+                    <span class="material-symbols-outlined text-amber-500 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-xl text-base">science</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-3xl font-black font-display text-slate-950 dark:text-white" style="font-family: 'Outfit';">0.12</span>
+                    <span class="text-slate-500 font-bold text-xs ml-1">PPM</span>
+                </div>
+                <!-- Sparkline Trend Graph -->
+                <div class="h-6 w-full mt-2">
+                    <svg class="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                        <path class="sparkline-path" fill="none" stroke="#f59e0b" stroke-width="1.5" d="M0,18 L10,17 L20,17 L30,16 L40,16 L50,15 L60,12 L70,14 L80,10 L90,11 L100,12"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 mt-2 font-mono">
+                    <span>MIN: 0.08 PPM</span>
+                    <span>MAX: 0.25 PPM</span>
+                </div>
+            </div>
+
+            <!-- Temp Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Temperature</span>
+                    <span class="material-symbols-outlined text-rose-500 bg-rose-50 dark:bg-rose-950/30 p-2 rounded-xl text-base">device_thermostat</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-3xl font-black font-display text-slate-950 dark:text-white" style="font-family: 'Outfit';">26.4</span>
+                    <span class="text-slate-500 font-bold text-xs ml-1">°C</span>
+                </div>
+                <!-- Sparkline Trend Graph -->
+                <div class="h-6 w-full mt-2">
+                    <svg class="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                        <path class="sparkline-path" fill="none" stroke="#f43f5e" stroke-width="1.5" d="M0,10 L10,11 L20,9 L30,12 L40,11 L50,13 L60,11 L70,12 L80,10 L90,8 L100,9"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 mt-2 font-mono">
+                    <span>MIN: 24.1 °C</span>
+                    <span>MAX: 28.5 °C</span>
+                </div>
+            </div>
+
+            <!-- Humidity Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Humidity</span>
+                    <span class="material-symbols-outlined text-teal-500 bg-teal-50 dark:bg-teal-950/30 p-2 rounded-xl text-base">humidity_percentage</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-3xl font-black font-display text-slate-950 dark:text-white" style="font-family: 'Outfit';">58.0</span>
+                    <span class="text-slate-500 font-bold text-xs ml-1">%</span>
+                </div>
+                <!-- Sparkline Trend Graph -->
+                <div class="h-6 w-full mt-2">
+                    <svg class="w-full h-full" viewBox="0 0 100 20" preserveAspectRatio="none">
+                        <path class="sparkline-path" fill="none" stroke="#14b8a6" stroke-width="1.5" d="M0,15 L10,13 L20,10 L30,12 L40,8 L50,14 L60,16 L70,11 L80,9 L90,13 L100,12"></path>
+                    </svg>
+                </div>
+                <div class="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 mt-2 font-mono">
+                    <span>MIN: 50.0%</span>
+                    <span>MAX: 65.0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extra Status Details Panel -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white">Active IoT Node Details</h3>
+                    <span class="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">Kitchen Node</span>
+                </div>
+                <div class="space-y-3.5">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Node Identifier</span>
+                        <span class="text-xs font-mono font-bold text-slate-800 dark:text-white">ESP32_AGNA_01</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Wireless Connectivity</span>
+                        <span class="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">wifi</span> Strong (84dBm)
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Uptime Indicator</span>
+                        <span class="text-xs font-bold text-slate-800 dark:text-white">12 Days, 4 Hours</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Firmware Build</span>
+                        <span class="text-xs font-mono text-slate-500 dark:text-slate-400">v2.4.1-stable</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white mb-2">Environment Health Rating</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">System metrics aggregated from the active node indicate optimal ventilation and non-hazardous toxicity thresholds.</p>
+                </div>
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-500 border border-emerald-100 dark:border-emerald-900/30 flex-shrink-0">
+                        <span class="material-symbols-outlined text-3xl">verified_user</span>
+                    </div>
+                    <div>
+                        <div class="text-lg font-display font-black text-slate-900 dark:text-white">Excellent (98%)</div>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold mt-0.5">Ventilation Safety Score</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- PAGE 2: REAL-TIME DATA LOGS TEMPLATE -->
+    <template id="template-logs">
+        <!-- Header row -->
+        <div class="mb-6">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-500">Historical Logs</span>
+            <h2 class="text-2xl font-display font-black text-slate-900 dark:text-white mt-0.5">Real-time Data Logs</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Raw telemetry data logged by the sensors chronologically.</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl mb-6 shadow-sm">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div class="flex flex-wrap gap-3 items-center w-full lg:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-64">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+                        <input type="text" placeholder="Filter by Node ID..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-10 pr-4 py-1.5 rounded-lg text-xs outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 dark:text-white"/>
+                    </div>
+                    <!-- Status Filter -->
+                    <select class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-emerald-500 text-slate-600 dark:text-slate-350 cursor-pointer">
+                        <option value="">All Statuses</option>
+                        <option value="safe">Safe Status</option>
+                        <option value="danger">Danger Status</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2.5 w-full lg:w-auto justify-end">
+                    <button class="bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">download</span> Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Data Table Container -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-850/50 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-450">
+                            <th class="py-3.5 px-6">Timestamp</th>
+                            <th class="py-3.5 px-4">Device ID</th>
+                            <th class="py-3.5 px-4">CO2 Level</th>
+                            <th class="py-3.5 px-4">NH3 Level</th>
+                            <th class="py-3.5 px-4">Temp</th>
+                            <th class="py-3.5 px-4">Humidity</th>
+                            <th class="py-3.5 px-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs text-slate-700 dark:text-slate-300">
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                            <td class="py-3.5 px-6 font-mono text-[10px] text-slate-500">2026-05-24 10:05:12</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">ESP32_AGNA_01</td>
+                            <td class="py-3.5 px-4 font-mono">380 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">0.12 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">26.4 °C</td>
+                            <td class="py-3.5 px-4 font-mono">58%</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/30">Safe</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                            <td class="py-3.5 px-6 font-mono text-[10px] text-slate-500">2026-05-24 10:04:45</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">ESP32_HL_02</td>
+                            <td class="py-3.5 px-4 font-mono">420 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">0.15 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">27.1 °C</td>
+                            <td class="py-3.5 px-4 font-mono">59%</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/30">Safe</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                            <td class="py-3.5 px-6 font-mono text-[10px] text-slate-500">2026-05-24 10:04:18</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">ESP32_STR_09</td>
+                            <td class="py-3.5 px-4 font-mono text-rose-500 font-bold">580 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">0.68 ppm</td>
+                            <td class="py-3.5 px-4 font-mono text-rose-500 font-bold">34.8 °C</td>
+                            <td class="py-3.5 px-4 font-mono">72%</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-450 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-rose-100 dark:border-rose-900/30 animate-pulse">Danger</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                            <td class="py-3.5 px-6 font-mono text-[10px] text-slate-500">2026-05-24 10:03:50</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">ESP32_AGNA_01</td>
+                            <td class="py-3.5 px-4 font-mono">375 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">0.11 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">26.3 °C</td>
+                            <td class="py-3.5 px-4 font-mono">57%</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/30">Safe</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                            <td class="py-3.5 px-6 font-mono text-[10px] text-slate-500">2026-05-24 10:03:22</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">ESP32_HL_02</td>
+                            <td class="py-3.5 px-4 font-mono">415 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">0.14 ppm</td>
+                            <td class="py-3.5 px-4 font-mono">27.0 °C</td>
+                            <td class="py-3.5 px-4 font-mono">58%</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/30">Safe</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table pagination footer -->
+            <div class="bg-slate-50 dark:bg-slate-850/30 border-t border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-slate-500 dark:text-slate-400">Showing <span class="font-bold">1</span> to <span class="font-bold">5</span> of <span class="font-bold">124</span> logs</span>
+                <div class="flex items-center gap-1">
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-150 transition-all"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-emerald-500 text-white font-bold text-xs">1</button>
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-150 text-xs font-bold transition-all">2</button>
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-150 text-xs font-bold transition-all">3</button>
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-150 transition-all"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- PAGE 3: ANALYTICAL REPORTS TEMPLATE -->
+    <template id="template-reports">
+        <!-- Header row -->
+        <div class="mb-6">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-sky-500">Data Analytics</span>
+            <h2 class="text-2xl font-display font-black text-slate-900 dark:text-white mt-0.5">Analytical Reports</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Consolidated 24-hour graphical charts and key safety rate stats.</p>
+        </div>
+
+        <!-- Top Metric Row (3 Small Summaries) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <!-- Avg levels -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average CO2 Level</span>
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                </div>
+                <div class="text-2xl font-display font-black text-slate-950 dark:text-white leading-none">394.2 <span class="text-xs text-slate-500 font-bold ml-1">PPM</span></div>
+                <p class="text-[10px] text-slate-450 mt-1 font-semibold">Healthy Range Median</p>
+            </div>
+
+            <!-- Peak levels -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Peak Max Value</span>
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                </div>
+                <div class="text-2xl font-display font-black text-slate-950 dark:text-white leading-none text-rose-500">580.0 <span class="text-xs text-slate-500 font-bold ml-1">PPM</span></div>
+                <p class="text-[10px] text-rose-450 mt-1 font-semibold">Registered in Storage B</p>
+            </div>
+
+            <!-- Safe Rate -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Safe Rate (%)</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </div>
+                <div class="text-2xl font-display font-black text-slate-950 dark:text-white leading-none">98.7 <span class="text-xs text-slate-500 font-bold ml-1">%</span></div>
+                <p class="text-[10px] text-emerald-455 mt-1 font-semibold">Total Uptime Window</p>
+            </div>
+        </div>
+
+        <!-- Chart Container Card (24h Environmental Gas Chart) -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+                <div>
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white">Gas Fluctuations Index</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">24-hour log aggregate timeline chart</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                        <span class="text-[10px] font-bold text-slate-500">CO2 Levels</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                        <span class="text-[10px] font-bold text-slate-500">NH3 Levels</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beautiful Clean SVG Line Chart Mock -->
+            <div class="h-64 w-full relative">
+                <svg class="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
+                    <!-- Grid Lines -->
+                    <line x1="0" y1="50" x2="500" y2="50" stroke="#f1f5f9" dark-stroke="#334155" stroke-width="1"></line>
+                    <line x1="0" y1="100" x2="500" y2="100" stroke="#f1f5f9" dark-stroke="#334155" stroke-width="1"></line>
+                    <line x1="0" y1="150" x2="500" y2="150" stroke="#f1f5f9" dark-stroke="#334155" stroke-width="1"></line>
+                    
+                    <!-- Line 1: CO2 -->
+                    <path class="sparkline-path" fill="none" stroke="#10b981" stroke-width="2.5" d="M0,150 C50,130 100,160 150,110 C200,90 250,140 300,120 C350,90 400,60 450,130 L500,120"></path>
+                    
+                    <!-- Line 2: NH3 -->
+                    <path class="sparkline-path" fill="none" stroke="#f59e0b" stroke-width="2.5" d="M0,180 C50,170 100,175 150,150 C200,160 250,165 300,140 C350,130 400,110 450,150 L500,145"></path>
+                </svg>
+                
+                <!-- Chart absolute overlay axis labels -->
+                <div class="absolute inset-y-0 left-2 flex flex-col justify-between text-[9px] text-slate-400 font-mono pointer-events-none py-1">
+                    <span>500 ppm</span>
+                    <span>250 ppm</span>
+                    <span>0 ppm</span>
+                </div>
+            </div>
+            <div class="flex justify-between text-[9px] text-slate-400 font-mono mt-3">
+                <span>00:00 AM</span>
+                <span>06:00 AM</span>
+                <span>12:00 PM</span>
+                <span>06:00 PM</span>
+                <span>11:59 PM</span>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- PAGE 4: USER PROFILE & PREFERENCES TEMPLATE -->
+    <template id="template-profile">
+        <!-- Header row -->
+        <div class="mb-6">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-500">Account Preferences</span>
+            <h2 class="text-2xl font-display font-black text-slate-900 dark:text-white mt-0.5">User Profile &amp; Settings</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Configure user accounts and manage client UI preferences.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left Card: Profile photo & basic fields -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6">
+                <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800">Personal Details</h3>
+                
+                <!-- Photo uploader -->
+                <div class="flex flex-col sm:flex-row items-center gap-6">
+                    <img alt="User Avatar Large" class="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb0cs8uOpq31babi42vZx9UJDKid3XV6uFFmpxL3wQEcAdnT6tzYiZ25zERt2q9Y3RiZWGl_2GjrEdSPxlquZarU-ZR6DyAa9wRBJubB6fdPkC1anGrD2mS4z7qAS1bemWpAtzyhpByzZ2mqC3o_b1L_nPlmPY3Qk8KmFnU-MtHauzDHTDFEzxji5ix30s10NU6_2SARG54BONsgP3qWg5OgeQX4DXFmbxa83QVrYnTioIfpawdf7iWUDfZ4y0jZbwITkVmvUIEA"/>
+                    <div class="text-center sm:text-left space-y-2">
+                        <button class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all">Upload New Image</button>
+                        <p class="text-[10px] text-slate-400">JPG, PNG allowed. Max size 2MB</p>
+                    </div>
+                </div>
+
+                <!-- Input fields -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Full Identity Name</label>
+                        <input type="text" value="Agna Putra" class="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg text-xs outline-none focus:ring-1 focus:ring-emerald-500 dark:text-white"/>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Registered Email Address</label>
+                        <input type="email" value="agnaputra@skywatch.com" class="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg text-xs outline-none focus:ring-1 focus:ring-emerald-500 dark:text-white"/>
+                    </div>
+                </div>
+
+                <div class="pt-3">
+                    <button class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-5 py-2 rounded-lg transition-all shadow-sm">Save Personal Details</button>
+                </div>
+            </div>
+
+            <!-- Right Card: Security & Config Toggles -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Security Settings -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">Security Updates</h3>
+                    
+                    <div class="space-y-3">
+                        <button class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">key</span> Change Password
+                        </button>
+                        <button class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">security</span> Enable Two-Factor 2FA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- UI Toggles -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">General Configuration</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Push System Alerts</h4>
+                                <p class="text-[9px] text-slate-400 mt-0.5">Push notification popup broadcast</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Live Data Auto-Refresh</h4>
+                                <p class="text-[9px] text-slate-400 mt-0.5">Query node changes every second</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- PAGE 5: ADMIN & MANAGEMENT PANEL TEMPLATE -->
+    <template id="template-admin">
+        <!-- Header row -->
+        <div class="mb-6">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-purple-500">Admin Section</span>
+            <h2 class="text-2xl font-display font-black text-slate-900 dark:text-white mt-0.5">Admin Panel &amp; Configuration</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Control system settings, update user roles, and adjust alert ranges.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left Side: User list and device thresholds -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- User Access Panel -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white">User Access Matrix</h3>
+                        <button onclick="alert('Invite modal triggered (Showcase only)')" class="text-emerald-500 hover:text-emerald-600 text-xs font-bold">Invite Member +</button>
+                    </div>
+
+                    <!-- User rows -->
+                    <div class="space-y-3">
+                        <!-- User 1 -->
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                            <div class="flex items-center gap-3">
+                                <img alt="Reza Utama Profile" class="w-8 h-8 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8Dc_pY2Gk8IamfV5L_McZObHYZFMvhCgQqpxPwemcnQJJ_pFz3CDKl27R_zU24HvqL-1iJuGtSyb1TwbBdCJymmzwqsWN71k6Eg5jnm2eaWHYTx09xZz7QEbOd95OAeMYzxd7xje_vq-bweA-8rcyYE7zTmD68SDIEf8hI8FfpFFL_NuVrj4fsTw8GE-qDB6k0rimMGGx4m6EMJPUM166kTB0gVYSMsmdRybrJ1EHJ7LgDw1oEZawY5SPVynAuJewBSn4rYEvcg"/>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-950 dark:text-white">Reza Utama</div>
+                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Safety Officer</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[9px] font-black px-2 py-0.5 rounded uppercase">Editor</span>
+                                <div class="flex gap-1.5">
+                                    <button class="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-450 hover:bg-emerald-100 border border-emerald-100 dark:border-emerald-900/30 transition-all">
+                                        <span class="material-symbols-outlined text-base">edit</span>
+                                    </button>
+                                    <button class="w-7 h-7 rounded-lg flex items-center justify-center bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-450 hover:bg-rose-100 border border-rose-100 dark:border-rose-900/30 transition-all">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User 2 -->
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                            <div class="flex items-center gap-3">
+                                <img alt="Siti Aminah Profile" class="w-8 h-8 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA85StiaJB69p53_b044oiCnQ-Hujr6aVNRk1aLjvCxnP4np-sP1ukU6lylyd9BoHhHSp4QWQ4EE4dblw_OMuGw9-YoU8k1GhD2l1Wi4nXSiBh5y4R7N2XiqTxb3pLOkpLjGhvvslevU-MpWoOt0SpnsdxoTXtJ4GyWtr_Ja6_g-Ir5ReWtVtCQHoL65vX9HSamNb82rxNaT3ORaIdvDVaZphuNE-1N1DtLGlaOhC7j18fysWsRZlGOQ3ArVcFHMSe3GIQDAO4TJg"/>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-950 dark:text-white">Siti Aminah</div>
+                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">Monitor Staff</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                                <span class="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black px-2 py-0.5 rounded uppercase">Viewer</span>
+                                <div class="flex gap-1.5">
+                                    <button class="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-450 hover:bg-emerald-100 border border-emerald-100 dark:border-emerald-900/30 transition-all">
+                                        <span class="material-symbols-outlined text-base">edit</span>
+                                    </button>
+                                    <button class="w-7 h-7 rounded-lg flex items-center justify-center bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-450 hover:bg-rose-100 border border-rose-100 dark:border-rose-900/30 transition-all">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User 3 -->
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-slate-100 dark:border-slate-800/80 border-emerald-250 dark:border-emerald-850">
+                            <div class="flex items-center gap-3">
+                                <img alt="Agna Putra Profile" class="w-8 h-8 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb0cs8uOpq31babi42vZx9UJDKid3XV6uFFmpxL3wQEcAdnT6tzYiZ25zERt2q9Y3RiZWGl_2GjrEdSPxlquZarU-ZR6DyAa9wRBJubB6fdPkC1anGrD2mS4z7qAS1bemWpAtzyhpByzZ2mqC3o_b1L_nPlmPY3Qk8KmFnU-MtHauzDHTDFEzxji5ix30s10NU6_2SARG54BONsgP3qWg5OgeQX4DXFmbxa83QVrYnTioIfpawdf7iWUDfZ4y0jZbwITkVmvUIEA"/>
+                                <div>
+                                    <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Agna Putra</div>
+                                    <div class="text-[9px] text-slate-400 uppercase font-semibold">System Admin</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded uppercase">Owner</span>
+                                <div class="flex gap-1.5">
+                                    <button disabled class="w-7 h-7 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50">
+                                        <span class="material-symbols-outlined text-base">edit</span>
+                                    </button>
+                                    <button disabled class="w-7 h-7 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Gas Threshold Sliders -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-display font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-5">Gas Safety Thresholds</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Threshold 1 -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-450">CO2 Limit (PPM)</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white font-mono" id="slider-co2-val">250 PPM</span>
+                            </div>
+                            <input oninput="updateSliderVal(this, 'co2')" type="range" min="100" max="1000" value="250" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"/>
+                        </div>
+
+                        <!-- Threshold 2 -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-450">LPG Sensitivity (%)</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white font-mono" id="slider-lpg-val">70%</span>
+                            </div>
+                            <input oninput="updateSliderVal(this, 'lpg')" type="range" min="10" max="100" value="70" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"/>
+                        </div>
+
+                        <!-- Threshold 3 -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-450">Temperature Alert (°C)</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white font-mono" id="slider-temp-val">32°C</span>
+                            </div>
+                            <input oninput="updateSliderVal(this, 'temp')" type="range" min="15" max="50" value="32" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // Active Live app view page ID state
+        let currentLivePage = 'dashboard';
+
+        // Load templates content dynamically
+        function getTemplateContent(templateId) {
+            const template = document.getElementById(templateId);
+            if (template) {
+                return template.innerHTML;
+            }
+            return '<div class="text-red-500">Error: Page template missing</div>';
+        }
+
+        // Handle page switches inside the Live App Preview viewport
+        function switchLivePage(pageId) {
+            currentLivePage = pageId;
+            const container = document.getElementById('live-page-content-wrapper');
+            
+            // Set template content
+            if (pageId === 'dashboard') {
+                container.innerHTML = getTemplateContent('template-dashboard');
+            } else if (pageId === 'logs') {
+                container.innerHTML = getTemplateContent('template-logs');
+            } else if (pageId === 'reports') {
+                container.innerHTML = getTemplateContent('template-reports');
+            } else if (pageId === 'profile') {
+                container.innerHTML = getTemplateContent('template-profile');
+            } else if (pageId === 'admin') {
+                container.innerHTML = getTemplateContent('template-admin');
+            }
+
+            // Sync menu classes on the Left Sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white";
+            });
+
+            const activeBtn = document.getElementById(`nav-${pageId}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all duration-150 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-l-2 border-emerald-500";
+            }
+        }
+
+        // Toggle Figma vs Live Showcase views
+        function switchShowcaseMode(mode) {
+            const liveViewport = document.getElementById('live-app-viewport');
+            const figmaViewport = document.getElementById('figma-board-viewport');
+            const liveBtn = document.getElementById('btn-showcase-live');
+            const figmaBtn = document.getElementById('btn-showcase-figma');
+
+            if (mode === 'live') {
+                liveViewport.classList.remove('hidden');
+                figmaViewport.classList.add('hidden');
+                liveBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm";
+                figmaBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200";
+            } else {
+                liveViewport.classList.add('hidden');
+                figmaViewport.classList.remove('hidden');
+                liveBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200";
+                figmaBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm";
+
+                // Populate figma cards side-by-side
+                document.getElementById('figma-page-dashboard-container').innerHTML = getTemplateContent('template-dashboard');
+                document.getElementById('figma-page-logs-container').innerHTML = getTemplateContent('template-logs');
+                document.getElementById('figma-page-reports-container').innerHTML = getTemplateContent('template-reports');
+                document.getElementById('figma-page-profile-container').innerHTML = getTemplateContent('template-profile');
+                document.getElementById('figma-page-admin-container').innerHTML = getTemplateContent('template-admin');
+            }
+        }
+
+        // Toggle Dark/Light themes
+        function toggleGlobalTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-toggle-icon');
+            const themeText = document.getElementById('theme-toggle-text');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                themeIcon.innerText = "dark_mode";
+                themeText.innerText = "Dark Mode";
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                themeIcon.innerText = "light_mode";
+                themeText.innerText = "Light Mode";
+            }
+        }
+
+        // Real-time slider feedback update callback
+        function updateSliderVal(inputEl, type) {
+            const parent = inputEl.parentElement;
+            const label = parent.querySelector('span:last-child');
+            if (label) {
+                label.innerText = inputEl.value + (type === 'co2' ? ' PPM' : type === 'lpg' ? '%' : '°C');
+            }
+        }
+
+        // Initialize page loads on document ready
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load dashboard by default on live app
+            switchLivePage('dashboard');
+        });
+    </script>
+</body>
+</html>

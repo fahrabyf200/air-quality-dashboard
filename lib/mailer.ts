@@ -42,7 +42,7 @@ export async function sendInvitationEmail({
           
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#a3e635,#4ade80);padding:32px 40px;text-align:center;">
+            <td style="background:linear-gradient(135deg,#4edea3,#89ceff);padding:32px 40px;text-align:center;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
@@ -60,19 +60,19 @@ export async function sendInvitationEmail({
           <!-- Body -->
           <tr>
             <td style="padding:36px 40px;">
-              <p style="margin:0 0 8px;color:#a3e635;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">Undangan Masuk</p>
+              <p style="margin:0 0 8px;color:#4edea3;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">Undangan Masuk</p>
               <h2 style="margin:0 0 16px;color:#ffffff;font-size:20px;font-weight:900;line-height:1.3;">
                 Anda diundang untuk memantau<br/>kualitas udara 🏭
               </h2>
               <p style="margin:0 0 24px;color:#94a3b8;font-size:14px;line-height:1.7;">
-                <strong style="color:#e2e8f0;">${ownerName}</strong> (${ownerEmail}) mengundang Anda untuk bergabung dan ikut memantau data sensor kualitas udara secara real-time melalui <strong style="color:#a3e635;">SkyWatch Dashboard</strong>.
+                <strong style="color:#e2e8f0;">${ownerName}</strong> (${ownerEmail}) mengundang Anda untuk bergabung dan ikut memantau data sensor kualitas udara secara real-time melalui <strong style="color:#4edea3;">SkyWatch Dashboard</strong>.
               </p>
 
               <!-- Info Box -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(163,230,53,0.08);border:1px solid rgba(163,230,53,0.2);border-radius:16px;margin-bottom:28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(78,222,163,0.08);border:1px solid rgba(78,222,163,0.2);border-radius:16px;margin-bottom:28px;">
                 <tr>
                   <td style="padding:20px 24px;">
-                    <p style="margin:0 0 12px;color:#a3e635;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Yang dapat Anda pantau:</p>
+                    <p style="margin:0 0 12px;color:#4edea3;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Yang dapat Anda pantau:</p>
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr><td style="padding:4px 0;color:#cbd5e1;font-size:13px;">📊 &nbsp;Dashboard Real-time CO₂, NH₃, VOC, Suhu</td></tr>
                       <tr><td style="padding:4px 0;color:#cbd5e1;font-size:13px;">📡 &nbsp;Log Histori Data Sensor Lengkap</td></tr>
@@ -87,7 +87,7 @@ export async function sendInvitationEmail({
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="${registerUrl}" style="display:inline-block;background:#a3e635;color:#0a0f1a;font-size:14px;font-weight:900;text-decoration:none;padding:16px 40px;border-radius:16px;letter-spacing:0.5px;text-transform:uppercase;">
+                    <a href="${registerUrl}" style="display:inline-block;background:#4edea3;color:#0a0f1a;font-size:14px;font-weight:900;text-decoration:none;padding:16px 40px;border-radius:16px;letter-spacing:0.5px;text-transform:uppercase;">
                       Daftar & Mulai Monitoring →
                     </a>
                   </td>
@@ -96,7 +96,7 @@ export async function sendInvitationEmail({
 
               <p style="margin:20px 0 0;text-align:center;color:#475569;font-size:12px;">
                 Atau buka link ini di browser Anda:<br/>
-                <a href="${registerUrl}" style="color:#a3e635;font-size:11px;word-break:break-all;">${registerUrl}</a>
+                <a href="${registerUrl}" style="color:#4edea3;font-size:11px;word-break:break-all;">${registerUrl}</a>
               </p>
             </td>
           </tr>
@@ -109,7 +109,7 @@ export async function sendInvitationEmail({
                   <td style="padding:16px 20px;">
                     <p style="margin:0;color:#64748b;font-size:11px;line-height:1.6;">
                       ⚠️ &nbsp;<strong style="color:#94a3b8;">Penting:</strong> Daftar menggunakan email ini 
-                      (<strong style="color:#a3e635;">${toEmail}</strong>) agar akses otomatis terhubung. 
+                      (<strong style="color:#4edea3;">${toEmail}</strong>) agar akses otomatis terhubung. 
                       Akun pegawai <strong style="color:#94a3b8;">gratis</strong> tanpa perlu berlangganan.
                     </p>
                   </td>

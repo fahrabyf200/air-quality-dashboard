@@ -63,7 +63,7 @@ function LoginForm() {
 
         <div className="bg-[#FFFFFF] dark:bg-[#0d1425] rounded-3xl p-8 shadow-2xl border border-[#E2E8F0] dark:border-white/10">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#a3e635] flex items-center justify-center mb-4 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-lime-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-[#4edea3] flex items-center justify-center mb-4 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-emerald-500/20">
               <Wind size={32} className="text-[#0a0f1a]" strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Selamat Datang</h1>
@@ -85,7 +85,7 @@ function LoginForm() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
-                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
                   placeholder="nama@email.com"
                 />
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -100,7 +100,7 @@ function LoginForm() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-lime-500 transition-colors"
+                  className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-emerald-500 transition-colors"
                   placeholder="••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -110,7 +110,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#a3e635] hover:bg-[#8ecb2f] text-[#0a0f1a] font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50"
+              className="w-full bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : (
                 <>Masuk <ArrowRight size={18} /></>
@@ -121,20 +121,20 @@ function LoginForm() {
           <div className="mt-6 space-y-3">
             <p className="text-center text-xs text-slate-500 font-bold">
               Belum punya akun?{' '}
-              <Link href="/register" className="text-lime-500 hover:underline">Daftar sekarang</Link>
+              <Link href="/register" className="text-emerald-500 hover:underline">Daftar sekarang</Link>
             </p>
 
             {/* Banner undangan */}
             <div className="border-t border-slate-100 dark:border-white/5 pt-4">
               <Link
                 href="/register"
-                className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#a3e635]/20 bg-[#a3e635]/5 hover:bg-[#a3e635]/10 transition-all group"
+                className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#4edea3]/20 bg-[#4edea3]/5 hover:bg-[#4edea3]/10 transition-all group"
               >
-                <div className="p-2 bg-[#a3e635]/15 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
-                  <UserCheck size={16} className="text-[#a3e635]" />
+                <div className="p-2 bg-[#4edea3]/15 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <UserCheck size={16} className="text-[#4edea3]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-black text-[#a3e635] uppercase tracking-wider">Menerima Undangan?</p>
+                  <p className="text-[11px] font-black text-[#4edea3] uppercase tracking-wider">Menerima Undangan?</p>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     Klik di sini dan gunakan email yang diundang untuk daftar →
                   </p>

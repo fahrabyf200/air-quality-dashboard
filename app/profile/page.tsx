@@ -7,10 +7,13 @@ import {
   Crown, Zap, MessageCircle, UserPlus, Trash2, Copy
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [uploadingPic, setUploadingPic] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [user, setUser] = useState<any>(null);
   const [deviceIdInput, setDeviceIdInput] = useState('');
   const [savingDevice, setSavingDevice] = useState(false);
@@ -204,6 +207,10 @@ export default function ProfilePage() {
       if (data.user) {
         setUser(data.user);
         setDeviceIdInput(data.user.device_id || '');
+        // Load foto profil dari server jika ada
+        if (data.user.profile_pic) {
+          setProfilePic(data.user.profile_pic + '?t=' + Date.now());
+        }
       }
     } catch (e) {}
   };
@@ -214,10 +221,36 @@ export default function ProfilePage() {
     fetchDevices();
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      setProfilePic(url);
+      const file = e.target.files[0];
+      // Tampilkan preview lokal dulu
+      const previewUrl = URL.createObjectURL(file);
+      setProfilePic(previewUrl);
+      setUploadingPic(true);
+      setUploadStatus('');
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/auth/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setProfilePic(data.url); // URL dari server dengan cache busting
+          setUploadStatus('success');
+          // Refresh data user
+          await fetchProfile();
+        } else {
+          setUploadStatus('error');
+          setUploadStatus(data.error || 'Gagal mengupload foto');
+        }
+      } catch {
+        setUploadStatus('Terjadi kesalahan saat upload');
+      } finally {
+        setUploadingPic(false);
+      }
     }
   };
 
@@ -268,7 +301,7 @@ export default function ProfilePage() {
   const renderPackageGrid = () => (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Paket 1 Bulan — Bundle Alat + Web */}
-      <div className="relative rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/5 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.01] p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
+      <div className="relative rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
         <div className="space-y-3 text-left">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
           <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
@@ -293,15 +326,15 @@ export default function ProfilePage() {
       </div>
 
       {/* Paket 1 Tahun — Bundle Best Value */}
-      <div className="relative rounded-2xl border-2 border-[#a3e635]/40 bg-[#a3e635]/5 p-5 flex flex-col justify-between hover:border-[#a3e635] transition-all group shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
-        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#a3e635] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
+      <div className="relative rounded-2xl border-2 border-[#4edea3]/40 bg-[#4edea3]/5 p-5 flex flex-col justify-between hover:border-[#4edea3] transition-all group shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
+        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
         <div className="space-y-3 text-left">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
           <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
           <div className="flex flex-col">
             <span className="text-[10px] text-slate-400 line-through font-bold">Rp 749.000</span>
-            <span className="text-lg font-black text-[#a3e635]">Rp 599.000</span>
-            <span className="text-[9px] text-[#a3e635]/80 font-black uppercase tracking-wider mt-0.5">Alat + Web 12 Bln (Best Offer)</span>
+            <span className="text-lg font-black text-[#059669] dark:text-[#4edea3]">Rp 599.000</span>
+            <span className="text-[9px] text-[#047857] dark:text-[#4edea3]/80 font-black uppercase tracking-wider mt-0.5">Alat + Web 12 Bln (Best Offer)</span>
           </div>
           <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
             <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
@@ -313,14 +346,14 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Tahun (Bundle Alat + Web - Best Value)", "Rp 599.000", true)}
-          className="mt-5 w-full py-2.5 rounded-xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#a3e635]/20"
+          className="mt-5 w-full py-2.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20"
         >
           Pilih Paket
         </button>
       </div>
 
       {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
-      <div className="relative rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/5 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.01] p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
+      <div className="relative rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
         <div className="space-y-3 text-left">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
           <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
@@ -341,7 +374,7 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={() => handleWhatsAppRedirect("Pembelian Hanya Alat Sensor (Modul ESP32 Saja)", "Rp 249.000")}
-          className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-[#FFFFFF]/10 dark:hover:bg-[#FFFFFF]/20 text-[#1E293B] dark:text-slate-400 dark:text-slate-300 text-center font-semibold text-[10px] uppercase tracking-wider transition-all"
+          className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-center font-semibold text-[10px] uppercase tracking-wider transition-all"
         >
           Beli Alat Saja
         </button>
@@ -350,311 +383,234 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
       {/* PAGE HEADER */}
-      <div className="px-6 md:px-8 pt-7 pb-5">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
-          <div>
-            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">User Settings</p>
-            <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Profile
-            </h1>
-            <p className="text-slate-600 text-xs mt-1 font-mono">Pengaturan Akun & Aplikasi</p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full border-b border-slate-200/60 dark:border-slate-800/40 pb-5">
+        <div>
+          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">User Settings</p>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-950 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            Profile
+          </h1>
+          <p className="text-slate-550 dark:text-slate-400 text-xs mt-1">Pengaturan Akun &amp; Konfigurasi Aplikasi</p>
         </div>
       </div>
 
-      <div className="px-6 md:px-10 xl:px-12 pb-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Header Profil */}
-        <div className="flex flex-col items-center text-center space-y-3 mt-2 md:mt-4">
-          <div className="relative group cursor-pointer">
-            <label htmlFor="profile-upload" className="cursor-pointer block relative">
-              <div className="w-20 h-20 rounded-[1.5rem] bg-[#a3e635] flex items-center justify-center text-[#0a0f1a] shadow-xl shadow-lime-500/20 transition-transform group-hover:scale-105 overflow-hidden relative">
-                {profilePic ? (
-                  <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <UserCircle size={40} strokeWidth={1.5} />
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera size={20} className="text-white" />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* LEFT COLUMN: Profile info & subscription */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Profile Card */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 text-center relative overflow-hidden group transition-all duration-300">
+            {/* Glow effect */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.15] dark:opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.25]" style={{ backgroundColor: '#10b981' }} />
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <label htmlFor="profile-upload" className="cursor-pointer block relative mb-4">
+                <div className={`w-24 h-24 rounded-2xl bg-emerald-500/10 border-2 ${uploadingPic ? 'border-[#4edea3] animate-pulse' : 'border-emerald-500/20'} flex items-center justify-center text-emerald-500 shadow-sm transition-transform hover:scale-105 overflow-hidden relative`}>
+                  {profilePic ? (
+                    <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle size={48} strokeWidth={1.5} />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    {uploadingPic ? (
+                      <RefreshCw size={18} className="text-white animate-spin" />
+                    ) : (
+                      <Camera size={20} className="text-white" />
+                    )}
+                  </div>
                 </div>
-              </div>
-            </label>
-            <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F8F9FA] dark:bg-[#070d1a] rounded-full flex items-center justify-center pointer-events-none">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white capitalize tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              {user?.name || 'Loading...'}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-              Level Akses: {user?.role === 'admin' ? (
-                <span className="text-purple-500">Administrator</span>
-              ) : (
-                <span>User</span>
+              </label>
+              <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              {uploadingPic && (
+                <p className="text-[10px] text-[#4edea3] font-bold mb-1 animate-pulse">Mengupload foto...</p>
               )}
-            </p>
-          </div>
-        </div>
+              {uploadStatus === 'success' && (
+                <p className="text-[10px] text-emerald-500 font-bold mb-1 flex items-center gap-1"><Check size={10} /> Foto tersimpan!</p>
+              )}
+              
+              <h2 className="text-lg font-black text-slate-950 dark:text-white capitalize tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                {user?.name || 'Loading...'}
+              </h2>
+              <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                {user?.role === 'admin' ? 'Administrator' : 'User'}
+              </div>
+            </div>
 
-        {/* Grid Informasi Utama */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
-            <div className="p-3.5 bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400">
-              <Mail size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Email Terdaftar</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
-                {user?.email || 'Loading...'}
-              </p>
+            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/60 text-left space-y-4">
+              <div>
+                <p className="text-[9px] font-black text-slate-405 dark:text-slate-500 uppercase tracking-widest mb-1">Email Terdaftar</p>
+                <p className="text-xs font-bold text-slate-850 dark:text-slate-350 font-mono truncate">{user?.email || 'Loading...'}</p>
+              </div>
             </div>
           </div>
-          
-          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 p-5 rounded-3xl flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors w-full">
-            <div className="p-3.5 bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400 flex-shrink-0">
-              <Smartphone size={20} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Kode Unik Alat</p>
-              {devices.length === 0 ? (
-                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
-                  Belum dihubungkan
-                </p>
+
+          {/* Subscription Card */}
+          {user?.role !== 'admin' && (
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
+              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Layanan</h3>
+              {user?.is_invited ? (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl space-y-1">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">
+                    Active Employee
+                  </span>
+                  <p className="text-xs font-bold text-slate-850 dark:text-white">Akses Penuh</p>
+                  <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal pt-1">
+                    Diundang oleh: <span className="font-semibold text-emerald-600 dark:text-emerald-450">{user.invited_by_name}</span> ({user.invited_by_email})
+                  </p>
+                </div>
+              ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl space-y-1">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">
+                    Premium Active
+                  </span>
+                  <p className="text-sm font-black text-slate-900 dark:text-white leading-none">
+                    {Math.max(0, Math.ceil((new Date(user.subscription_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Hari Tersisa
+                  </p>
+                  <p className="text-[10px] text-slate-450 dark:text-slate-550 font-mono pt-1">
+                    Berakhir: {new Date(user.subscription_end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {devices.map((d: any) => (
-                    <span 
-                      key={d.id} 
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400"
-                      title={d.device_name}
-                    >
-                      <span className="w-1 h-1 rounded-full bg-purple-400 dark:bg-purple-500" />
-                      {d.device_id} <span className="opacity-60 font-sans font-normal">({d.device_name})</span>
-                    </span>
-                  ))}
+                <div className="bg-slate-50 dark:bg-slate-850/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-450" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Free Member</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-450 leading-relaxed">
+                    Akses pemantauan web dan notifikasi alarm darurat terbatas. Silakan upgrade untuk membuka sirkulasi dashboard penuh.
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* === KARTU STATUS LANGGANAN === */}
-        {user?.role !== 'admin' && (
-          <div className="mt-2 space-y-4">
-            {user?.is_invited ? (
-              // --- PEGAWAI / UNDANGAN ACTIVE ---
-              <div className="relative rounded-3xl overflow-hidden border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#FFFFFF] dark:bg-[#0d1a08]/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] animate-in fade-in slide-in-from-bottom-2 duration-300 text-left group">
-                <div className="absolute inset-0 bg-[#a3e635]/5" />
-                <div 
-                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-                  style={{ backgroundColor: '#a3e635' }} 
-                />
-                <div className="relative flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-4 text-left">
-                    <div className="relative flex-shrink-0">
-                      <div className="absolute inset-0 bg-[#a3e635]/40 blur-xl rounded-2xl" />
-                      <div className="relative p-3.5 bg-[#a3e635]/10 border border-[#a3e635]/30 rounded-2xl">
-                        <UserPlus size={22} className="text-[#a3e635]" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#a3e635]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
-                          PEGAWAI / UNDANGAN AKTIF
-                        </span>
-                      </div>
-                      <p className="text-base font-black text-slate-900 dark:text-white">
-                        Akses Monitoring Penuh
-                      </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-1">
-                        Hubungan Akun: Pegawai dari <span className="text-[#a3e635]">{user.invited_by_name}</span> ({user.invited_by_email})
-                      </p>
-                    </div>
+          {/* Threshold references */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
+            <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Nilai Batas Sensor</h3>
+            {isLoaded ? (
+              <div className="grid grid-cols-2 gap-3">
+                {Object.entries(thresholds).map(([key, val]) => (
+                  <div key={key} className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800/80 p-2.5 rounded-xl text-center">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                      {key}
+                    </p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white font-mono">
+                      {val} <span className="text-[9px] text-slate-400 font-normal font-sans">{key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}</span>
+                    </p>
                   </div>
-                </div>
-              </div>
-            ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
-              // --- PREMIUM ACTIVE ---
-              <div className="relative rounded-3xl overflow-hidden border-2 border-[#a3e635]/40 dark:border-[#a3e635]/20 bg-[#FFFFFF] dark:bg-[#0d1a08]/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] text-left group">
-                <div className="absolute inset-0 bg-[#a3e635]/5" />
-                <div 
-                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-                  style={{ backgroundColor: '#a3e635' }} 
-                />
-                <div className="relative flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-4 text-left">
-                    <div className="relative flex-shrink-0">
-                      <div className="absolute inset-0 bg-[#a3e635]/40 blur-xl rounded-2xl" />
-                      <div className="relative p-3.5 bg-[#a3e635]/10 border border-[#a3e635]/30 rounded-2xl">
-                        <Crown size={22} className="text-[#a3e635]" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#a3e635]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
-                          PREMIUM ACTIVE
-                        </span>
-                      </div>
-                      <p className="text-base font-black text-slate-900 dark:text-white">
-                        {Math.max(0, Math.ceil((new Date(user.subscription_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Hari Tersisa
-                      </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                        Berakhir: {new Date(user.subscription_end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            {/* Render collapsible plans if already active, otherwise show expanded normal for Free Member */}
-            {(user?.is_invited || (user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date())) ? (
-              <div className="border border-[#E2E8F0] dark:border-white/10 rounded-3xl overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setShowPlans(!showPlans)}
-                  className="w-full py-4 px-6 flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-[#FFFFFF]/[0.04] transition-all"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400">
-                      <Crown size={14} />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-widest text-left">Pilihan Opsi Alat &amp; Upgrade Langganan</span>
-                  </div>
-                  <ChevronRight 
-                    size={16} 
-                    className={`transform transition-transform duration-300 text-slate-400 ${showPlans ? 'rotate-90' : 'rotate-0'}`} 
-                  />
-                </button>
-                
-                {showPlans && (
-                  <div className="p-6 border-t border-[#E2E8F0] dark:border-white/10 bg-[#F8F9FA]/50 dark:bg-black/15 animate-in slide-in-from-top-2 duration-300">
-                    {renderPackageGrid()}
-                  </div>
-                )}
+                ))}
               </div>
             ) : (
-              // --- FREE MEMBER (Daftar paket terbuka penuh seperti biasa) ---
-              <div className="relative rounded-3xl overflow-hidden border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] space-y-6 text-left group transition-all duration-300">
-                <div 
-                  className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-                  style={{ backgroundColor: '#94a3b8' }} 
-                />
-                
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-[#E2E8F0] dark:border-white/5 pb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3.5 bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-2xl">
-                      <Crown size={22} className="text-slate-400 dark:text-slate-500" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-widest bg-slate-100 dark:bg-[#FFFFFF]/5 border-2 border-slate-300 dark:border-slate-600 text-[#1E293B] dark:text-slate-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                          FREE MEMBER
-                        </span>
-                      </div>
-                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Akses Terbatas (Dasbor Terkunci)</p>
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                        Pilih salah satu opsi paket di bawah untuk mengaktifkan seluruh fitur monitoring dan multi-device sharing
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {renderPackageGrid()}
+              <div className="text-xs text-slate-555 flex items-center py-4 animate-pulse gap-2">
+                <RefreshCw size={12} className="animate-spin" />
+                <span>Memuat batas...</span>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Form Pemasangan Alat (Multi-Device) */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 px-2">
-            <div className="w-1.5 h-4 bg-purple-500 rounded-full" />
-            <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Hubungkan Alat (Multi-Device Pairing)</h2>
-          </div>
-          
-          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors space-y-6">
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Daftarkan satu atau **beberapa sensor ESP32 sekaligus** ke akun ini. Anda dapat memantau, memberi nama, dan beralih di antara sensor-sensor ini secara langsung dari halaman Dasbor Utama.
-            </p>
-            
-            {/* Form Tambah Alat */}
-            <form onSubmit={handleAddDevice} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Perangkat (Device ID)</label>
-                  <input 
-                    type="text" 
-                    placeholder="Contoh: ESP32_SKY_01"
-                    value={newDeviceId}
-                    onChange={e => setNewDeviceId(e.target.value)}
-                    className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Lokasi/Sensor</label>
-                  <input 
-                    type="text" 
-                    placeholder="Contoh: Restoran Area Depan"
-                    value={newDeviceName}
-                    onChange={e => setNewDeviceName(e.target.value)}
-                    className="w-full bg-[#F8F9FA] dark:bg-[#0a0f1a] border-2 border-slate-300 dark:border-slate-600 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                disabled={addingDevice || !newDeviceId || !newDeviceName}
-                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10 hover:shadow-purple-500/25"
+        {/* RIGHT COLUMN: Settings menu & device integration */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Collapsible plans package grid */}
+          {user?.role !== 'admin' && (
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden transition-colors">
+              <button
+                type="button"
+                onClick={() => setShowPlans(!showPlans)}
+                className="w-full py-4 px-6 flex items-center justify-between text-slate-700 dark:text-slate-355 hover:bg-slate-50 dark:hover:bg-slate-850/40 transition-all border-b border-transparent data-[open=true]:border-slate-100 dark:data-[open=true]:border-slate-800"
+                data-open={showPlans}
               >
-                {addingDevice ? <RefreshCw size={14} className="animate-spin" /> : <UserPlus size={14} />}
-                Hubungkan Sensor Baru
+                <div className="flex items-center gap-2.5">
+                  <Crown size={14} className="text-amber-500" />
+                  <span className="text-xs font-black uppercase tracking-widest">Opsi Upgrade &amp; Paket Alat</span>
+                </div>
+                <ChevronRight 
+                  size={14} 
+                  className={`transform transition-transform duration-300 text-slate-400 ${showPlans ? 'rotate-90' : 'rotate-0'}`} 
+                />
               </button>
+              {(showPlans || !(user?.is_invited || (user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date()))) && (
+                <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
+                  {renderPackageGrid()}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Device Management Pairing Card */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Pasangkan Sensor (Multi-Device)</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              Tambahkan satu atau beberapa perangkat ESP32 ke akun Anda untuk memonitor beberapa titik area dapur terpisah secara real-time.
+            </p>
+
+            <form onSubmit={handleAddDevice} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6">
+              <div className="sm:col-span-5">
+                <input 
+                  type="text" 
+                  placeholder="ID Perangkat (e.g. ESP32_KITCHEN_02)"
+                  value={newDeviceId}
+                  onChange={e => setNewDeviceId(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                />
+              </div>
+              <div className="sm:col-span-4">
+                <input 
+                  type="text" 
+                  placeholder="Nama Lokasi/Sensor"
+                  value={newDeviceName}
+                  onChange={e => setNewDeviceName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                />
+              </div>
+              <div className="sm:col-span-3">
+                <button 
+                  type="submit"
+                  disabled={addingDevice || !newDeviceId || !newDeviceName}
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  {addingDevice ? <RefreshCw size={12} className="animate-spin" /> : <UserPlus size={12} />}
+                  <span>Pasang</span>
+                </button>
+              </div>
             </form>
 
             {deviceStatus.text && (
-              <div className={`px-4 py-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+              <div className={`px-4 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 mb-6 ${
                 deviceStatus.type === 'success' 
                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' 
                   : 'bg-red-500/10 border-red-500/20 text-red-500'
               }`}>
-                {deviceStatus.type === 'success' ? <Check size={14} /> : <AlertTriangle size={14} />}
-                {deviceStatus.text}
+                {deviceStatus.type === 'success' ? <Check size={12} /> : <AlertTriangle size={12} />}
+                <span>{deviceStatus.text}</span>
               </div>
             )}
 
-            {/* List Alat Terhubung */}
-            <div className="pt-5 border-t border-[#E2E8F0] dark:border-white/5 space-y-3">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Sensor Terhubung ({devices.length})</h3>
-
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60">
+              <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Sensor Aktif ({devices.length})</h4>
               {devicesLoading ? (
-                <div className="text-xs text-slate-400 flex items-center gap-2 py-3">
-                  <RefreshCw size={12} className="animate-spin" /> Memuat daftar alat...
+                <div className="text-xs text-slate-450 flex items-center gap-2 py-2">
+                  <RefreshCw size={11} className="animate-spin" />
+                  <span>Memuat daftar alat...</span>
                 </div>
               ) : devices.length === 0 ? (
-                <div className="text-center py-6 border-2 border-dashed border-[#E2E8F0] dark:border-white/5 rounded-2xl">
-                  <p className="text-xs text-slate-400 italic">Belum ada sensor yang terhubung ke akun ini.</p>
+                <div className="text-center py-6 border border-dashed border-slate-200 dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-transparent">
+                  <p className="text-xs text-slate-400 italic">Belum ada sensor yang dipasangkan ke akun ini.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {devices.map((dev: any) => (
-                    <div key={dev.id} className="flex items-center justify-between p-4 bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.02] border-2 border-slate-300 dark:border-slate-600 rounded-2xl">
+                    <div key={dev.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl">
                       <div className="min-w-0 pr-3">
-                        <p className="text-xs font-black text-slate-800 dark:text-slate-200">{dev.device_name}</p>
-                        <p className="text-[10px] text-slate-400 font-mono truncate">{dev.device_id}</p>
+                        <p className="text-xs font-black text-slate-800 dark:text-slate-200 truncate">{dev.device_name}</p>
+                        <p className="text-[9px] text-slate-450 font-mono truncate">{dev.device_id}</p>
                       </div>
                       <button 
+                        type="button"
                         onClick={() => handleRemoveDevice(dev.id, dev.device_id)}
-                        className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all flex-shrink-0"
+                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all flex-shrink-0"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   ))}
@@ -662,74 +618,32 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-        </div>
 
-
-
-        {/* Pengaturan Ambang Batas (Read-Only) */}
-        <div className="space-y-4 pt-4">
-          <div className="flex items-center gap-2 px-2">
-            <div className="w-1.5 h-4 bg-blue-500 rounded-full" />
-            <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Ambang Batas Sensor</h2>
-          </div>
-          
-          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-2xl leading-relaxed">
-              Berikut adalah nilai ambang batas sensor saat ini. Pengaturan ini hanya dapat diubah oleh Administrator melalui halaman dasbor admin.
-            </p>
-            {isLoaded ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-                {Object.entries(thresholds).map(([key, val]) => (
-                  <div key={key} className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border-2 border-slate-300 dark:border-slate-600 p-3 rounded-2xl text-center">
-                    <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">
-                      {key}
-                    </p>
-                    <p className="text-lg font-black text-slate-800 dark:text-slate-200 font-mono">
-                      {val} <span className="text-[10px] text-slate-400 font-sans">{key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}</span>
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-slate-500 flex items-center py-6 animate-pulse gap-3 font-bold uppercase tracking-widest">
-                <RefreshCw size={16} className="animate-spin" />
-                Memuat konfigurasi...
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Menu Pengaturan Aplikasi */}
-        <div className="space-y-4 pt-4">
-          <div className="flex items-center gap-2 px-2">
-            <div className="w-1.5 h-4 bg-purple-500 rounded-full" />
-            <h2 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">Pengaturan Aplikasi</h2>
-          </div>
-          
-          <div className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border-2 border-slate-300 dark:border-slate-600 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.01)] transition-colors">
-            
+          {/* Application Settings Accordion Card */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden transition-colors">
             {/* Keamanan Akun */}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10">
-              <button onClick={() => setActiveMenu(activeMenu === 'security' ? null : 'security')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
-                    <ShieldCheck size={20} />
+            <div className="border-b border-slate-100 dark:border-slate-800/80">
+              <button 
+                onClick={() => setActiveMenu(activeMenu === 'security' ? null : 'security')} 
+                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
+                    <ShieldCheck size={16} />
                   </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
                     Keamanan Akun (Ganti Password)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center transition-transform ${activeMenu === 'security' ? 'rotate-90' : ''}`}>
-                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
-                </div>
+                <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'security' ? 'rotate-90' : ''}`} />
               </button>
               
               {activeMenu === 'security' && (
-                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   <div className="space-y-3 max-w-sm">
-                    <input type="password" placeholder="Password Lama" value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-[#FFFFFF] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
-                    <input type="password" placeholder="Password Baru" value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-[#FFFFFF] dark:bg-[#0a0f1a] border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
-                    <button onClick={handleSavePassword} disabled={savingPw} className="w-full px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50">
+                    <input type="password" placeholder="Password Lama" value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                    <input type="password" placeholder="Password Baru" value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                    <button onClick={handleSavePassword} disabled={savingPw} className="w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
                       {savingPw ? 'Menyimpan...' : 'Simpan Password'}
                     </button>
                     {pwStatus.text && (
@@ -742,69 +656,56 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Kelola Akses Pegawai / Share Alat */}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10">
-              <button onClick={() => setActiveMenu(activeMenu === 'sharing' ? null : 'sharing')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
-                    <UserPlus size={20} />
+            {/* Kelola Akses Pegawai */}
+            <div className="border-b border-slate-100 dark:border-slate-800/80">
+              <button 
+                onClick={() => setActiveMenu(activeMenu === 'sharing' ? null : 'sharing')} 
+                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                    <UserPlus size={16} />
                   </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
                     Kelola Akses Pegawai (Undang User)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`}>
-                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
-                </div>
+                <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`} />
               </button>
               
               {activeMenu === 'sharing' && (
-                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   {user?.role !== 'admin' && !(user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date()) ? (
-                    // NOT PREMIUM
-                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold space-y-2">
+                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold space-y-2.5">
                       <p>Fitur Kelola Pegawai/Akses Multi-User hanya tersedia untuk pelanggan Premium Active.</p>
                       <a
                         href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin, saya ingin upgrade ke Premium agar bisa mengundang pegawai saya untuk monitoring alat.`)}`}
                         target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] hover:bg-amber-600 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[9px] uppercase tracking-wider hover:bg-amber-600 transition-colors shadow-sm"
                       >
                         <Crown size={11} /> Upgrade Sekarang
                       </a>
                     </div>
                   ) : (
-                    // PREMIUM ACTIVE
                     <div className="space-y-5">
-                      {/* Panduan Cara Akses Pegawai */}
-                      <div className="p-4 rounded-2xl bg-blue-500/8 border border-blue-500/15 space-y-3">
+                      {/* Guide */}
+                      <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/15 space-y-2.5 text-xs">
                         <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1.5">
                           <span>ℹ️</span> Cara Pegawai Mengakses Dashboard
                         </p>
-                        <ol className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300">
-                          <li className="flex gap-2.5">
-                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">1</span>
-                            <span>Pegawai membuka halaman <strong>Register</strong> di SkyWatch</span>
-                          </li>
-                          <li className="flex gap-2.5">
-                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">2</span>
-                            <span>Mendaftar menggunakan <strong>email yang sama persis</strong> dengan yang Anda undang di bawah</span>
-                          </li>
-                          <li className="flex gap-2.5">
-                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-500 text-[9px] font-black flex items-center justify-center">3</span>
-                            <span>Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda</span>
-                          </li>
+                        <ol className="space-y-2 text-slate-600 dark:text-slate-350 list-decimal pl-4">
+                          <li>Pegawai membuka halaman <strong>Register</strong> di SkyWatch</li>
+                          <li>Mendaftar menggunakan <strong>email yang sama persis</strong> dengan yang Anda undang di bawah</li>
+                          <li>Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda</li>
                         </ol>
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          <a
-                            href="/register"
-                            className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-500 px-3 py-1.5 rounded-lg transition-all"
-                          >
+                        <div className="pt-1">
+                          <Link href="/register" className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-500 px-3 py-1.5 rounded-lg transition-all inline-block">
                             Buka Halaman Register →
-                          </a>
+                          </Link>
                         </div>
                       </div>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Masukkan email pegawai/pengawas yang ingin Anda undang untuk memantau sensor Anda:
                       </p>
 
@@ -814,10 +715,10 @@ export default function ProfilePage() {
                           placeholder="email.pegawai@anda.com"
                           value={inviteEmail}
                           onChange={e => setInviteEmail(e.target.value)}
-                          className="flex-1 bg-[#FFFFFF] dark:bg-[#0a0f1a] border-2 border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white"
+                          className="flex-1 bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-slate-800 dark:text-white"
                         />
                         <button type="submit" disabled={inviting || !inviteEmail}
-                          className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50">
+                          className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
                           {inviting ? 'Mengundang...' : 'Undang'}
                         </button>
                       </form>
@@ -828,49 +729,48 @@ export default function ProfilePage() {
                         </p>
                       )}
 
-                      <div className="pt-3 border-t border-[#E2E8F0] dark:border-white/5">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Pegawai yang Diundang ({shares.length})</p>
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Pegawai yang Diundang ({shares.length})</p>
                         
                         {sharesLoading ? (
-                          <div className="text-xs text-slate-400 flex items-center gap-2 py-3"><RefreshCw size={12} className="animate-spin" /> Memuat data...</div>
+                          <div className="text-xs text-slate-400 flex items-center gap-2 py-2"><RefreshCw size={11} className="animate-spin" /> Memuat data...</div>
                         ) : shares.length === 0 ? (
-                          <p className="text-xs text-slate-400 py-3 italic">Belum ada pegawai yang diundang.</p>
+                          <p className="text-xs text-slate-450 py-2 italic">Belum ada pegawai yang diundang.</p>
                         ) : (
                           <div className="space-y-2">
                             {shares.map((s: any) => (
-                              <div key={s.id} className="flex items-center justify-between p-3.5 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] border-2 border-slate-300 dark:border-slate-600 rounded-2xl">
-                                <div className="min-w-0-fake flex-1 min-w-0 pr-3">
+                              <div key={s.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850/50 border border-slate-200 dark:border-slate-800 rounded-xl">
+                                <div className="min-w-0 flex-1 pr-3">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{s.member_name || '—'}</p>
+                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-250 truncate">{s.member_name || '—'}</p>
                                     {s.member_name ? (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 uppercase tracking-wider">Aktif</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 uppercase tracking-wider">Aktif</span>
                                     ) : (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 uppercase tracking-wider">Belum Daftar</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 uppercase tracking-wider">Belum Daftar</span>
                                     )}
                                   </div>
-                                  <p className="text-[10px] text-slate-400 font-mono truncate">{s.member_email}</p>
+                                  <p className="text-[9px] text-slate-450 font-mono truncate">{s.member_email}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  {/* Tombol Salin Link */}
                                   <button
                                     onClick={() => handleCopyLink(s.id, s.member_email)}
                                     title="Salin Link Undangan"
-                                    className={`p-2 rounded-xl border flex items-center justify-center transition-all ${
+                                    className={`p-1.5 rounded-lg border flex items-center justify-center transition-all ${
                                       copiedId === s.id
-                                        ? 'bg-[#a3e635]/15 border-[#a3e635]/30 text-[#a3e635]'
-                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-[#FFFFFF]/5 dark:hover:bg-[#FFFFFF]/10 border-[#E2E8F0] dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                        : 'bg-white hover:bg-slate-100 dark:bg-slate-850 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                                   >
                                     {copiedId === s.id ? (
-                                      <span className="text-[9px] font-black uppercase tracking-wider px-1 flex items-center gap-1">
-                                        <Check size={11} strokeWidth={3} /> Salin!
+                                      <span className="text-[8px] font-black uppercase tracking-wider px-1 flex items-center gap-0.5">
+                                        <Check size={10} strokeWidth={3} /> Salin!
                                       </span>
                                     ) : (
                                       <Copy size={12} />
                                     )}
                                   </button>
 
-                                  <button onClick={() => handleRevoke(s.id)} title="Cabut Akses" className="p-2 rounded-xl bg-red-500/15 border border-red-500/20 text-red-500 hover:bg-red-500/25 transition-all">
+                                  <button onClick={() => handleRevoke(s.id)} title="Cabut Akses" className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all">
                                     <Trash2 size={12} />
                                   </button>
                                 </div>
@@ -885,24 +785,25 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Notifikasi Bahaya */}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10">
-              <button onClick={() => setActiveMenu(activeMenu === 'alarm' ? null : 'alarm')} className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
-                    <Bell size={20} />
+            {/* Suara Alarm */}
+            <div className="border-b border-slate-100 dark:border-slate-800/80">
+              <button 
+                onClick={() => setActiveMenu(activeMenu === 'alarm' ? null : 'alarm')} 
+                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="p-2 bg-orange-500/10 text-orange-500 rounded-xl">
+                    <Bell size={16} />
                   </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
                     Notifikasi Bahaya (Suara Alarm)
                   </span>
                 </div>
-                <div className={`w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center transition-transform ${activeMenu === 'alarm' ? 'rotate-90' : ''}`}>
-                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
-                </div>
+                <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'alarm' ? 'rotate-90' : ''}`} />
               </button>
               
               {activeMenu === 'alarm' && (
-                <div className="p-6 pt-2 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01] animate-in slide-in-from-top-2">
+                <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   <p className="text-xs text-slate-500 mb-4">Pilih suara peringatan saat sensor mendeteksi bahaya:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
@@ -913,10 +814,10 @@ export default function ProfilePage() {
                       <button 
                         key={sound.id}
                         onClick={() => handleSaveAlarm(sound.id)}
-                        className={`py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
+                        className={`py-2 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition-all border ${
                           alarmSound === sound.id 
                             ? 'bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400' 
-                            : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-500 hover:border-slate-300 dark:hover:border-white/20'
+                            : 'bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
                         {sound.label}
@@ -931,38 +832,35 @@ export default function ProfilePage() {
             <div>
               <button 
                 onClick={() => router.push('/complaints')} 
-                className="w-full flex items-center justify-between p-5 hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/[0.02] transition-colors group"
+                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
               >
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-500 group-hover:scale-110 transition-transform">
-                    <MessageCircle size={20} />
+                <div className="flex items-center gap-3.5">
+                  <div className="p-2 bg-teal-500/10 text-teal-500 rounded-xl">
+                    <MessageCircle size={16} />
                   </div>
                   <div className="text-left">
-                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors block">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355 block">
                       Layanan Pengaduan (Bantuan Teknis)
                     </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">
                       Laporkan kendala alat, sistem, atau ajukan keluhan teknis lainnya
                     </span>
                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-full border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center">
-                  <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
-                </div>
+                <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
               </button>
             </div>
-
           </div>
-        </div>
 
-        {/* Logout Button */}
-        <button 
-          onClick={handleLogout}
-          className="w-full bg-[#FFFFFF] dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border-2 border-red-500/20 py-5 rounded-3xl flex items-center justify-center gap-3 transition-all group shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none mt-8"
-        >
-          <LogOut size={20} className="text-red-500 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-black text-red-500 uppercase tracking-widest">Keluar Akun</span>
-        </button>
+          {/* Logout Button */}
+          <button 
+            onClick={handleLogout}
+            className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-4 rounded-xl flex items-center justify-center gap-2 transition-all group shadow-sm mt-8"
+          >
+            <LogOut size={16} className="text-red-500 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-xs font-black text-red-500 uppercase tracking-widest">Keluar Akun</span>
+          </button>
+        </div>
       </div>
     </div>
   );

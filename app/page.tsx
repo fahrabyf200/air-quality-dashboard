@@ -44,8 +44,8 @@ const SENSOR_INFO = {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#FFFFFF]/95 dark:bg-[#0a1020]/95 backdrop-blur-xl border border-[#E2E8F0] dark:border-white/10 rounded-2xl px-4 py-3 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] text-xs">
-      <p className="text-[#1E293B] dark:text-slate-400 font-semibold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
+    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] text-xs">
+      <p className="text-slate-800 dark:text-slate-400 font-semibold mb-2 uppercase tracking-widest text-[9px]">{label}</p>
       <div className="flex flex-col gap-1.5">
         {payload.map((p: any) => (
           <div key={p.dataKey} className="flex items-center justify-between gap-6">
@@ -75,17 +75,17 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
   if (!open) return null;
   return (
     <>
-      <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-[200] bg-slate-950/45 backdrop-blur-md" onClick={onClose} />
       <div
-        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t-[1.5px] border-[#E2E8F0] dark:border-white/10 px-6 pt-4 pb-10 bg-[#FFFFFF] dark:bg-[#0d1525] shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]"
+        className="fixed bottom-0 left-0 right-0 z-[201] rounded-t-3xl border-t-[1.5px] border-slate-200/50 dark:border-slate-800/80 px-6 pt-4 pb-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]"
         style={{ animation: 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)' }}
       >
-        <div className="w-10 h-1 bg-slate-300 dark:bg-[#FFFFFF]/15 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-slate-300 dark:bg-white/15 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-5">
-          <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <span className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <Info size={12} /> Detail Sensor
           </span>
-          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-[#E2E8F0] dark:border-white/8">
+          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-850">
             <X size={13} />
           </button>
         </div>
@@ -102,8 +102,8 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
             </div>
           )}
         </div>
-        <div className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/3 rounded-2xl px-5 py-4 border border-[#E2E8F0] dark:border-white/5 mb-4">
-          <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest mb-2">Penjelasan</p>
+        <div className="bg-slate-50 dark:bg-slate-850 rounded-2xl px-5 py-4 border border-slate-200 dark:border-slate-800 mb-4">
+          <p className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-widest mb-2">Penjelasan</p>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
         <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs font-black uppercase tracking-wider ${
@@ -138,7 +138,7 @@ function SensorCard({
         className={`relative rounded-2xl border-2 overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] ${
           danger
             ? "border-red-500/80 dark:border-red-500/60 bg-red-50/20 dark:bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)] dark:shadow-[0_0_25px_rgba(239,68,68,0.25)] hover:shadow-[0_0_30px_rgba(239,68,68,0.25)] dark:hover:shadow-[0_0_35px_rgba(239,68,68,0.35)]"
-            : "border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+            : "border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 bg-white dark:bg-slate-900 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
         }`}
       >
         {/* Glow Lampu */}
@@ -150,7 +150,7 @@ function SensorCard({
         <div className="px-5 py-5 relative z-10">
           {/* Row 1 — icon + status badge */}
           <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-[#FFFFFF]/10 border border-slate-100 dark:border-white/5 shadow-sm">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-850 shadow-sm">
               <Icon size={15} style={{ color }} />
             </div>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
@@ -182,7 +182,7 @@ function SensorCard({
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-slate-100 dark:bg-[#FFFFFF]/5 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 bg-slate-100 dark:bg-slate-850 rounded-full overflow-hidden mb-3">
             <div className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${pct}%`,
@@ -236,6 +236,27 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [realTimeClock, setRealTimeClock] = useState('');
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      setRealTimeClock(now.toLocaleString('id-ID', options) + ' WIB');
+    };
+    update();
+    const iv = setInterval(update, 1000);
+    return () => clearInterval(iv);
+  }, []);
   
   // States Multi-Device
   const [devices, setDevices] = useState<any[]>([]);
@@ -455,12 +476,12 @@ export default function Dashboard() {
 
   if (!mounted || !thresholdsLoaded || !authChecked) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
-          <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 border border-[#a3e635]/20 flex items-center justify-center">
-            <Wind size={22} className="text-[#a3e635] animate-spin" />
+          <div className="w-12 h-12 rounded-2xl bg-[#4edea3]/10 border border-[#4edea3]/20 flex items-center justify-center">
+            <Wind size={22} className="text-[#4edea3] animate-spin" />
           </div>
-          <div className="absolute inset-0 rounded-2xl bg-[#a3e635]/15 blur-xl animate-pulse" />
+          <div className="absolute inset-0 rounded-2xl bg-[#4edea3]/15 blur-xl animate-pulse" />
         </div>
         <p className="text-[#1E293B] dark:text-slate-400 text-[10px] font-semibold uppercase tracking-[0.4em] animate-pulse">
           Initializing SkyWatch...
@@ -473,6 +494,7 @@ export default function Dashboard() {
     return <LandingPage />;
   }
 
+  const isEspConnected = data ? (Date.now() - new Date(data.created_at).getTime() < 60000) : false;
   const isDanger = data ? (data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp) : false;
   const dangerLabels: string[] = [];
   if (data) {
@@ -534,27 +556,31 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 w-full">
           <div>
             {user?.is_invited && (
-              <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-lg bg-[#a3e635]/10 border border-[#a3e635]/20 text-[#a3e635] text-[10px] font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-lg bg-[#4edea3]/10 border border-[#4edea3]/20 text-[#059669] dark:text-[#4edea3] text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse" />
                 Pegawai Diundang oleh: {user.invited_by_name || 'Pemilik Alat'}
               </div>
             )}
-            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1 flex items-center gap-1.5">
-              <Cpu size={10} />
-              Monitoring Aktif
+            <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em] mb-1 flex flex-wrap items-center gap-2">
+              {isEspConnected ? (
+                <span className="flex items-center gap-1.5 bg-[#4edea3]/10 text-[#059669] dark:text-[#4edea3] px-2 py-0.5 rounded-md"><Cpu size={10} /> Monitoring Aktif</span>
+              ) : (
+                <span className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-md"><Cpu size={10} /> Monitoring Tidak Aktif</span>
+              )}
+              {realTimeClock && <span className="text-slate-500 font-mono select-none">• {realTimeClock}</span>}
             </p>
             <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {activeSensorLabel}
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               {selectedDeviceId !== 'all' && activeDevice && (
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/5 px-2 py-0.5 rounded-lg">
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-lg">
                   ID: {activeDevice.device_id}
                 </span>
               )}
@@ -570,11 +596,11 @@ export default function Dashboard() {
                 <select
                   value={selectedDeviceId}
                   onChange={e => setSelectedDeviceId(e.target.value)}
-                  className="appearance-none bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] border border-[#E2E8F0] dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
+                  className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
                 >
-                  <option value="all" className="bg-[#FFFFFF] dark:bg-[#070d1a]">Semua Sensor</option>
+                  <option value="all" className="bg-white dark:bg-slate-900">Semua Sensor</option>
                   {devices.map((dev: any) => (
-                    <option key={dev.id} value={dev.device_id} className="bg-[#FFFFFF] dark:bg-[#070d1a]">
+                    <option key={dev.id} value={dev.device_id} className="bg-white dark:bg-slate-900">
                       {dev.device_name}
                     </option>
                   ))}
@@ -598,7 +624,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={fetchData}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/8 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all text-[11px] font-bold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-800 transition-all text-[11px] font-bold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
             >
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
               <span>Refresh</span>
@@ -611,8 +637,8 @@ export default function Dashboard() {
 
         {/* EMERGENCY MODAL */}
         {isDanger && !alarmAcknowledged && (
-          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-900/60 backdrop-blur-sm px-4">
-            <div className="bg-[#FFFFFF] dark:bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
+            <div className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-2 border-red-500/80 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_80px_rgba(239,68,68,0.25)] dark:shadow-[0_0_100px_rgba(239,68,68,0.35)] animate-in zoom-in duration-300">
               <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                 <AlertTriangle size={48} className="text-red-500 animate-ping absolute opacity-30" />
                 <AlertTriangle size={48} className="text-red-500 relative z-10" />
@@ -646,7 +672,7 @@ export default function Dashboard() {
 
         {/* ALERT BANNER */}
         <div className={`relative rounded-2xl border border-t-[1.5px] px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-700 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] ${
-          isDanger ? 'bg-[#FFFFFF] dark:bg-red-500/5 border-red-200 dark:border-red-500/20' : 'bg-[#FFFFFF] dark:bg-emerald-500/5 border-[#E2E8F0] dark:border-emerald-500/15'
+          isDanger ? 'bg-white dark:bg-red-950/10 border-red-200 dark:border-red-900/30' : 'bg-white dark:bg-emerald-950/10 border-slate-200 dark:border-emerald-900/20'
         }`}>
           <div className="flex items-center gap-4">
             <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isDanger ? 'bg-red-500' : 'bg-emerald-500'}`} />
@@ -687,9 +713,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Area Chart */}
           <div
-            className="lg:col-span-2 flex flex-col rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/15 overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.05] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]"
+            className="lg:col-span-2 flex flex-col rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
           >
-            <div className="px-6 pt-5 pb-4 flex items-start justify-between gap-4 border-b border-[#E2E8F0] dark:border-white/5">
+            <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <Activity size={12} className="text-blue-400" />
@@ -697,7 +723,7 @@ export default function Dashboard() {
                 </div>
                 <p className="text-[10px] text-slate-700 font-mono">20 pembacaan terakhir</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {[
                   { k: 'CO₂', c: 'bg-blue-500' },
                   { k: 'NH₃', c: 'bg-yellow-500' },
@@ -705,8 +731,8 @@ export default function Dashboard() {
                   { k: 'TEMP', c: 'bg-orange-500' },
                   { k: 'HUM', c: 'bg-purple-500' }
                 ].map(i => (
-                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#FFFFFF]/5 px-2 py-1 rounded border border-[#E2E8F0] dark:border-white/10">
-                    <span className={`w-2 h-2 rounded-full ${i.c}`} />
+                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-850 px-2 py-0.5 sm:py-1 rounded border border-slate-200 dark:border-slate-800">
+                    <span className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${i.c}`} />
                     <span className="text-[9px] font-semibold uppercase text-[#1E293B] dark:text-slate-400">{i.k}</span>
                   </div>
                 ))}
@@ -714,7 +740,7 @@ export default function Dashboard() {
             </div>
             <div className="px-2 pb-5 pt-2 flex-1 min-h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={history} margin={{ top: 4, right: 12, left: -20, bottom: 0 }}>
+                <AreaChart data={history} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -754,18 +780,24 @@ export default function Dashboard() {
           {/* Side — Device Info & Safety Summary */}
           <div className="flex flex-col gap-5 h-full">
             {/* Device Status Card */}
-            <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 p-5 relative overflow-hidden bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.04] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
+            <div className="rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 p-5 relative overflow-hidden bg-white dark:bg-slate-900 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
               <div className="absolute inset-x-0 top-0 h-[2px] opacity-60 dark:opacity-100"
-                style={{ background: 'linear-gradient(90deg, transparent, #a3e635, transparent)' }} />
+                style={{ background: 'linear-gradient(90deg, transparent, #4edea3, transparent)' }} />
               
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Activity size={14} className="text-[#a3e635]" />
+                  <Activity size={14} className="text-[#4edea3]" />
                   <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">IoT Node Status</span>
                 </div>
-                <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Online
-                </span>
+                {isEspConnected ? (
+                  <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Aktif / Online
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-[9px] font-black text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-red-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Tidak Aktif / Offline
+                  </span>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -790,9 +822,9 @@ export default function Dashboard() {
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">WiFi</span>
                     <div className="flex gap-0.5 items-end h-3">
-                      <div className="w-1 h-1.5 bg-slate-800 dark:bg-slate-300 rounded-sm"/>
-                      <div className="w-1 h-2 bg-slate-800 dark:bg-slate-300 rounded-sm"/>
-                      <div className="w-1 h-full bg-slate-800 dark:bg-slate-300 rounded-sm"/>
+                      <div className="w-1 h-1.5 bg-slate-800 dark:bg-slate-350 rounded-sm"/>
+                      <div className="w-1 h-2 bg-slate-800 dark:bg-slate-350 rounded-sm"/>
+                      <div className="w-1 h-full bg-slate-800 dark:bg-slate-350 rounded-sm"/>
                     </div>
                   </div>
                 </div>
@@ -806,8 +838,8 @@ export default function Dashboard() {
             {/* Safety Advice Card */}
             <div className={`rounded-2xl border border-t-[1.5px] p-5 relative overflow-hidden transition-colors flex-1 flex flex-col justify-center shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] ${
               isDanger 
-                ? 'bg-[#FFFFFF] dark:bg-red-500/5 border-red-200 dark:border-red-500/20' 
-                : 'bg-[#FFFFFF] dark:bg-emerald-500/5 border-[#E2E8F0] dark:border-emerald-500/15'
+                ? 'bg-white dark:bg-red-500/5 border-red-200 dark:border-red-500/20' 
+                : 'bg-white dark:bg-emerald-500/5 border-slate-200 dark:border-emerald-500/15'
             }`}>
               <div className="flex items-center gap-2 mb-4">
                 {isDanger ? <AlertTriangle size={14} className="text-red-500" /> : <ShieldCheck size={14} className="text-emerald-500" />}
