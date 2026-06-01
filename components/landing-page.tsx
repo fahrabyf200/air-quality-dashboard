@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ScrollReveal from './scroll-reveal';
 import { 
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
   Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
