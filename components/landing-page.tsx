@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import ScrollReveal from './scroll-reveal';
 import { 
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
   Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
@@ -9,6 +8,39 @@ import {
   Play, Volume2, VolumeX, ShieldAlert, MessageCircle,
   Menu, X
 } from 'lucide-react';
+
+function ScrollReveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const [ref, setRef] = useState<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          setVisible(true);
+        }, delay);
+        observer.unobserve(ref);
+      }
+    }, { threshold: 0.05, rootMargin: "0px 0px -45px 0px" });
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, delay]);
+
+  return (
+    <div
+      ref={setRef as any}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0px)' : 'translateY(28px)',
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function LandingPage() {
   // Simulator States
