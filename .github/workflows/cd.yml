@@ -5,37 +5,40 @@ on:
     branches: ["main", "master"]
 
 jobs:
-  build-and-deploy:
-    name: 🚀 Build Docker & Deploy to Vercel
+  build-docker:
+    name: 🐳 Build & Push Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write  # ✅ Diperlukan untuk push ke ghcr.io
 
     steps:
       # 1. Checkout kode
       - name: 📥 Checkout Code
-        uses: actions/checkout@v4  # ✅ Node.js 24 compatible (was @v3)
+        uses: actions/checkout@v4
 
-      # 2. TAHAP CI: Login ke Docker Hub
-      - name: 🐳 Login to Docker Hub
-        uses: docker/login-action@v3  # ✅ Node.js 24 compatible (was @v2)
+      # 2. Login ke GitHub Container Registry (pakai GITHUB_TOKEN bawaan - tidak perlu secrets)
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # 3. Setup Docker Buildx
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4. Build dan Push Docker Image
+      # 4. Build dan Push Docker Image ke ghcr.io
       - name: 🏗️ Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .          # Root repo sebagai build context
-          file: ./Dockerfile  # Path eksplisit ke Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/skywatch-app:latest
+          tags: ghcr.io/${{ github.repository_owner }}/skywatch-app:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # ✅ build-args = diteruskan MASUK ke dalam Docker build
           build-args: |
             DB_HOST=${{ secrets.DB_HOST }}
             DB_PORT=${{ secrets.DB_PORT }}
@@ -43,7 +46,17 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=${{ secrets.DB_NAME }}
 
-      # 5. TAHAP CD: Deploy ke Vercel (Production) via Vercel CLI resmi
+  deploy-vercel:
+    name: 🚀 Deploy to Vercel Production
+    runs-on: ubuntu-latest
+    needs: build-docker  # ✅ Jalankan setelah Docker build sukses
+
+    steps:
+      # 1. Checkout kode
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Deploy ke Vercel via Vercel CLI resmi
       - name: 📦 Install Vercel CLI
         run: npm install --global vercel@latest
 
