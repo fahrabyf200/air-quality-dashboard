@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { device_id, name } = await req.json();
+    const { device_id, name, phone } = await req.json();
 
     // Check if the device_id is already bound to another user
     if (device_id && device_id.trim() !== '') {
@@ -24,17 +24,31 @@ export async function POST(req: Request) {
       }
     }
 
-    const finalDeviceId = device_id && device_id.trim() !== '' ? device_id.trim() : null;
+    const finalDeviceId = device_id !== undefined ? (device_id && device_id.trim() !== '' ? device_id.trim() : null) : undefined;
+    const finalPhone = phone !== undefined ? (phone && phone.trim() !== '' ? phone.trim() : null) : undefined;
+    const finalName = name !== undefined ? (name && name.trim() !== '' ? name.trim() : null) : undefined;
 
-    if (name && name.trim() !== '') {
+    let updateFields = [];
+    let queryParams = [];
+
+    if (finalName !== undefined && finalName !== null) {
+      updateFields.push('name = ?');
+      queryParams.push(finalName);
+    }
+    if (finalPhone !== undefined) {
+      updateFields.push('phone = ?');
+      queryParams.push(finalPhone);
+    }
+    if (finalDeviceId !== undefined) {
+      updateFields.push('device_id = ?');
+      queryParams.push(finalDeviceId);
+    }
+
+    if (updateFields.length > 0) {
+      queryParams.push((session as any).id);
       await db.execute(
-        'UPDATE users SET name = ?, device_id = ? WHERE id = ?',
-        [name.trim(), finalDeviceId, (session as any).id]
-      );
-    } else {
-      await db.execute(
-        'UPDATE users SET device_id = ? WHERE id = ?',
-        [finalDeviceId, (session as any).id]
+        `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+        queryParams
       );
     }
 

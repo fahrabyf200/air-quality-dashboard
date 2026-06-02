@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,13 @@ export async function POST(req: Request) {
            lastReadingRows[0].voc > T.voc || 
            lastReadingRows[0].temp > T.temp);
 
+        const [userRows]: any = await db.execute(
+          'SELECT phone, name FROM users WHERE id = ?',
+          [uid]
+        );
+        const userPhone = userRows && userRows.length > 0 ? userRows[0].phone : null;
+        const userName = userRows && userRows.length > 0 ? userRows[0].name : '';
+
         if (isDanger && !wasDangerBefore) {
           const dangerLabels: string[] = [];
           if (co2 > T.co2) dangerLabels.push('CO2');
@@ -69,6 +77,13 @@ export async function POST(req: Request) {
               'danger'
             ]
           );
+
+          if (userPhone) {
+            const waMessage = `🚨 *ALARM BAHAYA SKYWATCH* 🚨\n\nHalo *${userName}*,\n\nSensor mendeteksi level kritis kualitas udara pada dapur/area Anda!\n\n⚠️ *Parameter Kritis:* ${dangerLabels.join(', ')}\n\n*Detail Sensor:*\n🔹 CO₂: ${co2.toFixed(0)} PPM (Batas: ${T.co2} PPM)\n🔹 NH₃: ${nh3.toFixed(2)} PPM (Batas: ${T.nh3} PPM)\n🔹 VOC: ${(voc || 0).toFixed(2)} PPM (Batas: ${T.voc} PPM)\n🔹 Suhu: ${temp?.toFixed(1)}°C (Batas: ${T.temp}°C)\n🔹 Kelembapan: ${hum?.toFixed(0)}%\n\n📢 *Tindakan:* Segera matikan kompor, buka jendela/sirkulasi udara, atau evakuasi area jika diperlukan.`;
+            sendWhatsAppMessage(userPhone, waMessage).catch(err => {
+              console.error("Gagal mengirim WhatsApp alert:", err);
+            });
+          }
         } else if (!isDanger && wasDangerBefore) {
           await db.execute(
             `INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)`,
@@ -79,6 +94,13 @@ export async function POST(req: Request) {
               'info'
             ]
           );
+
+          if (userPhone) {
+            const waMessage = `✅ *KONDISI NORMAL (SKYWATCH)* ✅\n\nHalo *${userName}*,\n\nKabar baik! Kualitas udara di area dapur Anda sudah kembali normal di bawah ambang batas bahaya.\n\n*Kondisi Terkini:*\n🔹 CO₂: ${co2.toFixed(0)} PPM\n🔹 NH₃: ${nh3.toFixed(2)} PPM\n🔹 VOC: ${(voc || 0).toFixed(2)} PPM\n🔹 Suhu: ${temp?.toFixed(1)}°C\n🔹 Kelembapan: ${hum?.toFixed(0)}%\n\nTerima kasih tetap menjaga keamanan sirkulasi udara Anda.`;
+            sendWhatsAppMessage(userPhone, waMessage).catch(err => {
+              console.error("Gagal mengirim WhatsApp info:", err);
+            });
+          }
         }
       } catch (err) {
         console.error("Gagal memproses notifikasi:", err);
