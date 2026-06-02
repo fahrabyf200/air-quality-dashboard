@@ -15,6 +15,10 @@ export default function ProfilePage() {
   const [uploadingPic, setUploadingPic] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [nameInput, setNameInput] = useState('');
+  const [phoneInput, setPhoneInput] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileStatus, setProfileStatus] = useState({ type: '', text: '' });
   const [deviceIdInput, setDeviceIdInput] = useState('');
   const [savingDevice, setSavingDevice] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
@@ -206,6 +210,8 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.user) {
         setUser(data.user);
+        setNameInput(data.user.name || '');
+        setPhoneInput(data.user.phone || '');
         setDeviceIdInput(data.user.device_id || '');
         // Load foto profil dari server jika ada
         if (data.user.profile_pic) {
@@ -213,6 +219,33 @@ export default function ProfilePage() {
         }
       }
     } catch (e) {}
+  };
+
+  const handleSaveProfile = async () => {
+    if (!nameInput.trim()) {
+      setProfileStatus({ type: 'error', text: 'Nama Lengkap wajib diisi' });
+      return;
+    }
+    setSavingProfile(true);
+    setProfileStatus({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: nameInput, phone: phoneInput })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfileStatus({ type: 'success', text: 'Profil berhasil diperbarui!' });
+        await fetchProfile();
+      } else {
+        setProfileStatus({ type: 'error', text: data.error || 'Gagal memperbarui profil' });
+      }
+    } catch {
+      setProfileStatus({ type: 'error', text: 'Terjadi kesalahan sistem' });
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   useEffect(() => {
@@ -621,6 +654,64 @@ export default function ProfilePage() {
 
           {/* Application Settings Accordion Card */}
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden transition-colors">
+            {/* Edit Profil & WhatsApp */}
+            <div className="border-b border-slate-100 dark:border-slate-800/80">
+              <button 
+                onClick={() => setActiveMenu(activeMenu === 'profile-edit' ? null : 'profile-edit')} 
+                className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                    <Smartphone size={16} />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
+                    Edit Profil (Nama &amp; WhatsApp)
+                  </span>
+                </div>
+                <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'profile-edit' ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {activeMenu === 'profile-edit' && (
+                <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
+                  <div className="space-y-4 max-w-sm">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                      <input 
+                        type="text" 
+                        placeholder="Nama Lengkap" 
+                        value={nameInput} 
+                        onChange={e => setNameInput(e.target.value)} 
+                        className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all dark:text-white" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
+                      <input 
+                        type="text" 
+                        placeholder="Contoh: 085792524863" 
+                        value={phoneInput} 
+                        onChange={e => setPhoneInput(e.target.value)} 
+                        className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all dark:text-white" 
+                      />
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Masukkan nomor WhatsApp aktif Anda agar notifikasi bahaya dikirim langsung via chat.</p>
+                    </div>
+                    <button 
+                      onClick={handleSaveProfile} 
+                      disabled={savingProfile} 
+                      className="w-full px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm"
+                    >
+                      {savingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
+                    </button>
+                    {profileStatus.text && (
+                      <p className={`text-xs font-bold mt-2 ${profileStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {profileStatus.text}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Keamanan Akun */}
             <div className="border-b border-slate-100 dark:border-slate-800/80">
               <button 
