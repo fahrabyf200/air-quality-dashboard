@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import { 
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
   Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
@@ -39,6 +40,12 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
 }
 
 export default function LandingPage() {
+  // SSR mounting guard
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Mobile Menu drawer state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -81,6 +88,7 @@ export default function LandingPage() {
   // Trigger Sound Effect when simulator enters danger
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    const isUrgentDanger = isVocDanger || isCo2Danger || isTempDanger;
     if (isAnyDanger && soundEnabled && !simulatedAlarmAck) {
       const playBeep = () => {
         try {
@@ -92,7 +100,7 @@ export default function LandingPage() {
           osc.connect(gain);
           gain.connect(ctx.destination);
           
-          if (isVocDanger) {
+          if (isUrgentDanger) {
             // Urgent high pitch alarm
             osc.type = 'square';
             osc.frequency.setValueAtTime(1200, ctx.currentTime);
@@ -113,12 +121,12 @@ export default function LandingPage() {
         } catch (e) {}
       };
       playBeep();
-      interval = setInterval(playBeep, isVocDanger ? 400 : 1000);
+      interval = setInterval(playBeep, isUrgentDanger ? 400 : 1000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isAnyDanger, soundEnabled, simulatedAlarmAck, isVocDanger]);
+  }, [isAnyDanger, soundEnabled, simulatedAlarmAck, isVocDanger, isCo2Danger, isTempDanger]);
 
   // Reset simulated acknowledgement if system becomes safe again
   useEffect(() => {
@@ -434,25 +442,42 @@ export default function LandingPage() {
           </ScrollReveal>
 
           {/* DANGER EMERGENCY MODAL PREVIEW */}
-          {isVocDanger && !simulatedAlarmAck && (
-            <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
+          {mounted && (isVocDanger || isCo2Danger || isTempDanger) && !simulatedAlarmAck && createPortal(
+            <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
               <div className="bg-[#070d1a]/90 backdrop-blur-xl border-2 border-red-500/80 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.35)] animate-in zoom-in duration-300">
                 <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                   <AlertTriangle size={40} className="text-red-500 animate-ping absolute opacity-30" />
                   <AlertTriangle size={40} className="text-red-500 relative z-10" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-black text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT (SIMULASI)</h2>
+                <h2 className="text-xl md:text-2xl font-black text-red-500 uppercase tracking-widest mb-3">
+                  {isVocDanger ? 'KEBOCORAN DARURAT (SIMULASI)' : 'STATUS KRITIS (SIMULASI)'}
+                </h2>
                 <p className="text-slate-300 mb-6 font-bold text-xs md:text-sm leading-relaxed">
-                  Sensor mensimulasikan level kritis pada: <span className="text-red-500 font-black">VOC (LPG)</span>.<br/>Tindakan pengamanan manual harus segera dipraktikkan!
+                  Sensor mensimulasikan level kritis pada: <span className="text-red-500 font-black">{(dangerLabels.filter(l => l !== 'KELEMBAPAN' && l !== 'NH3').join(', ') || 'Sensor Dapur')}</span>.<br/>Tindakan pengamanan manual harus segera dipraktikkan!
                 </p>
 
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 text-left">
                   <p className="text-red-500 text-[10px] font-black uppercase tracking-wider mb-2">Tindakan Penyelamatan Dapur:</p>
                   <ul className="text-slate-300 text-xs list-disc pl-5 space-y-1.5 font-medium">
-                    <li>Segera cabut regulator tabung gas dari kompor.</li>
-                    <li>Buka pintu bawah dapur, ventilasi udara, dan jendela lebar-lebar.</li>
-                    <li>JANGAN menyentuh saklar lampu / memantik korek api!</li>
-                    <li>Evakuasi penghuni rumah keluar dari ruangan.</li>
+                    {isVocDanger && (
+                      <>
+                        <li>Segera cabut regulator tabung gas dari kompor.</li>
+                        <li>JANGAN menyentuh saklar lampu / memantik korek api!</li>
+                      </>
+                    )}
+                    {isCo2Danger && (
+                      <>
+                        <li>Buka ventilasi udara, jendela, dan pintu lebar-lebar.</li>
+                        <li>Nyalakan exhaust fan jika sirkulasi udara buruk.</li>
+                      </>
+                    )}
+                    {isTempDanger && (
+                      <>
+                        <li>Segera matikan kompor dan sumber api.</li>
+                        <li>Siapkan alat pemadam api ringan (APAR) jika perlu.</li>
+                      </>
+                    )}
+                    <li>Evakuasi penghuni rumah keluar dari ruangan jika kondisi memburuk.</li>
                   </ul>
                 </div>
                 
@@ -471,7 +496,8 @@ export default function LandingPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* SIMULATOR DASHBOARD CONTAINER */}
