@@ -335,15 +335,11 @@ export default function Dashboard() {
     }
   }, [mounted, fetchData]);
 
-  // Audio Alarm Logic with custom synthesis tones and polyphonic mixing for multiple hazards
+  // Audio Alarm Logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (mounted && data && !alarmAcknowledged) {
-      const isVocDanger = data.voc > T.voc;
-      const isTempDanger = data.temp > T.temp;
-      const isCo2Danger = data.co2 > T.co2;
-      const isDangerNow = isVocDanger || isTempDanger || isCo2Danger || data.nh3 > T.nh3;
-
+      const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
       if (isDangerNow) {
         const playAlarm = () => {
           try {
@@ -356,107 +352,40 @@ export default function Dashboard() {
               const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
               if (!AudioContext) return;
               const ctx = new AudioContext();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain);
+              gain.connect(ctx.destination);
               
-              const activeDangersCount = [isVocDanger, isTempDanger, isCo2Danger].filter(Boolean).length;
-
-              if (activeDangersCount > 1) {
-                // 🚨 MULTI-HAZARD POLYPHONIC CHORD: Synthesize and MIX active signals simultaneously
-                if (isVocDanger) {
-                  const osc1 = ctx.createOscillator();
-                  const gain1 = ctx.createGain();
-                  osc1.connect(gain1);
-                  gain1.connect(ctx.destination);
-                  osc1.type = 'square';
-                  osc1.frequency.setValueAtTime(1400, ctx.currentTime);
-                  osc1.frequency.setValueAtTime(950, ctx.currentTime + 0.12);
-                  gain1.gain.setValueAtTime(0.04, ctx.currentTime); // Lower gain to prevent clipping in mix
-                  gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-                  osc1.start();
-                  osc1.stop(ctx.currentTime + 0.25);
-                }
-                if (isTempDanger) {
-                  const osc2 = ctx.createOscillator();
-                  const gain2 = ctx.createGain();
-                  osc2.connect(gain2);
-                  gain2.connect(ctx.destination);
-                  osc2.type = 'sawtooth';
-                  osc2.frequency.setValueAtTime(600, ctx.currentTime);
-                  osc2.frequency.linearRampToValueAtTime(1300, ctx.currentTime + 0.3);
-                  gain2.gain.setValueAtTime(0.03, ctx.currentTime);
-                  gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-                  osc2.start();
-                  osc2.stop(ctx.currentTime + 0.35);
-                }
-                if (isCo2Danger) {
-                  const osc3 = ctx.createOscillator();
-                  const gain3 = ctx.createGain();
-                  osc3.connect(gain3);
-                  gain3.connect(ctx.destination);
-                  osc3.type = 'triangle';
-                  osc3.frequency.setValueAtTime(380, ctx.currentTime);
-                  gain3.gain.setValueAtTime(0.06, ctx.currentTime);
-                  gain3.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-                  osc3.start();
-                  osc3.stop(ctx.currentTime + 0.45);
-                }
+              if (savedSound === 'beep') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.1);
+              } else if (savedSound === 'bell') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.5);
               } else {
-                // SINGLE HAZARD SYSTEM
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                if (isVocDanger) {
-                  // 🚨 1. VOC/LPG Gas Leak: Rapid, ultra-urgent dual-tone square wave alarm
-                  osc.type = 'square';
-                  osc.frequency.setValueAtTime(1400, ctx.currentTime);
-                  osc.frequency.setValueAtTime(950, ctx.currentTime + 0.12);
-                  gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-                  osc.start();
-                  osc.stop(ctx.currentTime + 0.25);
-                } else if (isTempDanger) {
-                  // 🧯 2. Overheat/Fire: Sweeping sawtooth fire alert that rises in heat frequency
-                  osc.type = 'sawtooth';
-                  osc.frequency.setValueAtTime(600, ctx.currentTime);
-                  osc.frequency.linearRampToValueAtTime(1300, ctx.currentTime + 0.35);
-                  gain.gain.setValueAtTime(0.06, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-                  osc.start();
-                  osc.stop(ctx.currentTime + 0.4);
-                } else if (isCo2Danger) {
-                  // 💨 3. CO2 Suffocation: Low-frequency triangle buzzer reminding to open windows
-                  osc.type = 'triangle';
-                  osc.frequency.setValueAtTime(400, ctx.currentTime);
-                  gain.gain.setValueAtTime(0.12, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-                  osc.start();
-                  osc.stop(ctx.currentTime + 0.55);
-                } else {
-                  // ⚠️ 4. Other warnings (NH3, humidity): Standard soft warning beep
-                  osc.type = 'sine';
-                  osc.frequency.setValueAtTime(800, ctx.currentTime);
-                  gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                  osc.start();
-                  osc.stop(ctx.currentTime + 0.2);
-                }
+                // siren
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
               }
             });
           } catch (e) {}
         };
-
-        const getAlarmInterval = () => {
-          const activeDangersCount = [isVocDanger, isTempDanger, isCo2Danger].filter(Boolean).length;
-          if (activeDangersCount > 1) return 250; // Compound threat: ultra-fast alarm loop
-          if (isVocDanger) return 300;
-          if (isTempDanger) return 550;
-          if (isCo2Danger) return 1100;
-          return 1000;
-        };
-
         playAlarm(); // Play immediately
-        interval = setInterval(playAlarm, getAlarmInterval());
+        interval = setInterval(playAlarm, 1000);
       }
     }
     return () => {

@@ -5,8 +5,7 @@ import {
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
   Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
   Cpu, Layers, Bell, ExternalLink, ChevronRight, HelpCircle,
-  Play, Volume2, VolumeX, ShieldAlert, MessageCircle,
-  Menu, X
+  Play, Volume2, VolumeX, ShieldAlert, MessageCircle
 } from 'lucide-react';
 
 function ScrollReveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -30,12 +29,9 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
   return (
     <div
       ref={setRef as any}
-      className={className}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0px)' : 'translateY(28px)',
-        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
-      }}
+      className={`${className} transition-all duration-1000 ease-out transform ${
+        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-[0.98]"
+      }`}
     >
       {children}
     </div>
@@ -43,6 +39,9 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
 }
 
 export default function LandingPage() {
+  // Mobile Menu drawer state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Simulator States
   const [voc, setVoc] = useState(0.2); // VOC/LPG
   const [co2, setCo2] = useState(450); // CO2
@@ -79,7 +78,7 @@ export default function LandingPage() {
   if (isHumDanger) dangerLabels.push('KELEMBAPAN');
   if (isNh3Danger) dangerLabels.push('NH3');
 
-  // Trigger Sound Effect when simulator enters danger with distinct tones and polyphonic mixing for multiple hazards
+  // Trigger Sound Effect when simulator enters danger
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isAnyDanger && soundEnabled && !simulatedAlarmAck) {
@@ -88,111 +87,38 @@ export default function LandingPage() {
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           if (!AudioContext) return;
           const ctx = new AudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
           
-          const activeDangersCount = [isVocDanger, isTempDanger, isCo2Danger].filter(Boolean).length;
-
-          if (activeDangersCount > 1) {
-            // 🚨 MULTI-HAZARD POLYPHONIC CHORD: Synthesize and MIX active signals simultaneously
-            if (isVocDanger) {
-              const osc1 = ctx.createOscillator();
-              const gain1 = ctx.createGain();
-              osc1.connect(gain1);
-              gain1.connect(ctx.destination);
-              osc1.type = 'square';
-              osc1.frequency.setValueAtTime(1400, ctx.currentTime);
-              osc1.frequency.setValueAtTime(950, ctx.currentTime + 0.12);
-              gain1.gain.setValueAtTime(0.04, ctx.currentTime); // Lower gain to prevent clipping in mix
-              gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-              osc1.start();
-              osc1.stop(ctx.currentTime + 0.25);
-            }
-            if (isTempDanger) {
-              const osc2 = ctx.createOscillator();
-              const gain2 = ctx.createGain();
-              osc2.connect(gain2);
-              gain2.connect(ctx.destination);
-              osc2.type = 'sawtooth';
-              osc2.frequency.setValueAtTime(600, ctx.currentTime);
-              osc2.frequency.linearRampToValueAtTime(1300, ctx.currentTime + 0.3);
-              gain2.gain.setValueAtTime(0.03, ctx.currentTime);
-              gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-              osc2.start();
-              osc2.stop(ctx.currentTime + 0.35);
-            }
-            if (isCo2Danger) {
-              const osc3 = ctx.createOscillator();
-              const gain3 = ctx.createGain();
-              osc3.connect(gain3);
-              gain3.connect(ctx.destination);
-              osc3.type = 'triangle';
-              osc3.frequency.setValueAtTime(380, ctx.currentTime);
-              gain3.gain.setValueAtTime(0.06, ctx.currentTime);
-              gain3.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-              osc3.start();
-              osc3.stop(ctx.currentTime + 0.45);
-            }
+          if (isVocDanger) {
+            // Urgent high pitch alarm
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1200, ctx.currentTime);
+            osc.frequency.setValueAtTime(900, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
           } else {
-            // SINGLE HAZARD SYSTEM
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            if (isVocDanger) {
-              // 🚨 1. VOC/LPG Gas Leak: Rapid, ultra-urgent dual-tone square wave alarm
-              osc.type = 'square';
-              osc.frequency.setValueAtTime(1400, ctx.currentTime);
-              osc.frequency.setValueAtTime(950, ctx.currentTime + 0.12);
-              gain.gain.setValueAtTime(0.08, ctx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-              osc.start();
-              osc.stop(ctx.currentTime + 0.25);
-            } else if (isTempDanger) {
-              // 🧯 2. Overheat/Fire: Sweeping sawtooth fire alert that rises in heat frequency
-              osc.type = 'sawtooth';
-              osc.frequency.setValueAtTime(600, ctx.currentTime);
-              osc.frequency.linearRampToValueAtTime(1300, ctx.currentTime + 0.35);
-              gain.gain.setValueAtTime(0.06, ctx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-              osc.start();
-              osc.stop(ctx.currentTime + 0.4);
-            } else if (isCo2Danger) {
-              // 💨 3. CO2 Suffocation: Low-frequency triangle buzzer reminding to open windows
-              osc.type = 'triangle';
-              osc.frequency.setValueAtTime(400, ctx.currentTime);
-              gain.gain.setValueAtTime(0.12, ctx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-              osc.start();
-              osc.stop(ctx.currentTime + 0.55);
-            } else {
-              // ⚠️ 4. Other warnings (NH3, humidity): Standard soft warning beep
-              osc.type = 'sine';
-              osc.frequency.setValueAtTime(800, ctx.currentTime);
-              gain.gain.setValueAtTime(0.08, ctx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-              osc.start();
-              osc.stop(ctx.currentTime + 0.2);
-            }
+            // Warning beep
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
           }
         } catch (e) {}
       };
-      
-      const getBeepInterval = () => {
-        const activeDangersCount = [isVocDanger, isTempDanger, isCo2Danger].filter(Boolean).length;
-        if (activeDangersCount > 1) return 250; // Compound threat: ultra-fast alarm loop
-        if (isVocDanger) return 300;
-        if (isTempDanger) return 550;
-        if (isCo2Danger) return 1100;
-        return 1000;
-      };
-
       playBeep();
-      interval = setInterval(playBeep, getBeepInterval());
+      interval = setInterval(playBeep, isVocDanger ? 400 : 1000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isAnyDanger, soundEnabled, simulatedAlarmAck, isVocDanger, isTempDanger, isCo2Danger]);
+  }, [isAnyDanger, soundEnabled, simulatedAlarmAck, isVocDanger]);
 
   // Reset simulated acknowledgement if system becomes safe again
   useEffect(() => {
@@ -255,7 +181,7 @@ export default function LandingPage() {
           ? 'border-b border-white/10 bg-[#070d1a]/95 backdrop-blur-xl shadow-lg shadow-black/40 h-16' 
           : 'border-b border-white/5 bg-[#070d1a]/80 backdrop-blur-xl h-20'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-xl bg-[#4edea3] flex items-center justify-center shadow-lg shadow-[#4edea3]/20">
@@ -279,7 +205,8 @@ export default function LandingPage() {
             <a href="#about" className="hover:text-[#4edea3] transition-colors">Cara Kerja</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Desktop Right Actions */}
+          <div className="hidden md:flex items-center gap-2.5">
             <Link 
               href="/login" 
               className="px-4 py-2 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white transition-all active:scale-95"
@@ -293,299 +220,362 @@ export default function LandingPage() {
               Daftar <ArrowRight size={12} strokeWidth={2.5} />
             </Link>
           </div>
+
+          {/* Mobile Right Actions (Matches Image 1) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link 
+              href="/login" 
+              className="px-3.5 py-1.5 rounded-lg border border-white/20 bg-[#070d1a] text-[10px] font-black uppercase tracking-widest text-white transition-all active:scale-95 flex items-center justify-center h-8"
+              style={{ letterSpacing: '0.05em' }}
+            >
+              MASUK
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="w-8 h-8 rounded-lg border border-white/20 bg-white/[0.01] hover:bg-white/[0.05] flex items-center justify-center text-slate-300 hover:text-white transition-all"
+              aria-label="Buka Menu"
+            >
+              <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* HERO SECTION */}
-      <section className="relative pt-28 pb-16 md:pt-40 md:pb-28 max-w-7xl mx-auto px-4 sm:px-6 overflow-hidden">
-        {/* Ambient background glows for hero section */}
-        <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse-slow" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#a3e635]/5 rounded-full blur-[160px] pointer-events-none -z-10 animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      {/* MOBILE MENU DRAWER OVERLAY */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[200] md:hidden bg-[#070d1a]/98 backdrop-blur-2xl flex flex-col justify-between p-6 animate-in fade-in duration-300">
+          <div>
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-5 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#4edea3] flex items-center justify-center">
+                  <Wind className="text-[#0a0f1a]" size={16} strokeWidth={2.8} />
+                </div>
+                <div>
+                  <h1 className="text-white font-black text-xs uppercase leading-none">SkyWatch</h1>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Air Analytics</p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white"
+                aria-label="Tutup Menu"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            {/* Links */}
+            <nav className="flex flex-col gap-5 pt-8 text-xs font-bold uppercase tracking-wider text-slate-400">
+              <a 
+                href="#features" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Fitur Utama
+              </a>
+              <a 
+                href="#simulator" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02] flex items-center justify-between"
+              >
+                <span>Demo Live</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+              </a>
+              <a 
+                href="#pricing" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Pilihan Paket
+              </a>
+              <a 
+                href="#about" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-white/[0.02]"
+              >
+                Cara Kerja
+              </a>
+            </nav>
+          </div>
+
+          {/* Action buttons at bottom */}
+          <div className="space-y-3 pb-8">
+            <Link 
+              href="/login" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-white transition-all block"
+            >
+              Masuk
+            </Link>
+            <Link 
+              href="/register" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center text-xs font-black uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20"
+            >
+              Daftar
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Hero Left */}
-          <div className="lg:col-span-7 space-y-6 text-left">
+          <ScrollReveal className="lg:col-span-7 space-y-6 text-left" delay={0}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
               <Cpu size={12} /> IoT-Powered Smart System
             </div>
             
-            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-[-0.04em] text-white leading-[0.95] font-display">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.08]" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Dapur Aman,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-lime-400">Kerja Nyaman.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4edea3] to-[#89ceff]">Kerja Nyaman.</span>
             </h2>
             
-            <p className="text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl font-medium">
-              Sistem deteksi dini kebocoran gas LPG dan polutan dapur berbasis Internet of Things (IoT). Pantau kadar udara secara real-time, terima peringatan suara seketika, dan lindungi dapur Anda dari risiko fatal sebelum terlambat.
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl">
+              Sistem deteksi dini kebocoran gas LPG dan polutan dapur berbasis Internet of Things (IoT). Pantau kadar udara, terima peringatan suara seketika, dan lindungi dapur Anda dari risiko kebocoran tabung sebelum terlambat.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <Link 
                 href="/register" 
-                className="px-8 py-4.5 rounded-2xl bg-[#a3e635] hover:bg-[#b6f041] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#a3e635]/20 hover:shadow-[#a3e635]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
+                className="px-8 py-4.5 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
               >
-                Mulai Monitoring
-                <ArrowRight size={14} strokeWidth={2.8} />
+                Mulai Monitoring Sekarang
+                <ArrowRight size={16} strokeWidth={2.8} />
               </Link>
               <a 
                 href="#simulator" 
-                className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.06] text-slate-300 hover:text-white font-black text-xs uppercase tracking-widest text-center transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 backdrop-blur-md"
+                className="px-8 py-4.5 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white font-black text-sm uppercase tracking-wider text-center transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                <Play size={12} fill="currentColor" />
+                <Play size={14} fill="currentColor" />
                 Coba Demo Live
               </a>
             </div>
 
             {/* Quick Metrics stats */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-10 border-t border-white/5">
+            <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5">
               <div>
-                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">&lt; 3 Detik</p>
-                <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Respon Alarm Real-time</p>
+                <p className="text-2xl md:text-3xl font-black text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>&lt; 3 Detik</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Respon Alarm Real-time</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white font-mono tracking-tight">5 Sensor</p>
-                <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold uppercase tracking-widest mt-1">Dipantau Sekaligus</p>
+                <p className="text-2xl md:text-3xl font-black text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>5 Sensor</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Dipantau Sekaligus</p>
               </div>
               <div>
-                <p className="text-2xl md:text-3xl font-black text-[#a3e635]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Premium</p>
+                <p className="text-2xl md:text-3xl font-black text-[#4edea3]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Premium</p>
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">WhatsApp & Sound Alert</p>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Hero Right: Floating Device Presentation */}
-          <div className="lg:col-span-5 relative flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#a3e635]/10 rounded-full blur-[100px] pointer-events-none" />
+          <ScrollReveal className="lg:col-span-5 relative flex justify-center items-center" delay={150}>
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#4edea3]/10 rounded-full blur-[100px] pointer-events-none" />
             
             {/* Animated Device Mockup */}
-            <div className="relative rounded-[2.5rem] border border-white/10 p-6 bg-slate-950/40 backdrop-blur-3xl shadow-2xl w-full max-w-sm hover:scale-[1.02] hover:border-white/20 transition-all duration-700 group animate-float">
-              <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-pulse" />
-              {/* Embedded image mockup */}
-              <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/50 mb-6 shadow-inner">
+            <div className="relative rounded-[2.5rem] border border-white/10 p-6 bg-slate-900/60 backdrop-blur-3xl shadow-2xl w-full max-w-sm hover:scale-[1.01] transition-transform duration-500 group">
+              <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse" />
+              {/* Embbeded generate_image mockup */}
+              <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/40 mb-6">
                 <img 
                   src="/landing_hero.png" 
                   alt="SkyWatch IoT Smart Device" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
               </div>
- 
-              <div className="space-y-4">
+
+              <div className="space-y-3.5">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-[#a3e635]/10 border border-[#a3e635]/20 rounded-lg text-[#a3e635]">
+                  <div className="p-2 bg-[#4edea3]/10 border border-[#4edea3]/20 rounded-lg text-[#4edea3]">
                     <ShieldCheck size={16} />
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-widest text-white">SkyWatch IoT Node-01</p>
+                  <p className="text-xs font-black uppercase tracking-wider text-white">SkyWatch IoT Node-01</p>
                 </div>
                 
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                  Modul nirkabel ESP32 presisi tinggi. Mengirimkan data kadar udara dapur real-time ke dashboard cloud Anda setiap detik dengan enkripsi aman.
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Modul sensor nirkabel ESP32 presisi tinggi. Mengirimkan data kadar udara real-time ke dashboard cloud Anda setiap detik dengan enkripsi aman.
                 </p>
- 
-                <div className="pt-3.5 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 font-mono">
                   <span>Model: SW-ESP32-V2</span>
-                  <span className="text-[#a3e635] font-bold">Online</span>
+                  <span className="text-[#4edea3] font-bold">Online</span>
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
- 
+
       {/* SECTION INTERACTIVE SIMULATOR (SANDBOX) */}
       <section id="simulator" className="py-20 bg-slate-950/30 border-y border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#a3e635]/10 border border-[#a3e635]/20 text-[#a3e635] text-[10px] font-black uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-ping" />
-              Eksplorasi Interaktif
+          <ScrollReveal delay={0}>
+            <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#4edea3]/10 border border-[#4edea3]/20 text-[#4edea3] text-[10px] font-black uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" />
+                Eksplorasi Interaktif
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                IoT Dashboard Live Sandbox
+              </h3>
+              <p className="text-slate-400 text-sm">
+                Cobalah simulator dashboard di bawah! Geser slider kontrol di panel bawah untuk mensimulasikan kejadian gas bocor atau kenaikan suhu ekstrem, dan saksikan bagaimana sistem SkyWatch merespon seketika.
+              </p>
             </div>
-            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              IoT Dashboard Live Sandbox
-            </h3>
-            <p className="text-slate-400 text-sm">
-              Cobalah simulator dashboard di bawah! Geser slider kontrol di panel bawah untuk mensimulasikan kejadian gas bocor atau kenaikan suhu ekstrem, dan saksikan bagaimana sistem SkyWatch merespon seketika.
-            </p>
-          </div>
+          </ScrollReveal>
 
           {/* DANGER EMERGENCY MODAL PREVIEW */}
           {isVocDanger && !simulatedAlarmAck && (
-            <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/60 backdrop-blur-sm px-4">
-              <div className="bg-[#070d1a] border-2 border-red-500 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.4)] animate-in zoom-in duration-300">
+            <div className="fixed inset-0 z-[150] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
+              <div className="bg-[#070d1a]/90 backdrop-blur-xl border-2 border-red-500/80 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(239,68,68,0.35)] animate-in zoom-in duration-300">
                 <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                   <AlertTriangle size={40} className="text-red-500 animate-ping absolute opacity-30" />
                   <AlertTriangle size={40} className="text-red-500 relative z-10" />
                 </div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-red-500 uppercase tracking-widest mb-3 font-display text-glow-red">KEBOCORAN DARURAT (SIMULASI)</h2>
-                <p className="text-slate-300 mb-6 sm:mb-8 font-bold text-[11px] sm:text-xs md:text-sm leading-relaxed max-w-md mx-auto">
-                  Sensor mensimulasikan level kritis pada: <span className="text-red-500 font-black">VOC (Gas LPG)</span>. Segera lakukan prosedur keselamatan di dapur Anda!
+                <h2 className="text-xl md:text-2xl font-black text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT (SIMULASI)</h2>
+                <p className="text-slate-300 mb-6 font-bold text-xs md:text-sm leading-relaxed">
+                  Sensor mensimulasikan level kritis pada: <span className="text-red-500 font-black">VOC (LPG)</span>.<br/>Tindakan pengamanan manual harus segera dipraktikkan!
                 </p>
- 
-                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 text-left">
-                  <p className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                    <ShieldAlert size={14} /> Tindakan Penyelamatan Dapur:
-                  </p>
-                  <ul className="text-slate-300 text-xs list-disc pl-5 space-y-2.5 font-medium leading-relaxed">
-                    <li>Segera lepaskan regulator tabung gas dari kompor elpiji.</li>
-                    <li>Buka pintu bawah dapur, exhaust fan, serta semua pintu & jendela lebar-lebar.</li>
-                    <li><span className="text-red-400 font-bold">PENTING:</span> JANGAN menyentuh sakelar lampu listrik atau memantik korek api!</li>
-                    <li>Evakuasi semua penghuni rumah/staf restoran keluar dari ruangan.</li>
+
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 text-left">
+                  <p className="text-red-500 text-[10px] font-black uppercase tracking-wider mb-2">Tindakan Penyelamatan Dapur:</p>
+                  <ul className="text-slate-300 text-xs list-disc pl-5 space-y-1.5 font-medium">
+                    <li>Segera cabut regulator tabung gas dari kompor.</li>
+                    <li>Buka pintu bawah dapur, ventilasi udara, dan jendela lebar-lebar.</li>
+                    <li>JANGAN menyentuh saklar lampu / memantik korek api!</li>
+                    <li>Evakuasi penghuni rumah keluar dari ruangan.</li>
                   </ul>
                 </div>
                 
                 <div className="flex flex-col gap-3">
                   <button 
                     onClick={() => setSimulatedAlarmAck(true)}
-                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg shadow-red-600/35 hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-500/35 hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    <Check size={16} strokeWidth={2.8} /> Matikan Suara Alarm Sirene
+                    <Check size={16} /> Matikan Suara Alarm Simulasi
                   </button>
                   <button 
                     onClick={resetSimulator}
-                    className="w-full py-3 text-slate-500 hover:text-white font-black text-xs uppercase tracking-wider transition-colors duration-300"
+                    className="w-full py-3 text-slate-400 hover:text-white font-semibold text-xs transition-colors"
                   >
-                    Reset Simulator Ke Status Aman
+                    Atur Ulang Simulator ke Aman
                   </button>
                 </div>
               </div>
             </div>
           )}
- 
+
           {/* SIMULATOR DASHBOARD CONTAINER */}
-          <div className="rounded-[2rem] border border-white/10 overflow-hidden bg-[#0a1020]/90 shadow-2xl relative">
+          <ScrollReveal delay={100} className="rounded-[2rem] border border-white/10 overflow-hidden bg-[#0a1020]/90 shadow-2xl relative">
             
             {/* Simulator Header */}
-            <div className="px-4 py-4 sm:px-8 sm:py-5 bg-slate-900/40 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 backdrop-blur-md">
+            <div className="px-6 py-4.5 bg-slate-900/80 border-b border-white/5 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-red-500/30 flex items-center justify-center">
-                  <span className={`w-1.5 h-1.5 rounded-full ${isAnyDanger ? 'bg-red-500 animate-ping' : 'bg-emerald-400'}`} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
                 </div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">
-                  SKYWATCH LIVE HUD // INTERACTIVE SANDBOX
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  SkyWatch Live Monitor (Interactive Demo Sandbox)
                 </span>
               </div>
- 
-              <div className="flex items-center gap-2.5 sm:gap-3.5">
+
+              <div className="flex items-center gap-3.5">
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
-                  className={`p-2 px-3.5 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
+                  className={`p-2 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all ${
                     soundEnabled 
-                      ? 'bg-[#a3e635]/10 border-[#a3e635]/25 text-[#a3e635]' 
+                      ? 'bg-[#4edea3]/10 border-[#4edea3]/25 text-[#4edea3]' 
                       : 'bg-white/[0.02] border-white/10 text-slate-400 hover:text-white'
                   }`}
                   title={soundEnabled ? "Nonaktifkan Alarm" : "Aktifkan Alarm"}
                 >
-                  {soundEnabled ? <Volume2 size={13} strokeWidth={2.5} /> : <VolumeX size={13} strokeWidth={2.5} />}
+                  {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
                   <span>Alarm Suara: {soundEnabled ? 'Aktif' : 'Mute'}</span>
                 </button>
- 
+
                 <button
                   onClick={resetSimulator}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all duration-300"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] text-xs font-bold text-slate-400 hover:text-white transition-colors"
                 >
-                  <RotateCcw size={12} strokeWidth={2.5} /> Reset
+                  <RotateCcw size={12} /> Reset
                 </button>
               </div>
             </div>
- 
-            {/* ASYMMETRICAL PREMIUM GRID LAYOUT */}
-            <div className="p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-stretch">
-              
-              {/* DOMINANT HERO OF THE SCREEN (VOC / LPG SENSOR) - 7 COLUMNS */}
-              <div className={`lg:col-span-7 premium-glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col justify-between transition-all duration-500 border relative group overflow-hidden ${
-                isVocDanger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_40px_rgba(239,68,68,0.25)]' 
-                  : 'border-white/10 hover:border-[#a3e635]/35 hover:shadow-2xl hover:shadow-[#a3e635]/5'
-              }`}>
-                {/* Breathing internal ambient lighting */}
-                <div className={`absolute -top-24 -left-24 w-64 h-64 rounded-full blur-[100px] transition-all duration-1000 opacity-20 pointer-events-none -z-10 ${
-                  isVocDanger ? 'bg-red-500' : 'bg-[#a3e635]'
-                }`} />
 
-                {/* Card Title & HUD elements */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border shadow-inner ${
-                      isVocDanger 
-                        ? 'bg-red-500/10 border-red-500/30 text-red-400' 
-                        : 'bg-[#a3e635]/15 border-[#a3e635]/30 text-[#a3e635]'
-                    }`}>
-                      <Activity size={18} strokeWidth={2.5} />
-                    </div>
-                    <div className="text-left">
-                      <p className={`text-[10px] font-black uppercase tracking-widest ${isVocDanger ? 'text-red-400' : 'text-[#a3e635]'}`}>
-                        UTAMA - SENSOR KEBOCORAN GAS
-                      </p>
-                      <h4 className="text-white font-extrabold text-sm tracking-tight">Kadar LPG / VOC Gas</h4>
-                    </div>
+            {/* Dashboard Alert Banner Preview */}
+            <div className="px-6 pt-6">
+              <div className={`relative rounded-2xl border border-t-[1.5px] px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-500 ${
+                isAnyDanger 
+                  ? 'bg-red-500/5 border-red-500/20' 
+                  : 'bg-emerald-500/5 border-emerald-500/15'
+              }`}>
+                <div className="flex items-center gap-4">
+                  <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isAnyDanger ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
+                  <div className={`p-2 rounded-xl flex-shrink-0 ${isAnyDanger ? 'bg-red-500/12' : 'bg-emerald-500/12'}`}>
+                    {isAnyDanger 
+                      ? <AlertTriangle size={16} className="text-red-400" />
+                      : <Check size={16} className="text-emerald-400" />}
                   </div>
- 
-                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all duration-500 ${
-                    isVocDanger 
-                      ? 'bg-red-500 border-red-500/35 text-red-400 animate-pulse' 
-                      : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                  <div className="text-left">
+                    <p className={`font-black text-xs uppercase tracking-wider ${isAnyDanger ? 'text-red-400' : 'text-emerald-400'}`}
+                      style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {isAnyDanger ? `DARURAT — ${dangerLabels.join(' · ')} MELEBIHI BATAS` : 'SISTEM STATUS — SEMUA SENSOR OPTIMAL'}
+                    </p>
+                    <p className="text-slate-400 text-[10.5px] mt-0.5 font-medium">
+                      {isAnyDanger 
+                        ? 'Simulasi Bahaya Aktif: Tingkat konsentrasi gas/suhu membahayakan pernapasan & titik api.' 
+                        : 'Simulasi Normal: Seluruh indikator berada dalam batas normal. Dapur aman.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isAnyDanger && simulatedAlarmAck && (
+                    <span className="text-[9px] font-black bg-red-500/10 text-red-400 px-2.5 py-1.5 rounded-lg border border-red-500/20 uppercase tracking-widest">
+                      Alarm Sirene Bisukan
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Dashboard Cards Grid */}
+            <div className="px-6 py-6 grid grid-cols-2 lg:grid-cols-5 gap-4">
+              
+              {/* Card CO2 */}
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
+                isCo2Danger 
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]' 
+                  : 'border-white/10 hover:border-white/20 bg-white/[0.03]'
+              }`}>
+                <div className="flex items-center justify-between mb-3.5">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5">
+                    <Zap size={14} className="text-blue-400" />
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
+                    isCo2Danger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
                   }`}>
-                    {isVocDanger ? '⚠️ CRITICAL LEAK' : '🌿 OPTIMAL'}
+                    {isCo2Danger ? 'Danger' : 'Safe'}
                   </span>
                 </div>
- 
-                {/* Visual Radial Breathing Gauge (Cinematic Hero Element) */}
-                <div className="relative w-48 h-48 sm:w-64 sm:h-64 mx-auto my-4 sm:my-6 flex items-center justify-center">
-                  {/* Glowing background ring */}
-                  <div className={`absolute inset-4 rounded-full blur-2xl opacity-15 transition-all duration-1000 ${
-                    isVocDanger ? 'bg-red-500 animate-pulse' : 'bg-[#a3e635]'
-                  }`} />
- 
-                  {/* SVG Circle meter */}
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    {/* Track */}
-                    <circle 
-                      cx="50" cy="50" r="41" 
-                      className="stroke-white/5 fill-none" 
-                      strokeWidth="5" 
-                    />
-                    {/* Fill meter */}
-                    <circle 
-                      cx="50" cy="50" r="41" 
-                      className={`fill-none transition-all duration-500 ${
-                        isVocDanger ? 'stroke-red-500 text-glow-red' : 'stroke-[#a3e635] text-glow-green'
-                      }`}
-                      strokeWidth="6.5" 
-                      strokeDasharray="257.6"
-                      strokeDashoffset={257.6 - (257.6 * Math.min((voc / thresholds.voc) * 100, 100)) / 100}
-                      strokeLinecap="round"
-                    />
-                  </svg>
- 
-                  {/* Center Monospace Cinematic text */}
-                  <div className="absolute flex flex-col items-center justify-center text-center">
-                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em] font-sans">Konsentrasi</p>
-                    <h5 className={`text-5xl sm:text-6xl md:text-7xl font-black tracking-[-0.05em] leading-none my-1 font-mono transition-all duration-500 ${
-                      isVocDanger ? 'text-red-400 text-glow-red' : 'text-white text-glow-green'
-                    }`}>
-                      {voc.toFixed(2)}
-                    </h5>
-                    <p className="text-[10px] font-bold text-slate-400 font-mono tracking-wider mt-0.5">PPM (Partikel Murni)</p>
-                  </div>
+                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">CO2 (Gas Pembakaran)</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-2xl font-black text-white font-mono" style={{ color: isCo2Danger ? '#f87171' : undefined }}>{co2.toFixed(0)}</span>
+                  <span className="text-slate-400 text-xs font-bold">PPM</span>
                 </div>
- 
-                {/* Narrative Insight & Protection Advise (Insight-driven HUD) */}
-                <div className={`mt-2 p-4 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all duration-500 backdrop-blur-md ${
-                  isVocDanger 
-                    ? 'bg-red-500/10 border-red-500/25 text-red-200 shadow-lg shadow-red-950/20' 
-                    : 'bg-white/[0.02] border-white/5 text-slate-300'
-                }`}>
-                  <h5 className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-2 ${
-                    isVocDanger ? 'text-red-400' : 'text-[#a3e635]'
-                  }`}>
-                    {isVocDanger ? <AlertTriangle size={15} className="animate-bounce" /> : <ShieldCheck size={15} />}
-                    SISTEM INSIGHT & TINDAKAN KELUARGA (HUD ADVICE):
-                  </h5>
-                  <p className="text-xs leading-relaxed font-medium">
-                    {isVocDanger 
-                      ? 'SIMULASI ALARM AKTIF! Gas LPG terdeteksi bocor pekat di atas batas aman 1.5 PPM. JANGAN MENYENTUH sakelar lampu/listrik karena risiko loncatan api terkecil sekalipun dapat memicu kebakaran hebat. Evakuasi kompor & segera cabut selang regulator gas!' 
-                      : 'Kondisi dapur terpantau sangat ideal. Sirkulasi sensor VOC bernilai optimal di bawah ambang batas bahaya. Dapur nyaman, ventilasi normal, siap digunakan untuk beraktivitas.'}
-                  </p>
+                <div className="h-1 bg-white/5 rounded-full overflow-hidden mb-3">
+                  <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${Math.min((co2 / thresholds.co2) * 100, 100)}%` }} />
                 </div>
+                <p className="text-[9.5px] text-slate-400 font-bold leading-normal font-mono">Batas: {thresholds.co2} PPM</p>
               </div>
 
               {/* Card NH3 */}
@@ -623,7 +613,7 @@ export default function LandingPage() {
               }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5">
-                    <Activity size={14} className="text-[#a3e635]" />
+                    <Activity size={14} className="text-[#4edea3]" />
                   </div>
                   <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
                     isVocDanger ? 'bg-red-500 border-red-500/25 text-red-400 font-black animate-ping' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
@@ -631,13 +621,13 @@ export default function LandingPage() {
                     {isVocDanger ? 'LEAK' : 'Safe'}
                   </span>
                 </div>
-                <p className="text-[9px] font-black text-[#a3e635] uppercase tracking-wider mb-1">VOC (Kebocoran Gas)</p>
+                <p className="text-[9px] font-black text-[#4edea3] uppercase tracking-wider mb-1">VOC (Kebocoran Gas)</p>
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-2xl font-black text-white font-mono" style={{ color: isVocDanger ? '#f87171' : undefined }}>{voc.toFixed(2)}</span>
                   <span className="text-slate-400 text-xs font-bold">PPM</span>
                 </div>
                 <div className="h-1 bg-white/5 rounded-full overflow-hidden mb-3">
-                  <div className="h-full bg-[#a3e635] transition-all duration-300" style={{ width: `${Math.min((voc / thresholds.voc) * 100, 100)}%` }} />
+                  <div className="h-full bg-[#4edea3] transition-all duration-300" style={{ width: `${Math.min((voc / thresholds.voc) * 100, 100)}%` }} />
                 </div>
                 <p className="text-[9.5px] text-slate-400 font-bold leading-normal font-mono">Batas: {thresholds.voc} PPM</p>
               </div>
@@ -695,43 +685,43 @@ export default function LandingPage() {
                 </div>
                 <p className="text-[9.5px] text-slate-400 font-bold leading-normal font-mono">Batas: {thresholds.hum}%</p>
               </div>
- 
+
             </div>
- 
+
             {/* INTERACTIVE CONTROLS BOX (SLIDERS) */}
-            <div className="p-4 sm:p-6 md:p-8 bg-slate-950/60 border-t border-white/5 backdrop-blur-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="p-6 bg-slate-900 border-t border-white/5">
+              <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                 <div className="text-left">
                   <h4 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
-                    <Cpu size={14} className="text-[#a3e635]" />
+                    <Cpu size={14} className="text-[#4edea3]" />
                     Simulator Controller Panel
                   </h4>
-                  <p className="text-xs text-slate-400 mt-1 font-medium">Geser slider di bawah untuk mensimulasikan perubahan data IoT sensor dapur Anda secara langsung (live).</p>
+                  <p className="text-[10px] text-slate-400">Geser indikator di bawah untuk mensimulasikan perubahan data IoT sensor dapur Anda secara live.</p>
                 </div>
- 
-                <div className="w-full sm:w-auto flex gap-2.5 sm:gap-3">
+
+                <div className="flex gap-2">
                   <button 
                     onClick={setPresetDanger}
-                    className="flex-1 sm:flex-none px-4 py-2.5 sm:px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 shadow-md shadow-red-600/20 hover:-translate-y-0.5 active:translate-y-0 text-center justify-center"
+                    className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-wider transition-colors shadow-md shadow-red-500/20"
                   >
                     🚨 Pemicu Kebocoran Gas
                   </button>
                   <button 
                     onClick={resetSimulator}
-                    className="flex-1 sm:flex-none px-4 py-2.5 sm:px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 text-center justify-center"
+                    className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-[10px] uppercase tracking-wider transition-colors"
                   >
                     Reset Normal
                   </button>
                 </div>
               </div>
- 
+
               {/* Sliders Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
                 {/* VOC Slider */}
-                <div className="space-y-2 bg-white/[0.02] p-5 rounded-2xl border border-white/5 transition-all duration-300 hover:border-white/10">
+                <div className="space-y-1.5 bg-slate-950/40 p-4.5 rounded-2xl border border-white/5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans">VOC Gas (Slider Kontrol)</span>
-                    <span className={`text-xs font-black font-mono tracking-tight ${isVocDanger ? 'text-red-400 text-glow-red animate-pulse' : 'text-slate-300'}`}>{voc.toFixed(2)} PPM</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">LPG / VOC Gas</span>
+                    <span className={`text-[10px] font-bold font-mono ${isVocDanger ? 'text-red-400' : 'text-slate-300'}`}>{voc.toFixed(2)} PPM</span>
                   </div>
                   <input 
                     type="range" 
@@ -743,19 +733,19 @@ export default function LandingPage() {
                       setVoc(parseFloat(e.target.value));
                       if (parseFloat(e.target.value) <= thresholds.voc) setSimulatedAlarmAck(false);
                     }}
-                    className="w-full accent-[#a3e635]"
+                    className="w-full accent-[#4edea3]"
                   />
-                  <div className="flex justify-between text-[9px] text-slate-500 font-extrabold uppercase font-mono tracking-wider pt-1">
+                  <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase">
                     <span>Aman (0.2)</span>
-                    <span className="text-red-500 font-black">Bocor Kritis (&gt;1.5)</span>
+                    <span className="text-red-400">Kebocoran (&gt;1.5)</span>
                   </div>
                 </div>
- 
+
                 {/* CO2 Slider */}
-                <div className="space-y-2 bg-white/[0.02] p-5 rounded-2xl border border-white/5 transition-all duration-300 hover:border-white/10">
+                <div className="space-y-1.5 bg-slate-950/40 p-4.5 rounded-2xl border border-white/5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans">CO2 Asap (Slider Kontrol)</span>
-                    <span className={`text-xs font-black font-mono tracking-tight ${isCo2Danger ? 'text-red-400' : 'text-slate-300'}`}>{co2.toFixed(0)} PPM</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CO2 (Asap Kompor)</span>
+                    <span className={`text-[10px] font-bold font-mono ${isCo2Danger ? 'text-red-400' : 'text-slate-300'}`}>{co2.toFixed(0)} PPM</span>
                   </div>
                   <input 
                     type="range" 
@@ -764,19 +754,19 @@ export default function LandingPage() {
                     step="10"
                     value={co2} 
                     onChange={e => setCo2(parseInt(e.target.value))}
-                    className="w-full accent-blue-500 cursor-pointer"
+                    className="w-full accent-blue-500"
                   />
-                  <div className="flex justify-between text-[9px] text-slate-500 font-extrabold uppercase font-mono tracking-wider pt-1">
-                    <span>Segar (400)</span>
-                    <span className="text-red-400">Sesak (&gt;1000)</span>
+                  <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase">
+                    <span>Ventilasi Baik (400)</span>
+                    <span className="text-red-400">Sesak Napas (&gt;1000)</span>
                   </div>
                 </div>
- 
+
                 {/* Temp Slider */}
-                <div className="space-y-2 bg-white/[0.02] p-5 rounded-2xl border border-white/5 transition-all duration-300 hover:border-white/10">
+                <div className="space-y-1.5 bg-slate-950/40 p-4.5 rounded-2xl border border-white/5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans">Suhu Dapur (Slider Kontrol)</span>
-                    <span className={`text-xs font-black font-mono tracking-tight ${isTempDanger ? 'text-red-400' : 'text-slate-300'}`}>{temp.toFixed(1)} °C</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Suhu (Titik Api)</span>
+                    <span className={`text-[10px] font-bold font-mono ${isTempDanger ? 'text-red-400' : 'text-slate-300'}`}>{temp.toFixed(1)} °C</span>
                   </div>
                   <input 
                     type="range" 
@@ -785,19 +775,19 @@ export default function LandingPage() {
                     step="0.5"
                     value={temp} 
                     onChange={e => setTemp(parseFloat(e.target.value))}
-                    className="w-full accent-orange-500 cursor-pointer"
+                    className="w-full accent-orange-500"
                   />
-                  <div className="flex justify-between text-[9px] text-slate-500 font-extrabold uppercase font-mono tracking-wider pt-1">
-                    <span>Kamar (28)</span>
+                  <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase">
+                    <span>Suhu Kamar (28)</span>
                     <span className="text-red-400">Kebakaran (&gt;45)</span>
                   </div>
                 </div>
               </div>
             </div>
 
-          </div>
+          </ScrollReveal>
 
-          <div className="text-center mt-8">
+          <ScrollReveal delay={200} className="text-center mt-8">
             <Link 
               href="/register" 
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#4edea3]/10 hover:bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -805,7 +795,7 @@ export default function LandingPage() {
               Hubungkan Alat Sensor Fisik Anda Sendiri
               <ChevronRight size={14} strokeWidth={2.5} />
             </Link>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
