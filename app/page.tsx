@@ -85,7 +85,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
           <span className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <Info size={12} /> Detail Sensor
           </span>
-          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-850">
+          <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-900">
             <X size={13} />
           </button>
         </div>
@@ -102,7 +102,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
             </div>
           )}
         </div>
-        <div className="bg-slate-50 dark:bg-slate-850 rounded-2xl px-5 py-4 border border-slate-200 dark:border-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl px-5 py-4 border border-slate-200 dark:border-slate-800 mb-4">
           <p className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-widest mb-2">Penjelasan</p>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
@@ -150,7 +150,7 @@ function SensorCard({
         <div className="px-5 py-5 relative z-10">
           {/* Row 1 — icon + status badge */}
           <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-850 shadow-sm">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-900 shadow-sm">
               <Icon size={15} style={{ color }} />
             </div>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
@@ -182,7 +182,7 @@ function SensorCard({
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-slate-100 dark:bg-slate-850 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden mb-3">
             <div className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${pct}%`,
@@ -660,7 +660,7 @@ export default function Dashboard() {
                   { k: 'TEMP', c: 'bg-orange-500' },
                   { k: 'HUM', c: 'bg-purple-500' }
                 ].map(i => (
-                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-850 px-2 py-0.5 sm:py-1 rounded border border-slate-200 dark:border-slate-800">
+                  <div key={i.k} className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 sm:py-1 rounded border border-slate-200 dark:border-slate-800">
                     <span className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${i.c}`} />
                     <span className="text-[9px] font-semibold uppercase text-[#1E293B] dark:text-slate-400">{i.k}</span>
                   </div>
@@ -751,9 +751,9 @@ export default function Dashboard() {
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">WiFi</span>
                     <div className="flex gap-0.5 items-end h-3">
-                      <div className="w-1 h-1.5 bg-slate-800 dark:bg-slate-350 rounded-sm"/>
-                      <div className="w-1 h-2 bg-slate-800 dark:bg-slate-350 rounded-sm"/>
-                      <div className="w-1 h-full bg-slate-800 dark:bg-slate-350 rounded-sm"/>
+                      <div className="w-1 h-1.5 bg-slate-800 dark:bg-slate-400 rounded-sm"/>
+                      <div className="w-1 h-2 bg-slate-800 dark:bg-slate-400 rounded-sm"/>
+                      <div className="w-1 h-full bg-slate-800 dark:bg-slate-400 rounded-sm"/>
                     </div>
                   </div>
                 </div>
