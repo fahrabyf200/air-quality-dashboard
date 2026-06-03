@@ -22,9 +22,9 @@ function SummaryCard({
   return (
     <div className="relative rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden group transition-all duration-300 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700">
       {/* Glow Lampu */}
-      <div 
-        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.2] dark:opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3]" 
-        style={{ backgroundColor: color }} 
+      <div
+        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.2] dark:opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3]"
+        style={{ backgroundColor: color }}
       />
 
       <div className="relative z-10 p-5 flex-1 flex flex-col justify-between">
@@ -36,7 +36,7 @@ function SummaryCard({
             >
               <Icon size={14} style={{ color }} />
             </div>
-            
+
             <div
               className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
               style={{ color: danger ? '#ef4444' : '#10b981' }}
@@ -74,13 +74,12 @@ function SummaryCard({
             >
               <Icon size={16} style={{ color }} />
             </div>
-            
+
             <div
-              className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${
-                danger 
-                  ? 'bg-red-500/10 border-red-500/20 text-red-500' 
-                  : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-              }`}
+              className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${danger
+                ? 'bg-red-500/10 border-red-500/20 text-red-500'
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                }`}
             >
               {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
               {danger ? 'Melebihi Batas' : 'Dalam Batas Aman'}
@@ -165,7 +164,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'day' | 'week' | 'month'>('day');
-  
+
   const getWeekStr = useCallback((d: Date) => {
     const date = new Date(d.getTime());
     date.setHours(0, 0, 0, 0);
@@ -178,8 +177,8 @@ export default function ReportsPage() {
   // Set default initial values on mount using useEffect to avoid hydration mismatch, or just set them initially
   // In Next.js client component, using new Date() directly in useState is fine if not SSR'd strictly.
   // We use standard strings.
-  const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); });
-  const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); });
+  const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); });
+  const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); });
   const [filterWeek, setFilterWeek] = useState(() => { return getWeekStr(new Date()); });
 
   const fetchData = useCallback(async (silent = false) => {
@@ -197,8 +196,8 @@ export default function ReportsPage() {
     }
   }, []);
 
-  useEffect(() => { 
-    fetchData(); 
+  useEffect(() => {
+    fetchData();
     const iv = setInterval(() => fetchData(true), 5000);
     return () => clearInterval(iv);
   }, [fetchData]);
@@ -207,13 +206,13 @@ export default function ReportsPage() {
     if (filterType === 'all') return true;
     const d = new Date(r.created_at || r.timestamp || new Date());
     if (isNaN(d.getTime())) return false;
-    
+
     // Manual formatting for YYYY-MM-DD
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const dStr = `${y}-${m}-${day}`;
-    
+
     if (filterType === 'day') {
       return dStr === filterDate;
     }
@@ -249,14 +248,14 @@ export default function ReportsPage() {
   ];
 
   const groupedMap: Record<string, { co2: number[]; nh3: number[]; voc: number[]; temp: number[]; hum: number[] }> = {};
-  
+
   filteredRows.forEach(r => {
     const ts = r.created_at ?? r.timestamp;
     if (!ts) return;
-    
+
     const date = new Date(ts);
     let key = '';
-    
+
     if (filterType === 'day') {
       key = date.toLocaleTimeString('id-ID', { hour: '2-digit' }) + ':00';
     } else if (filterType === 'week' || filterType === 'month') {
@@ -264,7 +263,7 @@ export default function ReportsPage() {
     } else {
       key = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
     }
-    
+
     if (!groupedMap[key]) groupedMap[key] = { co2: [], nh3: [], voc: [], temp: [], hum: [] };
     groupedMap[key].co2.push(r.co2);
     groupedMap[key].nh3.push(r.nh3 ?? 0);
@@ -286,11 +285,11 @@ export default function ReportsPage() {
 
   // Recharts cannot draw an Area or Line with only 1 data point.
   // We duplicate it to create a flat line if there's only 1 record group.
-  const displayChartData = chartData.length === 1 
+  const displayChartData = chartData.length === 1
     ? [
-        { ...chartData[0], time: `${chartData[0].time} (Awal)` },
-        { ...chartData[0], time: `${chartData[0].time} (Akhir)` }
-      ]
+      { ...chartData[0], time: `${chartData[0].time} (Awal)` },
+      { ...chartData[0], time: `${chartData[0].time} (Akhir)` }
+    ]
     : chartData;
 
   return (
@@ -316,7 +315,7 @@ export default function ReportsPage() {
               <option value="week">Mingguan</option>
               <option value="month">Bulanan</option>
             </select>
-            
+
             {filterType === 'day' && (
               <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
             )}
@@ -440,27 +439,27 @@ export default function ReportsPage() {
                         tickLine={false}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
-                      <YAxis 
-                        yAxisId="left" 
-                        stroke="#94a3b8" 
-                        fontSize={9} 
-                        axisLine={false} 
+                      <YAxis
+                        yAxisId="left"
+                        stroke="#94a3b8"
+                        fontSize={9}
+                        axisLine={false}
                         tickLine={false}
                         tickFormatter={(val) => `${val}`}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
-                      <YAxis 
-                        yAxisId="right" 
-                        orientation="right" 
-                        stroke="#94a3b8" 
-                        fontSize={9} 
-                        axisLine={false} 
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#94a3b8"
+                        fontSize={9}
+                        axisLine={false}
                         tickLine={false}
                         tickFormatter={(val) => `${val}°`}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
                       <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '3 3' }} />
-                      
+
                       <Area yAxisId="left" name="CO₂" type="monotone" dataKey="Avg CO₂" stroke="#3b82f6" strokeWidth={2} fill="url(#colorCo2)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
                       <Area yAxisId="left" name="NH₃" type="monotone" dataKey="Avg NH₃" stroke="#f59e0b" strokeWidth={2} fill="url(#colorNh3)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} />
                       <Area yAxisId="left" name="VOC" type="monotone" dataKey="Avg VOC" stroke="#ec4899" strokeWidth={2} fill="url(#colorVoc)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#ec4899', strokeWidth: 0 }} />
@@ -511,11 +510,10 @@ export default function ReportsPage() {
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#ef4444', fontFamily: "'IBM Plex Mono', monospace" }}>{row.avg}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#fca5a5', fontFamily: "'IBM Plex Mono', monospace" }}>{row.max}</td>
                         <td className="px-5 py-3.5">
-                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 w-max ${
-                            row.ok
-                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                              : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
-                          }`}>
+                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 w-max ${row.ok
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                            : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                            }`}>
                             {row.ok ? '✓ Normal' : '⚠ Exceeded'}
                           </span>
                         </td>
@@ -537,16 +535,15 @@ export default function ReportsPage() {
                   <div key={row.name} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">{row.name}</span>
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
-                        row.ok
-                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                          : 'bg-red-500/10 text-red-500 border-red-500/20'
-                      }`}>
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${row.ok
+                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                        }`}>
                         {row.ok ? <CheckCircle size={10} /> : <AlertTriangle size={10} />}
                         {row.ok ? 'Normal' : 'Exceeded'}
                       </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-3 gap-2">
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">THRESHOLD</p>
