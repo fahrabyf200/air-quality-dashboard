@@ -74,7 +74,7 @@ export default function EducationPage() {
   const [open, setOpen] = useState<string | null>('co2');
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] dark:bg-[#070d1a] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       {/* PAGE HEADER */}
       <div className="px-6 md:px-8 pt-7 pb-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
