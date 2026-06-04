@@ -128,7 +128,7 @@ function NotificationBell() {
               <Bell size={13} className="text-slate-500" />
               <p className="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Notifikasi</p>
               {unread > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] font-black">
+                <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 text-[8px] font-black">
                   {unread} baru
                 </span>
               )}
@@ -458,7 +458,7 @@ function SidebarNav({
                   onClick={onClose}
                   className={`flex items-center text-xs font-bold gap-3 p-3 rounded-xl transition-all duration-200 relative group ${
                     pathname === "/"
-                      ? "!text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
+                      ? "!text-emerald-600 dark:text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1d2022]/40"
                   }`}
                 >
@@ -481,7 +481,7 @@ function SidebarNav({
                       onClick={onClose}
                       className={`flex items-center text-xs font-bold gap-3 p-3 rounded-xl transition-all duration-200 relative group ${
                         active
-                          ? "!text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
+                          ? "!text-emerald-600 dark:text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
                           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1d2022]/40"
                       }`}
                     >
@@ -517,7 +517,7 @@ function SidebarNav({
                       onClick={onClose}
                       className={`flex items-center text-xs font-bold gap-3 p-3 rounded-xl transition-all duration-200 relative group ${
                         active
-                          ? "!text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
+                          ? "!text-emerald-600 dark:text-emerald-500 dark:!text-[#4edea3] bg-emerald-50/50 dark:bg-emerald-950/10 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-emerald-500 dark:before:bg-[#4edea3]"
                           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1d2022]/40"
                       }`}
                     >
@@ -695,15 +695,15 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
       <div className="absolute inset-0 backdrop-blur-md bg-slate-900/10 dark:bg-slate-950/30" />
       <div className="relative z-10 max-w-sm w-full bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl text-center">
         <div className="relative w-16 h-16 mx-auto mb-5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center justify-center">
-          <Lock size={26} className="text-emerald-500" strokeWidth={2.5} />
+          <Lock size={26} className="text-emerald-600 dark:text-emerald-500" strokeWidth={2.5} />
         </div>
         <div className="flex items-center justify-center gap-1.5 mb-1.5">
-          <Crown size={12} className="text-emerald-500" />
+          <Crown size={12} className="text-emerald-600 dark:text-emerald-500" />
           <p className="text-[9px] font-black uppercase tracking-[0.25em] text-emerald-600 dark:text-emerald-400">SkyWatch Premium</p>
         </div>
         <h2 className="text-xl font-display font-black text-slate-900 dark:text-white mb-2">Fitur Terkunci</h2>
         <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mb-6">
-          Halaman ini hanya dapat diakses oleh pengguna <span className="text-emerald-500 font-bold">Premium Active</span>. Upgrade sekarang untuk memantau sirkulasi udara Anda.
+          Halaman ini hanya dapat diakses oleh pengguna <span className="text-emerald-600 dark:text-emerald-500 font-bold">Premium Active</span>. Upgrade sekarang untuk memantau sirkulasi udara Anda.
         </p>
         <a
           href={waLink}
@@ -891,7 +891,7 @@ export default function RootLayout({
 
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased transition-colors duration-300 min-h-screen flex flex-col">
+      <body className="bg-[#f0f4f8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased transition-colors duration-300 min-h-screen flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

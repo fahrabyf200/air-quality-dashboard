@@ -176,13 +176,13 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
           <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 dark:border-red-500/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
-              <UserX size={28} className="text-red-500" />
+              <UserX size={28} className="text-red-600 dark:text-red-500" />
             </div>
             <h2 className="text-xl font-black text-slate-900 dark:text-white text-center mb-2">Hapus Pengguna?</h2>
             <p className="text-sm text-slate-500 text-center mb-1">
               Anda akan menghapus akun:
             </p>
-            <p className="text-sm font-black text-red-500 text-center mb-6 font-mono">{confirmDelete.email}</p>
+            <p className="text-sm font-black text-red-600 dark:text-red-500 text-center mb-6 font-mono">{confirmDelete.email}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDelete(null)}
@@ -205,10 +205,10 @@ export default function AdminPage() {
 
         {/* Error */}
         {error && (
-          <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-sm font-bold">
+          <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold">
             <AlertTriangle size={16} />
             {error}
-            <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-300 text-xs underline">Tutup</button>
+            <button onClick={() => setError('')} className="ml-auto text-red-600 dark:text-red-400 hover:text-red-300 text-xs underline">Tutup</button>
           </div>
         )}
 
@@ -228,7 +228,7 @@ export default function AdminPage() {
           <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <Users size={15} className="text-purple-400" />
+                <Users size={15} className="text-purple-600 dark:text-purple-400" />
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Daftar Pengguna</p>
@@ -248,7 +248,7 @@ export default function AdminPage() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <RefreshCw size={20} className="text-purple-400 animate-spin" />
+                <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
               </div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat data...</p>
             </div>
@@ -284,7 +284,7 @@ export default function AdminPage() {
                             <div>
                               <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">{u.name}</p>
                               {u.id === session?.id && (
-                                <p className="text-[9px] text-purple-500 font-black uppercase tracking-wider">Anda</p>
+                                <p className="text-[9px] text-purple-600 dark:text-purple-500 font-black uppercase tracking-wider">Anda</p>
                               )}
                             </div>
                           </div>
@@ -307,7 +307,7 @@ export default function AdminPage() {
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ${
                                   u.role === 'admin'
                                     ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20 hover:bg-orange-500/20'
-                                    : 'bg-purple-500/10 text-purple-500 border border-purple-500/20 hover:bg-purple-500/20'
+                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-500 border border-purple-500/20 hover:bg-purple-500/20'
                                 }`}
                               >
                                 {promotingId === u.id ? (
@@ -324,7 +324,7 @@ export default function AdminPage() {
                               <button
                                 onClick={() => setConfirmDelete(u)}
                                 disabled={deletingId === u.id}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
                               >
                                 {deletingId === u.id ? (
                                   <RefreshCw size={10} className="animate-spin" />
@@ -381,7 +381,7 @@ export default function AdminPage() {
                           className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ${
                             u.role === 'admin'
                               ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
-                              : 'bg-purple-500/10 text-purple-500 border border-purple-500/20'
+                              : 'bg-purple-500/10 text-purple-600 dark:text-purple-500 border border-purple-500/20'
                           }`}
                         >
                           <Crown size={10} />
@@ -389,14 +389,14 @@ export default function AdminPage() {
                         </button>
                         <button
                           onClick={() => setConfirmDelete(u)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/20"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20"
                         >
                           <Trash2 size={10} /> Hapus
                         </button>
                       </div>
                     )}
                     {u.id === session?.id && (
-                      <p className="text-[10px] text-purple-500 font-black uppercase tracking-wider mt-2">✦ Akun Anda</p>
+                      <p className="text-[10px] text-purple-600 dark:text-purple-500 font-black uppercase tracking-wider mt-2">✦ Akun Anda</p>
                     )}
                   </div>
                 ))}

@@ -296,11 +296,11 @@ export default function AdminUsersPage() {
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
           <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 dark:border-red-500/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
-              <UserX size={26} className="text-red-500" />
+              <UserX size={26} className="text-red-600 dark:text-red-500" />
             </div>
             <h2 className="text-lg font-black text-slate-900 dark:text-white text-center mb-2">Hapus Pengguna?</h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-1">Akun ini akan dihapus permanen:</p>
-            <p className="text-sm font-black text-red-500 text-center mb-2 font-mono">{confirmDelete.email}</p>
+            <p className="text-sm font-black text-red-600 dark:text-red-500 text-center mb-2 font-mono">{confirmDelete.email}</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-600 text-center mb-6">Data sensor yang terhubung akan diputus namun tidak dihapus.</p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>

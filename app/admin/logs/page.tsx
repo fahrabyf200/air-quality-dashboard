@@ -223,7 +223,7 @@ export default function AdminLogsPage() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <RefreshCw size={22} className="text-purple-500 dark:text-purple-400 animate-spin" />
+            <RefreshCw size={22} className="text-purple-600 dark:text-purple-500 dark:text-purple-400 animate-spin" />
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat log...</p>
           </div>
         ) : filtered.length === 0 ? (
@@ -241,13 +241,13 @@ export default function AdminLogsPage() {
                 <div key={row.id ?? i} className="px-6 py-4 hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border ${danger ? 'bg-red-500/10 border-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                      {danger ? <ShieldAlert size={15} className="text-red-500 dark:text-red-400" /> : <ShieldCheck size={15} className="text-emerald-500 dark:text-emerald-400" />}
+                      {danger ? <ShieldAlert size={15} className="text-red-600 dark:text-red-500 dark:text-red-400" /> : <ShieldCheck size={15} className="text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className={`text-sm font-black ${danger ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                            <p className={`text-sm font-black ${danger ? 'text-red-600 dark:text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                               {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc || 0) > T.voc ? 'VOC' : 'Suhu'}` : 'Kondisi Normal'}
                             </p>
                             {/* Show user name if viewing all users */}
@@ -275,7 +275,7 @@ export default function AdminLogsPage() {
                           { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
                           { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
                         ].map(s => (
-                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-500 dark:text-red-400' : 'bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.04] border-slate-150 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
+                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-500 dark:text-red-400' : 'bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.04] border-slate-150 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
                             <s.icon size={10} />
                             <span className="text-slate-400 dark:text-slate-500">{s.label}:</span>
                             <span className="font-mono">{s.value}</span>

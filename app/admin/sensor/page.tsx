@@ -217,7 +217,7 @@ export default function AdminSensorPage() {
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center justify-between flex-wrap gap-3 bg-[#F8F9FA]/50 dark:bg-[#FFFFFF]/[0.01]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
-              <Database size={15} className="text-blue-500 dark:text-blue-400" />
+              <Database size={15} className="text-blue-600 dark:text-blue-500 dark:text-blue-400" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
@@ -230,7 +230,7 @@ export default function AdminSensorPage() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <RefreshCw size={22} className="text-blue-500 dark:text-blue-400 animate-spin" />
+            <RefreshCw size={22} className="text-blue-600 dark:text-blue-500 dark:text-blue-400 animate-spin" />
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
           </div>
         ) : rows.length === 0 ? (
@@ -312,7 +312,7 @@ export default function AdminSensorPage() {
                       {[{ l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 }, { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 }, { l: 'VOC', v: `${(row.voc || 0).toFixed(2)}`, over: (row.voc || 0) > T.voc }, { l: 'Temp', v: `${t.toFixed(1)}°`, over: t > T.temp }, { l: 'Hum', v: `${h.toFixed(0)}%`, over: false }].map(s => (
                         <div key={s.l} className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center">
                           <p className="text-[9px] text-slate-400 dark:text-slate-600 font-black mb-0.5">{s.l}</p>
-                          <p className={`text-xs font-black font-mono ${s.over ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>{s.v}</p>
+                          <p className={`text-xs font-black font-mono ${s.over ? 'text-red-600 dark:text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>{s.v}</p>
                         </div>
                       ))}
                     </div>

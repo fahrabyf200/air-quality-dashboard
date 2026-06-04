@@ -107,7 +107,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
         <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs font-black uppercase tracking-wider ${
-          danger ? 'bg-red-500/8 border-red-500/20 text-red-400' : 'bg-emerald-500/8 border-emerald-500/20 text-emerald-400'
+          danger ? 'bg-red-500/8 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-emerald-500/8 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
         }`}>
           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${danger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
           {danger ? 'Melebihi Batas Aman — Perlu Perhatian' : 'Dalam Batas Aman'}
@@ -155,8 +155,8 @@ function SensorCard({
             </div>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
               danger
-                ? 'bg-red-500/10 border-red-500/20 text-red-400'
-                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${danger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
               {danger ? 'Danger' : 'Safe'}
@@ -195,12 +195,12 @@ function SensorCard({
           {/* Row 5 — threshold info */}
           <div className="flex items-center justify-between">
             <p className={`text-[10px] font-mono transition-colors duration-300 ${
-              danger ? 'text-red-500 font-bold animate-pulse' : 'text-slate-600 dark:text-slate-400'
+              danger ? 'text-red-600 dark:text-red-500 font-bold animate-pulse' : 'text-slate-600 dark:text-slate-400'
             }`}>
-              Batas: <span className={danger ? 'text-red-400 font-black' : 'text-slate-500 dark:text-slate-400'}>{threshold} {unit}</span>
+              Batas: <span className={danger ? 'text-red-600 dark:text-red-400 font-black' : 'text-slate-500 dark:text-slate-400'}>{threshold} {unit}</span>
             </p>
             <span className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 transition-colors duration-300 ${
-              danger ? 'text-red-400' : 'text-slate-600 dark:text-slate-400'
+              danger ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
             }`}>
               <Info size={9} /> Info
             </span>
@@ -209,7 +209,7 @@ function SensorCard({
           {/* Description snippet — always visible */}
           <p className={`mt-2 text-[11px] leading-relaxed line-clamp-3 transition-colors duration-300 ${
             danger 
-              ? 'text-red-500 font-semibold' 
+              ? 'text-red-600 dark:text-red-500 font-semibold' 
               : 'text-slate-600 dark:text-slate-400'
           }`}>
             {danger ? SENSOR_INFO[infoKey].danger : SENSOR_INFO[infoKey].general}
@@ -545,8 +545,8 @@ export default function Dashboard() {
 
             <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all duration-500 ${
               isDanger
-                ? 'bg-red-500/8 border-red-500/20 text-red-400'
-                : 'bg-emerald-500/8 border-emerald-500/15 text-emerald-400'
+                ? 'bg-red-500/8 border-red-500/20 text-red-600 dark:text-red-400'
+                : 'bg-emerald-500/8 border-emerald-500/15 text-emerald-600 dark:text-emerald-400'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${isDanger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
               <span className="hidden sm:inline">{isDanger ? `⚠ ${dangerLabels.join(' · ')}` : 'Optimal'}</span>
@@ -569,16 +569,16 @@ export default function Dashboard() {
           <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-950/45 backdrop-blur-md px-4">
             <div className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-2 border-red-500/80 rounded-3xl p-6 md:p-10 max-w-lg w-full text-center shadow-[0_0_80px_rgba(239,68,68,0.25)] dark:shadow-[0_0_100px_rgba(239,68,68,0.35)] animate-in zoom-in duration-300">
               <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                <AlertTriangle size={48} className="text-red-500 animate-ping absolute opacity-30" />
-                <AlertTriangle size={48} className="text-red-500 relative z-10" />
+                <AlertTriangle size={48} className="text-red-600 dark:text-red-500 animate-ping absolute opacity-30" />
+                <AlertTriangle size={48} className="text-red-600 dark:text-red-500 relative z-10" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-black text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT!</h2>
+              <h2 className="text-2xl md:text-3xl font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT!</h2>
               <p className="text-slate-600 dark:text-slate-300 mb-6 font-bold text-sm md:text-base leading-relaxed">
-                Sensor mendeteksi level kritis pada: <span className="text-red-500 font-black">{dangerLabels.join(', ')}</span>.<br/>Segera amankan area ruangan.
+                Sensor mendeteksi level kritis pada: <span className="text-red-600 dark:text-red-500 font-black">{dangerLabels.join(', ')}</span>.<br/>Segera amankan area ruangan.
               </p>
 
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-left">
-                <p className="text-red-500 text-xs font-bold uppercase tracking-wider mb-2">Tindakan Manual yang harus dilakukan:</p>
+                <p className="text-red-600 dark:text-red-500 text-xs font-bold uppercase tracking-wider mb-2">Tindakan Manual yang harus dilakukan:</p>
                 <ul className="text-slate-700 dark:text-slate-300 text-sm list-disc pl-5 space-y-1.5 font-medium">
                   <li>Segera matikan kompor & sumber api.</li>
                   <li>Cabut regulator gas jika aman dilakukan.</li>
@@ -607,11 +607,11 @@ export default function Dashboard() {
             <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isDanger ? 'bg-red-500' : 'bg-emerald-500'}`} />
             <div className={`p-2.5 rounded-xl flex-shrink-0 ${isDanger ? 'bg-red-500/12' : 'bg-emerald-500/12'}`}>
               {isDanger
-                ? <AlertTriangle size={17} className="text-red-400" />
-                : <CheckCircle size={17} className="text-emerald-400" />}
+                ? <AlertTriangle size={17} className="text-red-600 dark:text-red-400" />
+                : <CheckCircle size={17} className="text-emerald-600 dark:text-emerald-400" />}
             </div>
             <div>
-              <p className={`font-black text-sm uppercase tracking-wide ${isDanger ? 'text-red-400' : 'text-emerald-400'}`}
+              <p className={`font-black text-sm uppercase tracking-wide ${isDanger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
                 {isDanger ? `DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS` : 'SYSTEM STATUS — SEMUA SENSOR OPTIMAL'}
               </p>
@@ -624,7 +624,7 @@ export default function Dashboard() {
           {/* Action indicators */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-10 sm:ml-0">
             {isDanger && alarmAcknowledged && (
-              <span className="text-[10px] font-black bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20">
+              <span className="text-[10px] font-black bg-red-500/10 text-red-600 dark:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20">
                 Alarm Dimatikan
               </span>
             )}
@@ -647,7 +647,7 @@ export default function Dashboard() {
             <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Activity size={12} className="text-blue-400" />
+                  <Activity size={12} className="text-blue-600 dark:text-blue-400" />
                   <span className="text-xs font-semibold text-[#1E293B] dark:text-slate-300 uppercase tracking-[0.2em]">Air Quality Trend</span>
                 </div>
                 <p className="text-[10px] text-slate-700 font-mono">20 pembacaan terakhir</p>
@@ -719,11 +719,11 @@ export default function Dashboard() {
                   <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">IoT Node Status</span>
                 </div>
                 {isEspConnected ? (
-                  <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
+                  <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Aktif / Online
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1.5 text-[9px] font-black text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-red-500/20">
+                  <span className="flex items-center gap-1.5 text-[9px] font-black text-red-600 dark:text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-red-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Tidak Aktif / Offline
                   </span>
                 )}
@@ -771,8 +771,8 @@ export default function Dashboard() {
                 : 'bg-white dark:bg-emerald-500/5 border-slate-200 dark:border-emerald-500/15'
             }`}>
               <div className="flex items-center gap-2 mb-4">
-                {isDanger ? <AlertTriangle size={14} className="text-red-500" /> : <ShieldCheck size={14} className="text-emerald-500" />}
-                <span className={`text-[10px] font-black uppercase tracking-[0.25em] ${isDanger ? 'text-red-500' : 'text-emerald-500'}`}>
+                {isDanger ? <AlertTriangle size={14} className="text-red-600 dark:text-red-500" /> : <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-500" />}
+                <span className={`text-[10px] font-black uppercase tracking-[0.25em] ${isDanger ? 'text-red-600 dark:text-red-500' : 'text-emerald-600 dark:text-emerald-500'}`}>
                   Rekomendasi Sistem
                 </span>
               </div>

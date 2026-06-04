@@ -438,7 +438,7 @@ export default function ProfilePage() {
             
             <div className="relative z-10 flex flex-col items-center">
               <label htmlFor="profile-upload" className="cursor-pointer block relative mb-4">
-                <div className={`w-24 h-24 rounded-2xl bg-emerald-500/10 border-2 ${uploadingPic ? 'border-[#4edea3] animate-pulse' : 'border-emerald-500/20'} flex items-center justify-center text-emerald-500 shadow-sm transition-transform hover:scale-105 overflow-hidden relative`}>
+                <div className={`w-24 h-24 rounded-2xl bg-emerald-500/10 border-2 ${uploadingPic ? 'border-[#4edea3] animate-pulse' : 'border-emerald-500/20'} flex items-center justify-center text-emerald-600 dark:text-emerald-500 shadow-sm transition-transform hover:scale-105 overflow-hidden relative`}>
                   {profilePic ? (
                     <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -458,7 +458,7 @@ export default function ProfilePage() {
                 <p className="text-[10px] text-[#4edea3] font-bold mb-1 animate-pulse">Mengupload foto...</p>
               )}
               {uploadStatus === 'success' && (
-                <p className="text-[10px] text-emerald-500 font-bold mb-1 flex items-center gap-1"><Check size={10} /> Foto tersimpan!</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mb-1 flex items-center gap-1"><Check size={10} /> Foto tersimpan!</p>
               )}
               
               <h2 className="text-lg font-black text-slate-950 dark:text-white capitalize tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -483,7 +483,7 @@ export default function ProfilePage() {
               <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Layanan</h3>
               {user?.is_invited ? (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl space-y-1">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-600 dark:text-emerald-500 border border-emerald-500/30">
                     Active Employee
                   </span>
                   <p className="text-xs font-bold text-slate-850 dark:text-white">Akses Penuh</p>
@@ -493,7 +493,7 @@ export default function ProfilePage() {
                 </div>
               ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl space-y-1">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-600 dark:text-emerald-500 border border-emerald-500/30">
                     Premium Active
                   </span>
                   <p className="text-sm font-black text-slate-900 dark:text-white leading-none">
@@ -554,7 +554,7 @@ export default function ProfilePage() {
                 data-open={showPlans}
               >
                 <div className="flex items-center gap-2.5">
-                  <Crown size={14} className="text-amber-500" />
+                  <Crown size={14} className="text-amber-600 dark:text-amber-500" />
                   <span className="text-xs font-black uppercase tracking-widest">Opsi Upgrade &amp; Paket Alat</span>
                 </div>
                 <ChevronRight 
@@ -611,8 +611,8 @@ export default function ProfilePage() {
             {deviceStatus.text && (
               <div className={`px-4 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 mb-6 ${
                 deviceStatus.type === 'success' 
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' 
-                  : 'bg-red-500/10 border-red-500/20 text-red-500'
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-500' 
+                  : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-500'
               }`}>
                 {deviceStatus.type === 'success' ? <Check size={12} /> : <AlertTriangle size={12} />}
                 <span>{deviceStatus.text}</span>
@@ -641,7 +641,7 @@ export default function ProfilePage() {
                       <button 
                         type="button"
                         onClick={() => handleRemoveDevice(dev.id, dev.device_id)}
-                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all flex-shrink-0"
+                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-500/20 transition-all flex-shrink-0"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -661,7 +661,7 @@ export default function ProfilePage() {
                 className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded-xl">
                     <Smartphone size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
@@ -703,7 +703,7 @@ export default function ProfilePage() {
                       {savingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
                     </button>
                     {profileStatus.text && (
-                      <p className={`text-xs font-bold mt-2 ${profileStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <p className={`text-xs font-bold mt-2 ${profileStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
                         {profileStatus.text}
                       </p>
                     )}
@@ -719,7 +719,7 @@ export default function ProfilePage() {
                 className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
+                  <div className="p-2 bg-blue-500/10 text-blue-600 dark:text-blue-500 rounded-xl">
                     <ShieldCheck size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
@@ -738,7 +738,7 @@ export default function ProfilePage() {
                       {savingPw ? 'Menyimpan...' : 'Simpan Password'}
                     </button>
                     {pwStatus.text && (
-                      <p className={`text-xs font-bold mt-2 ${pwStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <p className={`text-xs font-bold mt-2 ${pwStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
                         {pwStatus.text}
                       </p>
                     )}
@@ -754,7 +754,7 @@ export default function ProfilePage() {
                 className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-850/45 transition-colors group"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded-xl">
                     <UserPlus size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
@@ -781,7 +781,7 @@ export default function ProfilePage() {
                     <div className="space-y-5">
                       {/* Guide */}
                       <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/15 space-y-2.5 text-xs">
-                        <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1.5">
+                        <p className="text-[10px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest flex items-center gap-1.5">
                           <span>ℹ️</span> Cara Pegawai Mengakses Dashboard
                         </p>
                         <ol className="space-y-2 text-slate-600 dark:text-slate-350 list-decimal pl-4">
@@ -790,7 +790,7 @@ export default function ProfilePage() {
                           <li>Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda</li>
                         </ol>
                         <div className="pt-1">
-                          <Link href="/register" className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-500 px-3 py-1.5 rounded-lg transition-all inline-block">
+                          <Link href="/register" className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-600 dark:text-blue-500 px-3 py-1.5 rounded-lg transition-all inline-block">
                             Buka Halaman Register →
                           </Link>
                         </div>
@@ -815,7 +815,7 @@ export default function ProfilePage() {
                       </form>
 
                       {shareStatus.text && (
-                        <p className={`text-xs font-bold ${shareStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <p className={`text-xs font-bold ${shareStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
                           {shareStatus.text}
                         </p>
                       )}
@@ -835,9 +835,9 @@ export default function ProfilePage() {
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className="text-xs font-bold text-slate-800 dark:text-slate-250 truncate">{s.member_name || '—'}</p>
                                     {s.member_name ? (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 uppercase tracking-wider">Aktif</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Aktif</span>
                                     ) : (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 uppercase tracking-wider">Belum Daftar</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 uppercase tracking-wider">Belum Daftar</span>
                                     )}
                                   </div>
                                   <p className="text-[9px] text-slate-450 font-mono truncate">{s.member_email}</p>
@@ -848,7 +848,7 @@ export default function ProfilePage() {
                                     title="Salin Link Undangan"
                                     className={`p-1.5 rounded-lg border flex items-center justify-center transition-all ${
                                       copiedId === s.id
-                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-500'
                                         : 'bg-white hover:bg-slate-100 dark:bg-slate-850 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                                   >
@@ -861,7 +861,7 @@ export default function ProfilePage() {
                                     )}
                                   </button>
 
-                                  <button onClick={() => handleRevoke(s.id)} title="Cabut Akses" className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all">
+                                  <button onClick={() => handleRevoke(s.id)} title="Cabut Akses" className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 hover:bg-red-500/20 transition-all">
                                     <Trash2 size={12} />
                                   </button>
                                 </div>
@@ -948,8 +948,8 @@ export default function ProfilePage() {
             onClick={handleLogout}
             className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-4 rounded-xl flex items-center justify-center gap-2 transition-all group shadow-sm mt-8"
           >
-            <LogOut size={16} className="text-red-500 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-black text-red-500 uppercase tracking-widest">Keluar Akun</span>
+            <LogOut size={16} className="text-red-600 dark:text-red-500 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-xs font-black text-red-600 dark:text-red-500 uppercase tracking-widest">Keluar Akun</span>
           </button>
         </div>
       </div>

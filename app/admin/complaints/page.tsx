@@ -184,7 +184,7 @@ export default function AdminComplaintsPage() {
       <div className="rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.05] flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-2 flex-1">
-            <MessageSquareWarning size={16} className="text-amber-500" />
+            <MessageSquareWarning size={16} className="text-amber-600 dark:text-amber-500" />
             <p className="text-xs font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Daftar Pengaduan ({filtered.length})</p>
           </div>
           <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function AdminComplaintsPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-20 gap-3">
-            <RefreshCw size={20} className="animate-spin text-purple-500" />
+            <RefreshCw size={20} className="animate-spin text-purple-600 dark:text-purple-500" />
             <span className="text-xs font-black uppercase tracking-widest text-slate-400 animate-pulse">Memuat data...</span>
           </div>
         ) : filtered.length === 0 ? (

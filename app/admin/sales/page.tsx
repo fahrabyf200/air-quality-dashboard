@@ -257,7 +257,7 @@ export default function AdminSalesPage() {
                         {new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-5 py-4">
-                        <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
                           <Trash2 size={11} />
                         </button>
                       </td>
@@ -278,7 +278,7 @@ export default function AdminSalesPage() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-[10px] text-slate-400 font-mono">{new Date(t.created_at).toLocaleDateString('id-ID')}</p>
-                    <button onClick={() => handleDelete(t.id)} className="mt-2 p-1.5 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20">
+                    <button onClick={() => handleDelete(t.id)} className="mt-2 p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20">
                       <Trash2 size={11} />
                     </button>
                   </div>

@@ -77,8 +77,8 @@ function SummaryCard({
 
             <div
               className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${danger
-                ? 'bg-red-500/10 border-red-500/20 text-red-500'
-                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-500'
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-500'
                 }`}
             >
               {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
@@ -184,7 +184,8 @@ export default function ReportsPage() {
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const res = await fetch('/api/sensor');
+      // Pass limit=all to actually get historical data instead of just the latest 20
+      const res = await fetch('/api/sensor?limit=all');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       setRows(Array.isArray(json) ? json : [json]);
@@ -247,41 +248,30 @@ export default function ReportsPage() {
     { label: 'Tingkat Keamanan Sistem', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
   ];
 
-  const groupedMap: Record<string, { co2: number[]; nh3: number[]; voc: number[]; temp: number[]; hum: number[] }> = {};
-
-  filteredRows.forEach(r => {
-    const ts = r.created_at ?? r.timestamp;
-    if (!ts) return;
-
-    const date = new Date(ts);
-    let key = '';
-
-    if (filterType === 'day') {
-      key = date.toLocaleTimeString('id-ID', { hour: '2-digit' }) + ':00';
-    } else if (filterType === 'week' || filterType === 'month') {
-      key = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    } else {
-      key = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
-    }
-
-    if (!groupedMap[key]) groupedMap[key] = { co2: [], nh3: [], voc: [], temp: [], hum: [] };
-    groupedMap[key].co2.push(r.co2);
-    groupedMap[key].nh3.push(r.nh3 ?? 0);
-    groupedMap[key].voc.push(r.voc || 0);
-    groupedMap[key].temp.push(r.temp ?? r.temperature ?? 0);
-    groupedMap[key].hum.push(r.hum ?? r.humidity ?? 0);
-  });
-
-  const chartData = Object.entries(groupedMap)
-    .slice(-30) // Limit to last 30 entries (enough for 24h day or 30d month)
-    .map(([time, d]) => ({
-      time,
-      'Avg CO₂': avg(d.co2),
-      'Avg NH₃': avg(d.nh3),
-      'Avg VOC': avg(d.voc),
-      'Avg Temp': avg(d.temp),
-      'Avg Hum': avg(d.hum),
-    }));
+  // Tidak lagi di-group per menit/jam, melainkan langsung mengambil data mentah terakhir 
+  // agar grafiknya memiliki kurva yang persis sama dengan di dashboard.
+  const chartData = filteredRows
+    .slice(-100) // Tampilkan 100 data mentah terakhir untuk kurva yang detail
+    .map(r => {
+      const ts = r.created_at ?? r.timestamp;
+      let timeStr = '--:--';
+      if (ts) {
+        const d = new Date(ts);
+        timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        // Jika bukan filter harian, tambahkan tanggal
+        if (filterType !== 'day') {
+          timeStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ' ' + timeStr;
+        }
+      }
+      return {
+        time: timeStr,
+        co2: r.co2,
+        nh3: r.nh3 ?? 0,
+        voc: r.voc || 0,
+        temp: r.temp ?? r.temperature ?? 0,
+        hum: r.hum ?? r.humidity ?? 0,
+      };
+    });
 
   // Recharts cannot draw an Area or Line with only 1 data point.
   // We duplicate it to create a flat line if there's only 1 record group.
@@ -349,7 +339,7 @@ export default function ReportsPage() {
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="relative">
               <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <RefreshCw size={24} className="text-emerald-500 animate-spin" />
+                <RefreshCw size={24} className="text-emerald-600 dark:text-emerald-500 animate-spin" />
               </div>
               <div className="absolute inset-0 bg-emerald-500/10 rounded-2xl blur-xl animate-pulse" />
             </div>
@@ -381,7 +371,7 @@ export default function ReportsPage() {
                 <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <FileBarChart size={13} className="text-emerald-500" />
+                      <FileBarChart size={13} className="text-emerald-600 dark:text-emerald-500" />
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">
                         All Sensors Trend
                       </span>
@@ -391,10 +381,10 @@ export default function ReportsPage() {
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                       {[
                         { k: 'CO₂', c: 'bg-blue-500' },
-                        { k: 'NH₃', c: 'bg-amber-500' },
-                        { k: 'VOC', c: 'bg-pink-500' },
-                        { k: 'TEMP', c: 'bg-rose-500' },
-                        { k: 'HUM', c: 'bg-violet-500' }
+                        { k: 'NH₃', c: 'bg-yellow-500' },
+                        { k: 'VOC', c: 'bg-teal-500' },
+                        { k: 'TEMP', c: 'bg-orange-500' },
+                        { k: 'HUM', c: 'bg-purple-500' }
                       ].map(i => (
                         <div key={i.k} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/40 px-2 py-0.5 rounded border border-slate-200/60 dark:border-slate-800/60">
                           <span className={`w-1.5 h-1.5 rounded-full ${i.c}`} />
@@ -409,24 +399,24 @@ export default function ReportsPage() {
                     <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
                           <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorNh3" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#eab308" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorVoc" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#ec4899" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-100 dark:stroke-slate-800/40" />
@@ -460,11 +450,11 @@ export default function ReportsPage() {
                       />
                       <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '3 3' }} />
 
-                      <Area yAxisId="left" name="CO₂" type="monotone" dataKey="Avg CO₂" stroke="#3b82f6" strokeWidth={2} fill="url(#colorCo2)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
-                      <Area yAxisId="left" name="NH₃" type="monotone" dataKey="Avg NH₃" stroke="#f59e0b" strokeWidth={2} fill="url(#colorNh3)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} />
-                      <Area yAxisId="left" name="VOC" type="monotone" dataKey="Avg VOC" stroke="#ec4899" strokeWidth={2} fill="url(#colorVoc)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#ec4899', strokeWidth: 0 }} />
-                      <Area yAxisId="right" name="Temp" type="monotone" dataKey="Avg Temp" stroke="#ef4444" strokeWidth={2} fill="url(#colorTemp)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }} />
-                      <Area yAxisId="right" name="Hum" type="monotone" dataKey="Avg Hum" stroke="#8b5cf6" strokeWidth={2} fill="url(#colorHum)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#8b5cf6', strokeWidth: 0 }} />
+                      <Area yAxisId="left" type="monotone" dataKey="co2" name="CO₂" stroke="#3b82f6" strokeWidth={3} fill="url(#colorCo2)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
+                      <Area yAxisId="left" type="monotone" dataKey="nh3" name="NH₃" stroke="#eab308" strokeWidth={3} fill="url(#colorNh3)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#eab308', strokeWidth: 0 }} />
+                      <Area yAxisId="left" type="monotone" dataKey="voc" name="VOC" stroke="#14b8a6" strokeWidth={3} fill="url(#colorVoc)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#14b8a6', strokeWidth: 0 }} />
+                      <Area yAxisId="right" type="monotone" dataKey="temp" name="Temp" stroke="#f97316" strokeWidth={3} fill="url(#colorTemp)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#f97316', strokeWidth: 0 }} />
+                      <Area yAxisId="right" type="monotone" dataKey="hum" name="Hum" stroke="#a855f7" strokeWidth={3} fill="url(#colorHum)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#a855f7', strokeWidth: 0 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -536,8 +526,8 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">{row.name}</span>
                       <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${row.ok
-                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-500/20'
                         }`}>
                         {row.ok ? <CheckCircle size={10} /> : <AlertTriangle size={10} />}
                         {row.ok ? 'Normal' : 'Exceeded'}

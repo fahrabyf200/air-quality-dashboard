@@ -135,7 +135,7 @@ export default function ComplaintsPage() {
             {sent && (
               <div className="mb-6 flex flex-col items-center text-center py-4">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
-                  <CheckCircle size={28} className="text-emerald-500" />
+                  <CheckCircle size={28} className="text-emerald-600 dark:text-emerald-500" />
                 </div>
                 <p className="font-black text-slate-900 dark:text-white text-base mb-1">Pengaduan Terkirim!</p>
                 <p className="text-sm text-slate-500">{status.text}</p>

@@ -35,8 +35,8 @@ function StatusDot({ danger }: { danger: boolean }) {
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all ${
         danger
-          ? "bg-red-500/10 text-red-400 border-red-500/20"
-          : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+          ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
       }`}
     >
       <span
@@ -63,7 +63,7 @@ function NumCell({
   return (
     <span
       className={`font-black tabular-nums text-sm ${
-        over ? "text-red-400" : "text-slate-900 dark:text-slate-200"
+        over ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-200"
       }`}
       style={{ fontFamily: "'IBM Plex Mono', monospace" }}
     >
@@ -272,10 +272,10 @@ export default function MonitoringPage() {
         {/* ERROR */}
         {error && (
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4 flex items-center gap-3">
-            <AlertTriangle size={18} className="text-red-400" />
+            <AlertTriangle size={18} className="text-red-600 dark:text-red-400" />
 
             <div>
-              <p className="font-black uppercase text-sm tracking-wide text-red-400">
+              <p className="font-black uppercase text-sm tracking-wide text-red-600 dark:text-red-400">
                 Connection Error
               </p>
 
@@ -292,7 +292,7 @@ export default function MonitoringPage() {
           <div className="px-4 sm:px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <Activity size={15} className="text-blue-400" />
+                <Activity size={15} className="text-blue-600 dark:text-blue-400" />
               </div>
 
               <div>
@@ -314,7 +314,7 @@ export default function MonitoringPage() {
                 <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                   <RefreshCw
                     size={24}
-                    className="text-blue-400 animate-spin"
+                    className="text-blue-600 dark:text-blue-400 animate-spin"
                   />
                 </div>
 
@@ -446,8 +446,8 @@ export default function MonitoringPage() {
                           <span
                             className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
                               isDanger
-                                ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                ? "bg-red-500/10 text-red-600 dark:text-red-500 border-red-500/20"
+                                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-500/20"
                             }`}
                           >
                             {isDanger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
@@ -510,7 +510,7 @@ export default function MonitoringPage() {
                     )
                   }
                   disabled={page === totalPages}
-                  className="px-4 py-2 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 transition-all text-xs font-black uppercase tracking-wider"
+                  className="px-4 py-2 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 transition-all text-xs font-black uppercase tracking-wider"
                 >
                   Next →
                 </button>

@@ -50,10 +50,10 @@ function LoginForm() {
         {justRegistered && (
           <div className="mb-5 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 flex items-start gap-3">
             <div className="p-2 bg-emerald-500/15 rounded-xl flex-shrink-0">
-              <UserCheck size={18} className="text-emerald-400" />
+              <UserCheck size={18} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-1">Akun Berhasil Dibuat ✅</p>
+              <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Akun Berhasil Dibuat ✅</p>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Akun Anda sudah aktif. Silakan masuk untuk mulai monitoring.
               </p>
@@ -71,7 +71,7 @@ function LoginForm() {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold p-4 rounded-xl mb-6 text-center">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 text-sm font-bold p-4 rounded-xl mb-6 text-center">
               {error}
             </div>
           )}
@@ -121,7 +121,7 @@ function LoginForm() {
           <div className="mt-6 space-y-3">
             <p className="text-center text-xs text-slate-500 font-bold">
               Belum punya akun?{' '}
-              <Link href="/register" className="text-emerald-500 hover:underline">Daftar sekarang</Link>
+              <Link href="/register" className="text-emerald-600 dark:text-emerald-500 hover:underline">Daftar sekarang</Link>
             </p>
 
             {/* Banner undangan */}

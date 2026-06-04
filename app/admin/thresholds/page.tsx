@@ -72,7 +72,7 @@ export default function AdminThresholdsPage() {
                   <label className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.2em] flex items-center justify-between">
                     <span>Maksimal {key === 'hum' ? 'Kelembapan' : key === 'temp' ? 'Suhu' : key.toUpperCase()}</span>
                     {key === 'co2' || key === 'nh3' || key === 'voc' ? (
-                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-500 uppercase tracking-wider">Gas</span>
+                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-500 uppercase tracking-wider">Gas</span>
                     ) : (
                       <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-500 uppercase tracking-wider">Udara</span>
                     )}
@@ -84,7 +84,7 @@ export default function AdminThresholdsPage() {
                       onChange={(e) => setLocalThresholds({ ...localThresholds, [key]: Number(e.target.value) })}
                       className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-14 py-2.5 text-xs font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 px-2 py-0.5 rounded text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:border-emerald-500/30 group-focus-within:text-emerald-500 transition-all">
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 px-2 py-0.5 rounded text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pointer-events-none group-focus-within:border-emerald-500/30 group-focus-within:text-emerald-600 dark:text-emerald-500 transition-all">
                       {key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}
                     </div>
                   </div>

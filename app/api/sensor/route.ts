@@ -200,6 +200,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const filterDeviceId = searchParams.get('device_id');
     const session = await getSession();
+    const limitParam = searchParams.get('limit');
+    const limitQuery = limitParam === 'all' ? 'LIMIT 10000' : `LIMIT ${parseInt(limitParam as string) || 20}`;
 
     // Jika user sedang login, ambil data sensor yang terikat pada user tersebut
     if (session && (session as any).id) {
@@ -223,7 +225,7 @@ export async function GET(req: Request) {
           `SELECT * FROM sensor_data 
            WHERE (user_id IN (${placeholders}) OR user_id IS NULL) 
              AND device_id = ? 
-           ORDER BY created_at DESC LIMIT 20`,
+           ORDER BY created_at DESC ${limitQuery}`,
           [...userIds, filterDeviceId.trim()]
         );
       } else {
@@ -231,7 +233,7 @@ export async function GET(req: Request) {
         [rows] = await db.execute(
           `SELECT * FROM sensor_data 
            WHERE user_id IN (${placeholders}) OR user_id IS NULL 
-           ORDER BY created_at DESC LIMIT 20`,
+           ORDER BY created_at DESC ${limitQuery}`,
           userIds
         );
       }
@@ -239,7 +241,7 @@ export async function GET(req: Request) {
       // Jika user belum punya data terikat, berikan data sensor terakhir sebagai fallback
       if (rows.length === 0) {
         const [fallbackRows] = await db.execute(
-          'SELECT * FROM sensor_data ORDER BY created_at DESC LIMIT 20'
+          `SELECT * FROM sensor_data ORDER BY created_at DESC ${limitQuery}`
         );
         return NextResponse.json(fallbackRows);
       }
@@ -248,7 +250,7 @@ export async function GET(req: Request) {
     }
 
     // Jika tidak sedang login, kembalikan data global terakhir
-    const [rows] = await db.execute('SELECT * FROM sensor_data ORDER BY created_at DESC LIMIT 20');
+    const [rows] = await db.execute(`SELECT * FROM sensor_data ORDER BY created_at DESC ${limitQuery}`);
     return NextResponse.json(rows);
   } catch (error: any) {
     console.error("❌ GET SENSOR ERROR:", error.message);

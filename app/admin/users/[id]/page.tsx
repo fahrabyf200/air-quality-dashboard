@@ -71,15 +71,15 @@ export default function UserDetailPage() {
 
   if (loading && !user) return (
     <div className="p-8 flex items-center justify-center min-h-[50vh] gap-3">
-      <RefreshCw size={20} className="text-purple-400 animate-spin" />
+      <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
       <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
     </div>
   );
 
   if (error && !user) return (
     <div className="p-8 flex flex-col items-center justify-center min-h-[50vh] gap-4">
-      <AlertTriangle size={30} className="text-red-400" />
-      <p className="text-red-400 font-bold text-sm">{error}</p>
+      <AlertTriangle size={30} className="text-red-600 dark:text-red-400" />
+      <p className="text-red-600 dark:text-red-400 font-bold text-sm">{error}</p>
       <button onClick={() => router.push('/admin/users')}
         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-300 text-sm font-bold border border-slate-300 dark:border-white/10">
         <ArrowLeft size={14} /> Kembali
@@ -105,7 +105,7 @@ export default function UserDetailPage() {
               <p className="text-slate-500 text-xs font-mono">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
                 {user?.role === 'admin'
-                  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-purple-500/15 text-purple-400 border border-purple-500/25"><Crown size={9} /> Admin</span>
+                  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/25"><Crown size={9} /> Admin</span>
                   : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 border border-slate-300 dark:border-white/10"><UserCircle size={9} /> User</span>}
                 {user?.created_at && (
                   <span className="text-[9px] text-slate-600 font-mono flex items-center gap-1">
@@ -174,7 +174,7 @@ export default function UserDetailPage() {
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as any)}
             className={`flex items-center gap-2 px-5 py-3 text-[11px] font-black uppercase tracking-wider transition-all border-b-2 -mb-[1px] ${
-              tab === t.key ? 'text-purple-400 border-purple-500' : 'text-slate-500 border-transparent hover:text-slate-300'
+              tab === t.key ? 'text-purple-600 dark:text-purple-400 border-purple-500' : 'text-slate-500 border-transparent hover:text-slate-300'
             }`}>
             <t.icon size={13} /> {t.label}
             <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#FFFFFF]/10 font-mono">{t.count}</span>
@@ -197,7 +197,7 @@ export default function UserDetailPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-16 gap-3">
-          <RefreshCw size={20} className="text-purple-400 animate-spin" />
+          <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
         </div>
       )}
@@ -208,7 +208,7 @@ export default function UserDetailPage() {
           <div className="px-6 py-4 border-b border-slate-200 dark:border-white/[0.05] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
-                <Database size={15} className="text-blue-400" />
+                <Database size={15} className="text-blue-600 dark:text-blue-400" />
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Rekaman Sensor</p>
@@ -243,7 +243,7 @@ export default function UserDetailPage() {
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: t > T.temp ? '#f87171' : '#94a3b8' }}>{t.toFixed(1)}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono text-slate-400">{h.toFixed(0)}</td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${danger ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${danger ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${danger ? 'bg-red-500' : 'bg-emerald-500'}`} />
                           {danger ? 'Danger' : 'Safe'}
                         </span>
@@ -265,7 +265,7 @@ export default function UserDetailPage() {
                 <div key={row.id ?? i} className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] text-slate-500 font-mono">{row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}</span>
-                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${danger ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
+                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${danger ? 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
                       {danger ? 'Danger' : 'Safe'}
                     </span>
                   </div>
@@ -279,7 +279,7 @@ export default function UserDetailPage() {
                     ].map(s => (
                       <div key={s.l} className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] border border-white/5 p-2 rounded-xl text-center">
                         <p className="text-[9px] text-slate-600 font-black mb-0.5">{s.l}</p>
-                        <p className={`text-xs font-black font-mono ${s.over ? 'text-red-400' : 'text-slate-300'}`}>{s.v}</p>
+                        <p className={`text-xs font-black font-mono ${s.over ? 'text-red-600 dark:text-red-400' : 'text-slate-300'}`}>{s.v}</p>
                       </div>
                     ))}
                   </div>
@@ -295,7 +295,7 @@ export default function UserDetailPage() {
                 <button onClick={() => fetchData(page - 1)} disabled={page === 1}
                   className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← Prev</button>
                 <button onClick={() => fetchData(page + 1)} disabled={page === totalPages}
-                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
+                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
               </div>
             </div>
           )}
@@ -307,7 +307,7 @@ export default function UserDetailPage() {
         <div className="rounded-3xl border border-slate-300 dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200 dark:border-white/[0.05] flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
-              <Activity size={15} className="text-purple-400" />
+              <Activity size={15} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Timeline Aktivitas</p>
@@ -324,12 +324,12 @@ export default function UserDetailPage() {
                 <div key={row.id ?? i} className="px-6 py-4 hover:bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border ${danger ? 'bg-red-500/10 border-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                      {danger ? <ShieldAlert size={15} className="text-red-400" /> : <ShieldCheck size={15} className="text-emerald-400" />}
+                      {danger ? <ShieldAlert size={15} className="text-red-600 dark:text-red-400" /> : <ShieldCheck size={15} className="text-emerald-600 dark:text-emerald-400" />}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <p className={`text-sm font-black ${danger ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <p className={`text-sm font-black ${danger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                             {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc !== undefined && row.voc > T.voc) ? 'VOC' : 'Suhu'}` : 'Kondisi Normal'}
                           </p>
                           <div className="flex items-center gap-1.5 text-slate-600 mt-0.5">
@@ -350,7 +350,7 @@ export default function UserDetailPage() {
                           { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
                           { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
                         ].map(s => (
-                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-[#FFFFFF]/[0.04] border-slate-200 dark:border-white/[0.06] text-slate-400'}`}>
+                          <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-[#FFFFFF]/[0.04] border-slate-200 dark:border-white/[0.06] text-slate-400'}`}>
                             <s.icon size={10} />
                             <span className="text-slate-500">{s.label}:</span>
                             <span className="font-mono">{s.value}</span>
@@ -372,7 +372,7 @@ export default function UserDetailPage() {
                 <button onClick={() => fetchData(page - 1)} disabled={page === 1}
                   className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← Prev</button>
                 <button onClick={() => fetchData(page + 1)} disabled={page === totalPages}
-                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
+                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
               </div>
             </div>
           )}

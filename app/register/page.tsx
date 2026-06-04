@@ -80,7 +80,7 @@ function RegisterForm() {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold p-4 rounded-xl mb-6 text-center">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 text-sm font-bold p-4 rounded-xl mb-6 text-center">
               {error}
             </div>
           )}
@@ -151,7 +151,7 @@ function RegisterForm() {
           </form>
 
           <p className="text-center mt-6 text-xs text-slate-500 font-bold">
-            Sudah punya akun? <Link href="/login" className="text-emerald-500 hover:underline">Masuk di sini</Link>
+            Sudah punya akun? <Link href="/login" className="text-emerald-600 dark:text-emerald-500 hover:underline">Masuk di sini</Link>
           </p>
         </div>
       </div>
