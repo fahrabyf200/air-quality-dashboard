@@ -22,9 +22,9 @@ function SummaryCard({
   return (
     <div className="relative rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden group transition-all duration-300 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700">
       {/* Glow Lampu */}
-      <div 
-        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.2] dark:opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3]" 
-        style={{ backgroundColor: color }} 
+      <div
+        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.2] dark:opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3]"
+        style={{ backgroundColor: color }}
       />
 
       <div className="relative z-10 p-5 flex-1 flex flex-col justify-between">
@@ -32,11 +32,11 @@ function SummaryCard({
         <div className="flex md:hidden flex-col justify-between h-full">
           <div className="flex items-start justify-between mb-4">
             <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 dark:bg-slate-850 border border-slate-150 dark:border-slate-750 shadow-sm"
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm"
             >
               <Icon size={14} style={{ color }} />
             </div>
-            
+
             <div
               className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
               style={{ color: danger ? '#ef4444' : '#10b981' }}
@@ -45,7 +45,7 @@ function SummaryCard({
             </div>
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-450 dark:text-slate-500 mb-1">
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-500 mb-1">
               {label}
             </p>
 
@@ -56,11 +56,11 @@ function SummaryCard({
               >
                 {value}
               </h2>
-              <span className="text-slate-450 text-[10px] font-bold uppercase">{unit}</span>
+              <span className="text-slate-500 text-[10px] font-bold uppercase">{unit}</span>
             </div>
             {maxValue !== undefined && (
-              <div className="mt-1 text-[10px] text-slate-455 dark:text-slate-555 font-mono">
-                MAX: <span className="font-bold text-slate-700 dark:text-slate-350">{maxValue} {unit}</span>
+              <div className="mt-1 text-[10px] text-slate-500 dark:text-slate-500 font-mono">
+                MAX: <span className="font-bold text-slate-700 dark:text-slate-400">{maxValue} {unit}</span>
               </div>
             )}
           </div>
@@ -70,17 +70,16 @@ function SummaryCard({
         <div className="hidden md:flex flex-col h-full justify-between">
           <div className="flex items-start justify-between mb-5">
             <div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center bg-slate-55 dark:bg-slate-850 border border-slate-150 dark:border-slate-750 shadow-sm"
+              className="w-10 h-10 rounded-2xl flex items-center justify-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm"
             >
               <Icon size={16} style={{ color }} />
             </div>
-            
+
             <div
-              className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${
-                danger 
-                  ? 'bg-red-500/10 border-red-500/20 text-red-500' 
-                  : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-              }`}
+              className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${danger
+                ? 'bg-red-500/10 border-red-500/20 text-red-500'
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                }`}
             >
               {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
               {danger ? 'Melebihi Batas' : 'Dalam Batas Aman'}
@@ -88,7 +87,7 @@ function SummaryCard({
           </div>
 
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-2">
               {label}
             </p>
 
@@ -99,10 +98,10 @@ function SummaryCard({
               >
                 {value}
               </h2>
-              <span className="text-slate-450 text-xs font-bold uppercase">{unit}</span>
+              <span className="text-slate-500 text-xs font-bold uppercase">{unit}</span>
             </div>
             {maxValue !== undefined && (
-              <div className="mt-2 text-[10px] text-slate-450 dark:text-slate-555 font-mono tracking-wide">
+              <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-500 font-mono tracking-wide">
                 NILAI PUNCAK: <span className="font-bold text-slate-700 dark:text-slate-300">{maxValue} {unit}</span>
               </div>
             )}
@@ -165,7 +164,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'day' | 'week' | 'month'>('day');
-  
+
   const getWeekStr = useCallback((d: Date) => {
     const date = new Date(d.getTime());
     date.setHours(0, 0, 0, 0);
@@ -178,12 +177,12 @@ export default function ReportsPage() {
   // Set default initial values on mount using useEffect to avoid hydration mismatch, or just set them initially
   // In Next.js client component, using new Date() directly in useState is fine if not SSR'd strictly.
   // We use standard strings.
-  const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); });
-  const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); });
+  const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); });
+  const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); });
   const [filterWeek, setFilterWeek] = useState(() => { return getWeekStr(new Date()); });
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch('/api/sensor');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -191,25 +190,29 @@ export default function ReportsPage() {
       setRows(Array.isArray(json) ? json : [json]);
       setError('');
     } catch (e: any) {
-      setError('Gagal memuat data laporan.');
+      if (!silent) setError('Gagal memuat data laporan.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+    const iv = setInterval(() => fetchData(true), 5000);
+    return () => clearInterval(iv);
+  }, [fetchData]);
 
   const filteredRows = rows.filter(r => {
     if (filterType === 'all') return true;
     const d = new Date(r.created_at || r.timestamp || new Date());
     if (isNaN(d.getTime())) return false;
-    
+
     // Manual formatting for YYYY-MM-DD
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const dStr = `${y}-${m}-${day}`;
-    
+
     if (filterType === 'day') {
       return dStr === filterDate;
     }
@@ -245,14 +248,14 @@ export default function ReportsPage() {
   ];
 
   const groupedMap: Record<string, { co2: number[]; nh3: number[]; voc: number[]; temp: number[]; hum: number[] }> = {};
-  
+
   filteredRows.forEach(r => {
     const ts = r.created_at ?? r.timestamp;
     if (!ts) return;
-    
+
     const date = new Date(ts);
     let key = '';
-    
+
     if (filterType === 'day') {
       key = date.toLocaleTimeString('id-ID', { hour: '2-digit' }) + ':00';
     } else if (filterType === 'week' || filterType === 'month') {
@@ -260,7 +263,7 @@ export default function ReportsPage() {
     } else {
       key = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
     }
-    
+
     if (!groupedMap[key]) groupedMap[key] = { co2: [], nh3: [], voc: [], temp: [], hum: [] };
     groupedMap[key].co2.push(r.co2);
     groupedMap[key].nh3.push(r.nh3 ?? 0);
@@ -282,11 +285,11 @@ export default function ReportsPage() {
 
   // Recharts cannot draw an Area or Line with only 1 data point.
   // We duplicate it to create a flat line if there's only 1 record group.
-  const displayChartData = chartData.length === 1 
+  const displayChartData = chartData.length === 1
     ? [
-        { ...chartData[0], time: `${chartData[0].time} (Awal)` },
-        { ...chartData[0], time: `${chartData[0].time} (Akhir)` }
-      ]
+      { ...chartData[0], time: `${chartData[0].time} (Awal)` },
+      { ...chartData[0], time: `${chartData[0].time} (Akhir)` }
+    ]
     : chartData;
 
   return (
@@ -294,40 +297,40 @@ export default function ReportsPage() {
       {/* PAGE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full border-b border-slate-200/60 dark:border-slate-800/40 pb-5">
         <div>
-          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">Kitchen Sensor Node</p>
+          <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">Kitchen Sensor Node</p>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-950 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
             Reports
           </h1>
-          <p className="text-slate-550 dark:text-slate-400 text-xs mt-1">Ringkasan Statistik &amp; Analisis Trend Sensor</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Ringkasan Statistik &amp; Analisis Trend Sensor</p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2">
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value as any)}
-              className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
+              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
             >
               <option value="all">Semua Data</option>
               <option value="day">Harian</option>
               <option value="week">Mingguan</option>
               <option value="month">Bulanan</option>
             </select>
-            
+
             {filterType === 'day' && (
-              <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-350 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
+              <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
             )}
             {filterType === 'week' && (
-              <input type="week" value={filterWeek} onChange={e => setFilterWeek(e.target.value)} className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-350 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
+              <input type="week" value={filterWeek} onChange={e => setFilterWeek(e.target.value)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
             )}
             {filterType === 'month' && (
-              <input type="month" value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-350 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
+              <input type="month" value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
             )}
           </div>
 
           <button
-            onClick={fetchData}
+            onClick={() => fetchData()}
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all text-xs font-semibold active:scale-95 disabled:opacity-50 shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all text-xs font-semibold active:scale-95 disabled:opacity-50 shadow-sm"
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             <span>Refresh</span>
@@ -350,7 +353,7 @@ export default function ReportsPage() {
               </div>
               <div className="absolute inset-0 bg-emerald-500/10 rounded-2xl blur-xl animate-pulse" />
             </div>
-            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-550">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
               Loading report data...
             </p>
           </div>
@@ -379,7 +382,7 @@ export default function ReportsPage() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <FileBarChart size={13} className="text-emerald-500" />
-                      <span className="text-[9px] font-black text-slate-450 dark:text-slate-550 uppercase tracking-[0.2em]">
+                      <span className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">
                         All Sensors Trend
                       </span>
                     </div>
@@ -436,27 +439,27 @@ export default function ReportsPage() {
                         tickLine={false}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
-                      <YAxis 
-                        yAxisId="left" 
-                        stroke="#94a3b8" 
-                        fontSize={9} 
-                        axisLine={false} 
+                      <YAxis
+                        yAxisId="left"
+                        stroke="#94a3b8"
+                        fontSize={9}
+                        axisLine={false}
                         tickLine={false}
                         tickFormatter={(val) => `${val}`}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
-                      <YAxis 
-                        yAxisId="right" 
-                        orientation="right" 
-                        stroke="#94a3b8" 
-                        fontSize={9} 
-                        axisLine={false} 
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#94a3b8"
+                        fontSize={9}
+                        axisLine={false}
                         tickLine={false}
                         tickFormatter={(val) => `${val}°`}
                         style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                       />
                       <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '3 3' }} />
-                      
+
                       <Area yAxisId="left" name="CO₂" type="monotone" dataKey="Avg CO₂" stroke="#3b82f6" strokeWidth={2} fill="url(#colorCo2)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
                       <Area yAxisId="left" name="NH₃" type="monotone" dataKey="Avg NH₃" stroke="#f59e0b" strokeWidth={2} fill="url(#colorNh3)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} />
                       <Area yAxisId="left" name="VOC" type="monotone" dataKey="Avg VOC" stroke="#ec4899" strokeWidth={2} fill="url(#colorVoc)" dot={displayChartData.length <= 2} activeDot={{ r: 4, fill: '#ec4899', strokeWidth: 0 }} />
@@ -469,17 +472,17 @@ export default function ReportsPage() {
             ) : (
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 flex flex-col items-center justify-center p-12 text-center shadow-sm">
                 <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/40 rounded-full flex items-center justify-center mb-4 border border-slate-200/50 dark:border-slate-800/50">
-                  <Database size={24} className="text-slate-400 dark:text-slate-550 animate-pulse" />
+                  <Database size={24} className="text-slate-400 dark:text-slate-500 animate-pulse" />
                 </div>
                 <h3 className="text-xs font-black text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-widest">Tidak Ada Data</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-450">Belum ada data sensor yang terekam pada tanggal/periode yang kamu pilih.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-500">Belum ada data sensor yang terekam pada tanggal/periode yang kamu pilih.</p>
               </div>
             )}
 
             {/* Threshold reference table */}
             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 overflow-hidden shadow-sm transition-colors duration-300">
               <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-[9px] font-black text-slate-450 dark:text-slate-550 uppercase tracking-[0.2em]">
+                <span className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">
                   Kitchen Threshold Reference
                 </span>
               </div>
@@ -489,7 +492,7 @@ export default function ReportsPage() {
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-slate-800/60">
                       {['Parameter', 'Threshold', 'Dataset Average', 'Dataset Max', 'Status'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-400 dark:text-slate-505 uppercase tracking-[0.2em]">{h}</th>
+                        <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -501,17 +504,16 @@ export default function ReportsPage() {
                       { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
                       { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                     ].map(row => (
-                      <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-slate-850/40 transition-colors">
-                        <td className="px-5 py-3.5 text-slate-700 dark:text-slate-350 font-bold text-xs uppercase tracking-tight">{row.name}</td>
-                        <td className="px-5 py-3.5 text-slate-450 dark:text-slate-500 text-xs font-mono" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{row.threshold}</td>
+                      <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
+                        <td className="px-5 py-3.5 text-slate-700 dark:text-slate-400 font-bold text-xs uppercase tracking-tight">{row.name}</td>
+                        <td className="px-5 py-3.5 text-slate-500 dark:text-slate-500 text-xs font-mono" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{row.threshold}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#ef4444', fontFamily: "'IBM Plex Mono', monospace" }}>{row.avg}</td>
                         <td className="px-5 py-3.5 font-bold text-xs font-mono" style={{ color: row.ok ? undefined : '#fca5a5', fontFamily: "'IBM Plex Mono', monospace" }}>{row.max}</td>
                         <td className="px-5 py-3.5">
-                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 w-max ${
-                            row.ok
-                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                              : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
-                          }`}>
+                          <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 w-max ${row.ok
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                            : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                            }`}>
                             {row.ok ? '✓ Normal' : '⚠ Exceeded'}
                           </span>
                         </td>
@@ -530,29 +532,28 @@ export default function ReportsPage() {
                   { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
                   { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                 ].map(row => (
-                  <div key={row.name} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-850/20 transition-colors">
+                  <div key={row.name} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">{row.name}</span>
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${
-                        row.ok
-                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                          : 'bg-red-500/10 text-red-500 border-red-500/20'
-                      }`}>
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border flex items-center gap-1 ${row.ok
+                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                        }`}>
                         {row.ok ? <CheckCircle size={10} /> : <AlertTriangle size={10} />}
                         {row.ok ? 'Normal' : 'Exceeded'}
                       </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">THRESHOLD</p>
                         <p className="text-xs font-black text-slate-600 dark:text-slate-300 font-mono">{row.threshold}</p>
                       </div>
-                      <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">AVERAGE</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#ef4444' }}>{row.avg}</p>
                       </div>
-                      <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
                         <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">MAXIMUM</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#fca5a5' }}>{row.max}</p>
                       </div>
