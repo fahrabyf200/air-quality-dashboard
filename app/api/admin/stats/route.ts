@@ -42,7 +42,7 @@ export async function GET() {
         `SELECT 
           COALESCE(SUM(amount), 0) as totalRevenue,
           COALESCE(SUM(CASE WHEN MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE()) THEN amount ELSE 0 END), 0) as thisMonthRevenue
-         FROM sales`
+         FROM sales_transactions`
       );
       totalRevenue = Number(revenueStats.totalRevenue) || 0;
       thisMonthRevenue = Number(revenueStats.thisMonthRevenue) || 0;
@@ -71,22 +71,95 @@ export async function GET() {
           DATE_FORMAT(created_at, '%b %Y') as label,
           COALESCE(SUM(amount), 0) as revenue,
           COUNT(*) as transactions
-         FROM sales
-         GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+         FROM sales_transactions
+         GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y')
          ORDER BY month ASC`
       );
       revenueByMonth = monthlyRevenue;
     } catch { }
 
-    // Package distribution
+    // Package distribution (Classified into 4 user groups)
     let packageDist: any[] = [];
+    let subscribers: any[] = [];
     try {
-      const [pkgData]: any = await db.query(
-        `SELECT package_name, COUNT(*) as count, COALESCE(SUM(amount), 0) as total
-         FROM sales GROUP BY package_name`
+      // Fetch all users (excluding admin) with their latest transaction package and their invitation status
+      const [users]: any = await db.query(
+        `SELECT u.id, u.name, u.email, u.role, u.subscription_status, u.subscription_end_date, u.created_at,
+           (SELECT package_name FROM sales_transactions WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) as latest_package,
+           (SELECT COUNT(*) FROM device_shares WHERE member_email = u.email) as is_invited
+         FROM users u
+         WHERE u.role != 'admin'`
       );
-      packageDist = pkgData;
-    } catch { }
+
+      let count1Month = 0;
+      let count1Year = 0;
+      let countInvited = 0;
+      let countNotSubscribed = 0;
+
+      const sub1Month: any[] = [];
+      const sub1Year: any[] = [];
+      const subInvited: any[] = [];
+      const subNotSubscribed: any[] = [];
+
+      const now = new Date();
+
+      for (const u of users) {
+        const isSubActive = u.subscription_status === 'active' && (u.subscription_end_date ? new Date(u.subscription_end_date) >= now : true);
+        
+        if (u.is_invited > 0) {
+          countInvited++;
+          subInvited.push({
+            user_name: u.name,
+            user_email: u.email,
+            amount: 0,
+            created_at: u.created_at,
+          });
+        } else if (isSubActive) {
+          const pkg = u.latest_package || '';
+          if (pkg.includes('Tahun') || pkg.includes('1 Tahun') || pkg.includes('Year')) {
+            count1Year++;
+            sub1Year.push({
+              user_name: u.name,
+              user_email: u.email,
+              amount: 599000,
+              created_at: u.subscription_end_date,
+            });
+          } else {
+            count1Month++;
+            sub1Month.push({
+              user_name: u.name,
+              user_email: u.email,
+              amount: 349000,
+              created_at: u.subscription_end_date,
+            });
+          }
+        } else {
+          countNotSubscribed++;
+          subNotSubscribed.push({
+            user_name: u.name,
+            user_email: u.email,
+            amount: 0,
+            created_at: u.created_at,
+          });
+        }
+      }
+
+      packageDist = [
+        { package_name: 'Langganan 1 Bulan', count: count1Month },
+        { package_name: 'Langganan 1 Tahun', count: count1Year },
+        { package_name: 'Lewat Undangan', count: countInvited },
+        { package_name: 'Belum Langganan / Belum Perpanjang', count: countNotSubscribed }
+      ];
+
+      subscribers = [
+        ...sub1Month.map(s => ({ ...s, package_name: 'Langganan 1 Bulan' })),
+        ...sub1Year.map(s => ({ ...s, package_name: 'Langganan 1 Tahun' })),
+        ...subInvited.map(s => ({ ...s, package_name: 'Lewat Undangan' })),
+        ...subNotSubscribed.map(s => ({ ...s, package_name: 'Belum Langganan / Belum Perpanjang' }))
+      ];
+    } catch (e: any) {
+      console.error("Gagal klasifikasi:", e.message);
+    }
 
     // Complaints by status
     let complaintsByStatus: any[] = [];
@@ -108,7 +181,7 @@ export async function GET() {
           COUNT(*) as total_events
          FROM sensor_data
          WHERE (co2 > 250 OR nh3 > 30 OR voc > 70 OR temp > 32)
-         GROUP BY DATE(created_at)
+         GROUP BY DATE(created_at), DATE_FORMAT(created_at, '%d %b')
          ORDER BY date ASC`
       );
       dangerTrend = trendData;
@@ -128,6 +201,7 @@ export async function GET() {
       packageDist,
       complaintsByStatus,
       dangerTrend,
+      subscribers,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -26,6 +26,7 @@ interface Stats {
   packageDist: { package_name: string; count: number; total: number }[];
   complaintsByStatus: { status: string; count: number }[];
   dangerTrend: { label: string; total_events: number }[];
+  subscribers: { package_name: string; user_name: string; user_email: string; amount: number; created_at: string }[];
 }
 
 const PIE_COLORS = ['#4edea3', '#3b82f6', '#f97316', '#a855f7', '#ef4444'];
@@ -41,11 +42,14 @@ function formatRupiah(n: number) {
   return `Rp ${n.toLocaleString('id-ID')}`;
 }
 
-function StatCard({ label, value, icon: Icon, color, sub }: {
-  label: string; value: any; icon: any; color: string; sub?: string;
+function StatCard({ label, value, icon: Icon, color, sub, onClick }: {
+  label: string; value: any; icon: any; color: string; sub?: string; onClick?: () => void;
 }) {
   return (
-    <div className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-700 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+    <div 
+      onClick={onClick} 
+      className={`relative rounded-2xl border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 overflow-hidden group transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.04)] ${onClick ? 'cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-700 hover:scale-[1.02] active:scale-[0.98]' : ''}`}
+    >
       <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" style={{ backgroundColor: color }} />
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex items-start justify-between mb-5">
@@ -90,6 +94,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -117,11 +122,11 @@ export default function AdminPage() {
   if (!session) return null;
 
   const statCards = [
-    { label: 'Total Pengguna', value: stats?.totalUsers ?? 0, icon: Users, color: '#8b5cf6', sub: `${stats?.userCount ?? 0} user aktif` },
-    { label: 'Total Pendapatan', value: loading ? '—' : formatRupiah(stats?.totalRevenue ?? 0), icon: Wallet, color: '#4edea3', sub: `Bulan ini: ${formatRupiah(stats?.thisMonthRevenue ?? 0)}` },
-    { label: 'Total Pengaduan', value: stats?.totalComplaints ?? 0, icon: MessageSquare, color: '#3b82f6', sub: `${stats?.openComplaints ?? 0} belum ditangani` },
-    { label: 'Total Data Sensor', value: stats?.totalSensor ?? 0, icon: Database, color: '#22c55e', sub: 'Total rekaman' },
-    { label: 'Data Hari Ini', value: stats?.todaySensor ?? 0, icon: Activity, color: '#f97316', sub: 'Sejak 00:00' },
+    { label: 'Total Pengguna', value: stats?.totalUsers ?? 0, icon: Users, color: '#8b5cf6', sub: `${stats?.userCount ?? 0} user aktif`, onClick: () => router.push('/admin/users') },
+    { label: 'Total Pendapatan', value: loading ? '—' : formatRupiah(stats?.totalRevenue ?? 0), icon: Wallet, color: '#4edea3', sub: `Bulan ini: ${formatRupiah(stats?.thisMonthRevenue ?? 0)}`, onClick: () => router.push('/admin/sales') },
+    { label: 'Total Pengaduan', value: stats?.totalComplaints ?? 0, icon: MessageSquare, color: '#3b82f6', sub: `${stats?.openComplaints ?? 0} belum ditangani`, onClick: () => router.push('/admin/complaints') },
+    { label: 'Total Data Sensor', value: stats?.totalSensor ?? 0, icon: Database, color: '#22c55e', sub: 'Total rekaman', onClick: () => router.push('/admin/sensor') },
+    { label: 'Data Hari Ini', value: stats?.todaySensor ?? 0, icon: Activity, color: '#f97316', sub: 'Sejak 00:00', onClick: () => router.push('/admin/sensor') },
   ];
 
   return (
@@ -138,6 +143,7 @@ export default function AdminPage() {
               icon={card.icon}
               color={card.color}
               sub={card.sub}
+              onClick={card.onClick}
             />
           ))}
         </div>
@@ -176,41 +182,111 @@ export default function AdminPage() {
           </div>
 
           {/* Package Distribution */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
-              <Package size={14} className="text-blue-500" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Distribusi Paket</span>
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package size={14} className="text-blue-500" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Distribusi Paket</span>
+              </div>
+              {selectedPackage && (
+                <button 
+                  onClick={() => setSelectedPackage(null)} 
+                  className="text-[9px] font-black uppercase tracking-wider text-purple-500 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
+                >
+                  Reset
+                </button>
+              )}
             </div>
-            <div className="p-4 h-64 flex flex-col items-center justify-center">
+            <div className="p-4 flex flex-col items-center justify-center flex-1">
               {stats?.packageDist && stats.packageDist.length > 0 ? (
                 <>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <PieChart>
-                      <Pie
-                        data={stats.packageDist}
-                        dataKey="count"
-                        nameKey="package_name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={45}
-                        outerRadius={70}
-                        paddingAngle={3}
-                      >
-                        {stats.packageDist.map((entry, index) => (
-                          <Cell key={entry.package_name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(val, name) => [val, name]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex flex-wrap gap-3 justify-center mt-2">
-                    {stats.packageDist.map((p, i) => (
-                      <div key={p.package_name} className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">{p.package_name} ({p.count})</span>
-                      </div>
-                    ))}
+                  <div className="h-44 w-full flex items-center justify-center relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={stats.packageDist}
+                          dataKey="count"
+                          nameKey="package_name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={45}
+                          outerRadius={65}
+                          paddingAngle={3}
+                          onMouseEnter={(data) => {
+                            const pkgName = data?.package_name || data?.payload?.package_name;
+                            if (pkgName) {
+                              setSelectedPackage(pkgName);
+                            }
+                          }}
+                          onClick={(data) => {
+                            const pkgName = data?.package_name || data?.payload?.package_name;
+                            if (pkgName) {
+                              setSelectedPackage(selectedPackage === pkgName ? null : pkgName);
+                            }
+                          }}
+                        >
+                          {stats.packageDist.map((entry, index) => {
+                            const isSelected = selectedPackage === entry.package_name;
+                            const hasSelection = selectedPackage !== null;
+                            return (
+                              <Cell 
+                                key={entry.package_name} 
+                                fill={PIE_COLORS[index % PIE_COLORS.length]} 
+                                style={{ outline: 'none', cursor: 'pointer' }}
+                                opacity={hasSelection ? (isSelected ? 1 : 0.35) : 1}
+                              />
+                            );
+                          })}
+                        </Pie>
+                        <Tooltip formatter={(val, name) => [val, name]} />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
+                  <div className="flex flex-wrap gap-2 justify-center mt-2 w-full px-2">
+                    {stats.packageDist.map((p, i) => {
+                      const isSelected = selectedPackage === p.package_name;
+                      return (
+                        <button 
+                          key={p.package_name} 
+                          onClick={() => setSelectedPackage(isSelected ? null : p.package_name)}
+                          onMouseEnter={() => setSelectedPackage(p.package_name)}
+                          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all text-[10px] font-bold cursor-pointer ${
+                            isSelected 
+                              ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white scale-[1.03]' 
+                              : 'bg-transparent border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          <span className="w-2 h-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                          <span>{p.package_name} ({p.count})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* List of subscribers of the selected package */}
+                  {selectedPackage && (
+                    <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4 w-full animate-in fade-in slide-in-from-top-2 duration-200">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+                        Daftar Pengguna ({stats.subscribers?.filter(s => s.package_name === selectedPackage).length ?? 0})
+                      </p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        {(stats.subscribers?.filter(s => s.package_name === selectedPackage) || []).map((sub, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-white capitalize leading-tight">{sub.user_name || '—'}</p>
+                              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 leading-none">{sub.user_email}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[10px] font-black text-[#4edea3] font-mono leading-none">{formatRupiah(sub.amount)}</p>
+                              <p className="text-[8px] text-slate-400 font-mono mt-1 leading-none">
+                                {new Date(sub.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="text-slate-400 text-sm font-semibold">
