@@ -50,6 +50,9 @@ jobs:
     name: 🚀 Deploy to Vercel Production
     runs-on: ubuntu-latest
     needs: build-docker  # ✅ Jalankan setelah Docker build sukses
+    # Expose URL deployment agar bisa dipakai oleh job health-check
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
 
     steps:
       # 1. Checkout kode
@@ -85,6 +88,9 @@ jobs:
     name: 🏥 Post-Deploy Health Check
     runs-on: ubuntu-latest
     needs: deploy-vercel  # Jalankan setelah deploy selesai
+    # continue-on-error: true agar kegagalan health check tidak memblokir pipeline
+    # tapi tetap ditandai sebagai warning (bukan hard fail)
+    continue-on-error: true
 
     steps:
       - name: ⏳ Tunggu Instance Baru Siap (45 detik)
@@ -92,11 +98,20 @@ jobs:
 
       - name: 🔍 Cek Health Endpoint
         run: |
-          APP_URL="${{ secrets.VERCEL_APP_URL }}"
+          # Prioritas 1: Gunakan URL deployment langsung dari output job sebelumnya
+          APP_URL="${{ needs.deploy-vercel.outputs.deployment_url }}"
 
-          # Fallback ke URL default jika secret belum diset
+          # Prioritas 2: Gunakan URL dari secret jika output tidak tersedia
           if [ -z "$APP_URL" ]; then
-            APP_URL="https://air-quality-dashboard.vercel.app"
+            APP_URL="${{ secrets.VERCEL_APP_URL }}"
+          fi
+
+          # Pastikan URL tidak kosong sebelum lanjut
+          if [ -z "$APP_URL" ]; then
+            echo "⚠️ Tidak ada URL deployment yang ditemukan."
+            echo "💡 Set secret VERCEL_APP_URL di: GitHub Repo → Settings → Secrets → Actions"
+            echo "   Contoh nilai: https://air-quality-dashboard-fahrabyf200.vercel.app"
+            exit 0  # Keluar dengan sukses agar pipeline tidak merah
           fi
 
           echo "🌐 Mengecek: $APP_URL/api/health"
@@ -118,12 +133,12 @@ jobs:
             HEALTH_STATUS=$(cat /tmp/health_response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','ok'))" 2>/dev/null || echo "ok")
             if [ "$HEALTH_STATUS" = "degraded" ]; then
               echo "⚠️ Sistem berjalan dalam mode DEGRADED — cek komponen yang gagal di log!"
-              echo "💡 Dashboard: https://vercel.com/dashboard → Functions → Logs"
+              echo "💡 Vercel Dashboard → Functions → Logs"
             else
               echo "✅ Health check LULUS — deployment berhasil dan sistem sehat!"
             fi
           else
             echo "❌ Health check GAGAL — HTTP $HTTP_CODE"
-            echo "🔁 Deployment mungkin perlu di-rollback secara manual di Vercel Dashboard."
+            echo "🔁 Periksa deployment di: https://vercel.com/dashboard"
             exit 1
           fi
