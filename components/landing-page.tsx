@@ -426,16 +426,21 @@ export default function LandingPage() {
       {/* POSTER / PROMO BANNER */}
       <section className="relative w-full max-w-7xl mx-auto px-6 pb-20">
         <ScrollReveal delay={100}>
-          <div className="relative rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/10 aspect-[4/3] md:aspect-[21/9] bg-black shadow-2xl group">
-            <iframe 
-              src="https://drive.google.com/file/d/1NoMa_m4q9Kwa-tMB-913-XlFGT54W0gV/preview"
-              title="PBL Air Quality Video"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              className="w-full h-full object-cover opacity-80 border-0" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#070d1a]/90 via-[#070d1a]/40 to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500" />
-            <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 text-left w-full md:w-2/3 pointer-events-none group-hover:opacity-0 transition-opacity duration-500">
+          <div className="flex flex-col md:block relative rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/10 bg-[#070d1a] shadow-2xl group">
+            {/* Video Container */}
+            <div className="relative w-full aspect-video md:aspect-[21/9]">
+              <video 
+                src="/pbl-air-quality.mp4"
+                controls
+                playsInline 
+                className="absolute inset-0 w-full h-full object-cover opacity-80 z-10" 
+              />
+              {/* Overlay Gradient (Only on Desktop) */}
+              <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#070d1a]/90 via-[#070d1a]/40 to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500 z-20" />
+            </div>
+
+            {/* Text Overlay (Desktop) / Underneath (Mobile) */}
+            <div className="relative md:absolute md:inset-0 flex flex-col justify-center p-8 md:px-16 text-left w-full md:w-2/3 md:pointer-events-none md:group-hover:opacity-0 transition-opacity duration-500 z-30">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 rounded-full bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-[10px] font-black uppercase tracking-widest backdrop-blur-md w-fit">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" /> New Generation
               </div>
