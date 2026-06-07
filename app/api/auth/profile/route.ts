@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { logActivity, getIp } from '@/lib/activity-logger';
 
 export async function POST(req: Request) {
   try {
@@ -51,6 +52,16 @@ export async function POST(req: Request) {
         queryParams
       );
     }
+
+    // Log aktivitas edit profil
+    logActivity({
+      user_id: (session as any).id,
+      user_name: (session as any).name,
+      user_email: (session as any).email,
+      action: 'edit_profile',
+      description: `Profil diperbarui${finalDeviceId !== undefined ? ' (termasuk Device ID)' : ''}`,
+      ip_address: getIp(req),
+    });
 
     return NextResponse.json({ message: 'Profil dan alat berhasil disimpan!' }, { status: 200 });
   } catch (error: any) {

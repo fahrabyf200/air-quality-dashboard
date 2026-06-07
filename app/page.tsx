@@ -260,7 +260,7 @@ export default function Dashboard() {
   
   // States Multi-Device
   const [devices, setDevices] = useState<any[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState('all');
+  const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
   
@@ -290,14 +290,18 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/devices');
       const data = await res.json();
-      setDevices(data.devices || []);
+      const devList = data.devices || [];
+      setDevices(devList);
+      if (devList.length > 0) {
+        setSelectedDeviceId(devList[0].device_id);
+      }
     } catch {}
   };
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const url = selectedDeviceId && selectedDeviceId !== 'all' 
+      const url = selectedDeviceId
         ? `/api/sensor?device_id=${encodeURIComponent(selectedDeviceId)}`
         : '/api/sensor';
       const res = await fetch(url);
@@ -434,12 +438,8 @@ export default function Dashboard() {
   }
 
   // Nama sensor yang sedang aktif dipantau
-  const activeDevice = selectedDeviceId === 'all'
-    ? (devices.length > 0 ? null : null)
-    : devices.find(d => d.device_id === selectedDeviceId);
-  const activeSensorLabel = selectedDeviceId === 'all'
-    ? 'Pemantauan Dapur Utama'
-    : (activeDevice?.device_name || selectedDeviceId);
+  const activeDevice = devices.find(d => d.device_id === selectedDeviceId);
+  const activeSensorLabel = activeDevice?.device_name || selectedDeviceId || 'Sensor Monitoring';
 
   const sensors = [
     {
@@ -527,7 +527,6 @@ export default function Dashboard() {
                   onChange={e => setSelectedDeviceId(e.target.value)}
                   className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
                 >
-                  <option value="all" className="bg-white dark:bg-slate-900">Semua Sensor</option>
                   {devices.map((dev: any) => (
                     <option key={dev.id} value={dev.device_id} className="bg-white dark:bg-slate-900">
                       {dev.device_name}
@@ -733,17 +732,13 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Device ID</span>
                   <span className="text-xs font-mono text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
-                    {selectedDeviceId === 'all' 
-                      ? (devices[0]?.device_id || 'NODE-KITCHEN-01') 
-                      : selectedDeviceId}
+                    {selectedDeviceId || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Device Name</span>
                   <span className="text-xs text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
-                    {selectedDeviceId === 'all' 
-                      ? 'Semua Sensor' 
-                      : (devices.find(d => d.device_id === selectedDeviceId)?.device_name || 'Sensor Utama')}
+                    {activeDevice?.device_name || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

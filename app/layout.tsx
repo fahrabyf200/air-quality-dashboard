@@ -684,41 +684,185 @@ function isPremiumActive(user: any): boolean {
   return false;
 }
 
+const PACKAGES = [
+  {
+    id: '1month',
+    name: 'Bundle Alat + Web',
+    period: 'Langganan 1 Bulan',
+    price: 349000,
+    originalPrice: null,
+    badge: null,
+    highlight: false,
+    features: [
+      { ok: true, text: 'Alat Sensor ESP32 Fisik' },
+      { ok: true, text: 'Dashboard Web Monitoring' },
+      { ok: true, text: 'Multi-device & Invite Pegawai' },
+      { ok: true, text: 'Notifikasi & Laporan Real-time' },
+    ],
+    waText: (email: string) => `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Bulan (Bundle Alat + Web) Rp 349.000 untuk akun email: ${email}`,
+  },
+  {
+    id: '1year',
+    name: 'Bundle Alat + Web',
+    period: 'Langganan 1 Tahun',
+    price: 599000,
+    originalPrice: 749000,
+    badge: 'Hemat',
+    highlight: true,
+    features: [
+      { ok: true, text: 'Semua Fitur Paket Bulanan' },
+      { ok: true, text: 'Akses 12 Bulan Penuh' },
+      { ok: true, text: 'Harga Lebih Hemat' },
+      { ok: true, text: 'Prioritas Dukungan CS' },
+    ],
+    waText: (email: string) => `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Tahun (Bundle Alat + Web) Rp 599.000 untuk akun email: ${email}`,
+  },
+  {
+    id: 'device',
+    name: 'Alat Saja',
+    period: 'Hanya Beli Alat',
+    price: 249000,
+    originalPrice: null,
+    badge: null,
+    highlight: false,
+    features: [
+      { ok: true, text: 'Alat Sensor ESP32 Fisik' },
+      { ok: false, text: 'Akses Dashboard Web' },
+      { ok: false, text: 'Grafik & Laporan Online' },
+      { ok: true, text: 'Bisa Upgrade Kapan Saja' },
+    ],
+    waText: (email: string) => `Halo Admin SkyWatch, saya ingin membeli Alat Sensor ESP32 saja (Rp 249.000) untuk akun email: ${email}. Saya tidak memerlukan akses dashboard web saat ini.`,
+  },
+];
+
+function formatRp(n: number) {
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+
 function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
-  const waMessage = encodeURIComponent(
-    `Halo Admin, saya ingin upgrade ke Premium SkyWatch untuk akun dengan email: ${userEmail}`
-  );
-  const waLink = `https://wa.me/${WA_ADMIN}?text=${waMessage}`;
+  const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
+
+  const handleProceed = () => {
+    const pkg = PACKAGES.find(p => p.id === selectedPkg);
+    if (!pkg) return;
+    const waLink = `https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(pkg.waText(userEmail))}`;
+    fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {});
+    window.open(waLink, '_blank', 'noopener,noreferrer');
+  };
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-      <div className="absolute inset-0 backdrop-blur-md bg-slate-900/10 dark:bg-slate-950/30" />
-      <div className="relative z-10 max-w-sm w-full bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl text-center">
-        <div className="relative w-16 h-16 mx-auto mb-5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center justify-center">
-          <Lock size={26} className="text-emerald-600 dark:text-emerald-500" strokeWidth={2.5} />
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4">
+      <div className="absolute inset-0 backdrop-blur-md bg-slate-900/20 dark:bg-slate-950/50" />
+      <div className="relative z-10 w-full max-w-2xl bg-white/97 dark:bg-slate-900/97 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
+        
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 text-center border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-xl bg-[#4edea3]/15 border border-[#4edea3]/30 flex items-center justify-center">
+              <Lock size={15} className="text-emerald-600 dark:text-[#4edea3]" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Crown size={11} className="text-emerald-600 dark:text-[#4edea3]" />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-600 dark:text-[#4edea3]">SkyWatch Premium</span>
+            </div>
+          </div>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-1">Pilih Paket Anda</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Fitur ini hanya untuk pengguna Premium. Pilih paket yang sesuai untuk melanjutkan.
+          </p>
+          {/* Free pages hint */}
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <span className="text-[10px] text-slate-400">Halaman gratis:</span>
+            <Link href="/profile" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <User size={10} /> Profil Saya
+            </Link>
+            <Link href="/education" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <BookOpen size={10} /> Tentang & Edukasi
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center justify-center gap-1.5 mb-1.5">
-          <Crown size={12} className="text-emerald-600 dark:text-emerald-500" />
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-emerald-600 dark:text-emerald-400">SkyWatch Premium</p>
+
+        {/* Pricing Cards */}
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {PACKAGES.map(pkg => (
+            <button
+              key={pkg.id}
+              onClick={() => setSelectedPkg(pkg.id)}
+              className={`relative text-left rounded-2xl border-2 p-4 transition-all duration-200 cursor-pointer group ${
+                selectedPkg === pkg.id
+                  ? 'border-[#4edea3] bg-[#4edea3]/8 shadow-[0_0_20px_rgba(78,222,163,0.2)]'
+                  : pkg.highlight
+                    ? 'border-[#4edea3]/40 bg-[#4edea3]/5 hover:border-[#4edea3]/70'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              {/* Selected indicator */}
+              {selectedPkg === pkg.id && (
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#4edea3] flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-[#003824]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Badge */}
+              {pkg.badge && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#4edea3] text-[#003824] mb-2">
+                  {pkg.badge}
+                </span>
+              )}
+
+              <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{pkg.period}</p>
+              <p className="text-sm font-black text-slate-900 dark:text-white mb-2 leading-tight">{pkg.name}</p>
+              
+              {/* Price */}
+              <div className="mb-3">
+                {pkg.originalPrice && (
+                  <span className="text-[10px] text-slate-400 line-through mr-1.5">{formatRp(pkg.originalPrice)}</span>
+                )}
+                <span className={`text-xl font-black ${pkg.highlight ? 'text-emerald-600 dark:text-[#4edea3]' : 'text-slate-900 dark:text-white'}`} style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                  {formatRp(pkg.price)}
+                </span>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-1.5">
+                {pkg.features.map((f, i) => (
+                  <li key={i} className={`flex items-start gap-1.5 text-[10px] font-medium ${f.ok ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'}`}>
+                    <span className={`mt-0.5 w-3 h-3 rounded-full flex items-center justify-center flex-shrink-0 text-[8px] font-black ${f.ok ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-400'}`}>
+                      {f.ok ? '✓' : '✗'}
+                    </span>
+                    {f.text}
+                  </li>
+                ))}
+              </ul>
+            </button>
+          ))}
         </div>
-        <h2 className="text-xl font-display font-black text-slate-900 dark:text-white mb-2">Fitur Terkunci</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mb-6">
-          Halaman ini hanya dapat diakses oleh pengguna <span className="text-emerald-600 dark:text-emerald-500 font-bold">Premium Active</span>. Upgrade sekarang untuk memantau sirkulasi udara Anda.
-        </p>
-        <a
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {})}
-          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <MessageCircle size={16} />
-          Upgrade via WhatsApp
-        </a>
+
+        {/* CTA Footer */}
+        <div className="px-5 pb-5">
+          {selectedPkg ? (
+            <button
+              onClick={handleProceed}
+              className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20c45c] text-white font-black text-sm transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Lanjutkan ke WhatsApp
+            </button>
+          ) : (
+            <div className="text-center text-xs text-slate-400 py-2">
+              ← Pilih salah satu paket di atas untuk melanjutkan
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 
 function Footer() {
   const [currentTime, setCurrentTime] = useState('');

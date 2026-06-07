@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { logActivity, getIp } from '@/lib/activity-logger';
 
 export async function POST(req: Request) {
   try {
@@ -40,6 +41,16 @@ export async function POST(req: Request) {
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 // 1 day
+    });
+
+    // Log aktivitas login
+    logActivity({
+      user_id: user.id,
+      user_name: user.name,
+      user_email: user.email,
+      action: 'login',
+      description: `Login berhasil dari akun ${user.email}`,
+      ip_address: getIp(req),
     });
 
     return NextResponse.json({ message: "Login berhasil", user: { name: user.name, email: user.email, role: user.role || 'user' } }, { status: 200 });

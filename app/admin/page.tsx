@@ -3,19 +3,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Users, ShieldCheck, ShieldAlert, Database,
-  Activity, Trash2, Crown, UserCircle,
-  RefreshCw, AlertTriangle, UserX, ArrowLeft,
-  ChevronDown, BarChart3, Cpu, Wallet, MessageSquare
+  Users, Database, Activity, RefreshCw, AlertTriangle,
+  ArrowLeft, BarChart3, Cpu, Wallet, MessageSquare,
+  TrendingUp, Package, ShieldAlert, DollarSign
 } from 'lucide-react';
-
-interface UserRow {
-  id: number;
-  name: string;
-  email: string;
-  role?: string;
-  created_at?: string;
-}
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  PieChart, Pie, Cell, LineChart, Line, Legend
+} from 'recharts';
 
 interface Stats {
   totalUsers: number;
@@ -23,23 +18,35 @@ interface Stats {
   userCount: number;
   totalSensor: number;
   todaySensor: number;
+  totalRevenue: number;
+  thisMonthRevenue: number;
+  totalComplaints: number;
+  openComplaints: number;
+  revenueByMonth: { label: string; revenue: number; transactions: number }[];
+  packageDist: { package_name: string; count: number; total: number }[];
+  complaintsByStatus: { status: string; count: number }[];
+  dangerTrend: { label: string; total_events: number }[];
+}
+
+const PIE_COLORS = ['#4edea3', '#3b82f6', '#f97316', '#a855f7', '#ef4444'];
+const STATUS_COLORS: Record<string, string> = {
+  open: '#ef4444',
+  in_progress: '#f97316',
+  resolved: '#22c55e',
+};
+
+function formatRupiah(n: number) {
+  if (n >= 1000000) return `Rp ${(n / 1000000).toFixed(1)}jt`;
+  if (n >= 1000) return `Rp ${(n / 1000).toFixed(0)}rb`;
+  return `Rp ${n.toLocaleString('id-ID')}`;
 }
 
 function StatCard({ label, value, icon: Icon, color, sub }: {
-  label: string;
-  value: any;
-  icon: any;
-  color: string;
-  sub?: string;
+  label: string; value: any; icon: any; color: string; sub?: string;
 }) {
   return (
     <div className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-700 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-      {/* Glow Lampu (Brightened in Light Mode) */}
-      <div 
-        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" 
-        style={{ backgroundColor: color }} 
-      />
-
+      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-[0.25] dark:opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.35]" style={{ backgroundColor: color }} />
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex items-start justify-between mb-5">
           <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -58,351 +65,223 @@ function StatCard({ label, value, icon: Icon, color, sub }: {
   );
 }
 
-function RoleBadge({ role }: { role?: string }) {
-  if (role === 'admin') {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-        <Crown size={10} /> Admin
-      </span>
-    );
-  }
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-850 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
-      <UserCircle size={10} /> User
-    </span>
+    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 shadow-lg text-xs">
+      <p className="text-slate-500 font-semibold uppercase tracking-wider text-[9px] mb-1.5">{label}</p>
+      {payload.map((p: any) => (
+        <div key={p.name} className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+            <span className="text-slate-500 text-[9px] uppercase">{p.name}</span>
+          </div>
+          <span className="font-black text-slate-900 dark:text-white">
+            {typeof p.value === 'number' && p.name === 'Revenue' ? formatRupiah(p.value) : p.value}
+          </span>
+        </div>
+      ))}
+    </div>
   );
-}
+};
 
 export default function AdminPage() {
   const router = useRouter();
-  const [users, setUsers] = useState<UserRow[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [error, setError] = useState('');
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [promotingId, setPromotingId] = useState<number | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null);
   const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.headers.get('content-type')?.includes('application/json') ? r.json() : { user: null })
-      .then(d => {
-        if (d.user) setSession(d.user);
-      })
+      .then(d => { if (d.user) setSession(d.user); })
       .catch(() => {});
   }, []);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/users');
-      if (res.status === 403) { router.replace('/'); return; }
-      const data = await res.json();
-      setUsers(data.users || []);
-      setError('');
-    } catch {
-      setError('Gagal memuat data pengguna.');
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
-
   const fetchStats = useCallback(async () => {
-    setLoadingStats(true);
+    setLoading(true);
     try {
       const res = await fetch('/api/admin/stats');
       const data = await res.json();
       setStats(data);
     } catch {
     } finally {
-      setLoadingStats(false);
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (session) {
-      fetchUsers();
-      fetchStats();
-    }
-  }, [session, fetchUsers, fetchStats]);
-
-  const handleDelete = async (user: UserRow) => {
-    setDeletingId(user.id);
-    setConfirmDelete(null);
-    try {
-      const res = await fetch('/api/admin/users', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error); return; }
-      await fetchUsers();
-      await fetchStats();
-    } catch {
-      setError('Gagal menghapus pengguna.');
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleToggleRole = async (user: UserRow) => {
-    setPromotingId(user.id);
-    const newRole = user.role === 'admin' ? 'user' : 'admin';
-    try {
-      const res = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: user.id, role: newRole }),
-      });
-      if (!res.ok) { const d = await res.json(); setError(d.error); return; }
-      await fetchUsers();
-      await fetchStats();
-    } catch {
-      setError('Gagal mengubah role.');
-    } finally {
-      setPromotingId(null);
-    }
-  };
+    if (session) fetchStats();
+  }, [session, fetchStats]);
 
   if (!session) return null;
 
+  const statCards = [
+    { label: 'Total Pengguna', value: stats?.totalUsers ?? 0, icon: Users, color: '#8b5cf6', sub: `${stats?.userCount ?? 0} user aktif` },
+    { label: 'Total Pendapatan', value: loading ? '—' : formatRupiah(stats?.totalRevenue ?? 0), icon: Wallet, color: '#4edea3', sub: `Bulan ini: ${formatRupiah(stats?.thisMonthRevenue ?? 0)}` },
+    { label: 'Total Pengaduan', value: stats?.totalComplaints ?? 0, icon: MessageSquare, color: '#3b82f6', sub: `${stats?.openComplaints ?? 0} belum ditangani` },
+    { label: 'Total Data Sensor', value: stats?.totalSensor ?? 0, icon: Database, color: '#22c55e', sub: 'Total rekaman' },
+    { label: 'Data Hari Ini', value: stats?.todaySensor ?? 0, icon: Activity, color: '#f97316', sub: 'Sejak 00:00' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
-      {/* Confirm Delete Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
-          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 dark:border-red-500/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
-              <UserX size={28} className="text-red-600 dark:text-red-500" />
-            </div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white text-center mb-2">Hapus Pengguna?</h2>
-            <p className="text-sm text-slate-500 text-center mb-1">
-              Anda akan menghapus akun:
-            </p>
-            <p className="text-sm font-black text-red-600 dark:text-red-500 text-center mb-6 font-mono">{confirmDelete.email}</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-3 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-black text-sm hover:border-slate-350 dark:hover:border-slate-700 transition-all"
-              >
-                Batal
-              </button>
-              <button
-                onClick={() => handleDelete(confirmDelete)}
-                className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/20"
-              >
-                Ya, Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="px-6 md:px-10 xl:px-12 pb-10 space-y-6 w-full pt-8">
-
-        {/* Error */}
-        {error && (
-          <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold">
-            <AlertTriangle size={16} />
-            {error}
-            <button onClick={() => setError('')} className="ml-auto text-red-600 dark:text-red-400 hover:text-red-300 text-xs underline">Tutup</button>
-          </div>
-        )}
 
         {/* STATS GRID */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          <StatCard label="Total Pengguna" value={loadingStats ? '—' : stats?.totalUsers ?? 0} icon={Users} color="#8b5cf6" />
-          <StatCard label="Akun Admin" value={loadingStats ? '—' : stats?.adminCount ?? 0} icon={Crown} color="#f59e0b" />
-          <StatCard label="Akun User" value={loadingStats ? '—' : stats?.userCount ?? 0} icon={UserCircle} color="#3b82f6" />
-          <StatCard label="Total Data Sensor" value={loadingStats ? '—' : stats?.totalSensor ?? 0} icon={Database} color="#22c55e" sub="Total rekaman" />
-          <StatCard label="Data Hari Ini" value={loadingStats ? '—' : stats?.todaySensor ?? 0} icon={Activity} color="#f97316" sub="Sejak 00:00" />
+          {statCards.map(card => (
+            <StatCard
+              key={card.label}
+              label={card.label}
+              value={loading ? '—' : card.value}
+              icon={card.icon}
+              color={card.color}
+              sub={card.sub}
+            />
+          ))}
         </div>
 
-        {/* USER TABLE */}
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
+        {/* CHARTS ROW 1: Revenue + Package Dist */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-          {/* Table Header */}
-          <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <Users size={15} className="text-purple-600 dark:text-purple-400" />
+          {/* Revenue per Month */}
+          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={14} className="text-[#4edea3]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Pendapatan 6 Bulan Terakhir</span>
               </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Daftar Pengguna</p>
-                <p className="text-xs text-slate-500 mt-0.5">{users.length} akun terdaftar</p>
-              </div>
+              <button onClick={fetchStats} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all">
+                <RefreshCw size={10} className={loading ? 'animate-spin' : ''} /> Refresh
+              </button>
             </div>
-            <button
-              onClick={() => { fetchUsers(); fetchStats(); }}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
-            >
-              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
+            <div className="p-4 h-64">
+              {stats?.revenueByMonth && stats.revenueByMonth.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.revenueByMonth} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="label" fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Bar dataKey="revenue" name="Revenue" fill="#4edea3" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-400 text-sm font-semibold">
+                  {loading ? 'Memuat data...' : 'Belum ada data pendapatan'}
+                </div>
+              )}
+            </div>
           </div>
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
-              </div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat data...</p>
+          {/* Package Distribution */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+              <Package size={14} className="text-blue-500" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Distribusi Paket</span>
             </div>
-          ) : (
-            <>
-              {/* DESKTOP TABLE */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-800">
-                      {['#', 'Nama', 'Email', 'Role', 'Terdaftar', 'Aksi'].map(h => (
-                        <th key={h} className="text-left px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-800 dark:text-slate-400">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                    {users.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="text-center py-16 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                          Belum ada pengguna terdaftar
-                        </td>
-                      </tr>
-                    ) : users.map((u, i) => (
-                      <tr key={u.id} className={`transition-all hover:bg-slate-50 dark:hover:bg-slate-800/40 ${u.id === session?.id ? 'bg-purple-500/[0.03]' : ''}`}>
-                        <td className="px-6 py-4 text-slate-500 font-mono text-xs">{i + 1}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-sm font-black text-slate-700 dark:text-slate-300 uppercase flex-shrink-0">
-                              {u.name?.charAt(0) || '?'}
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">{u.name}</p>
-                              {u.id === session?.id && (
-                                <p className="text-[9px] text-purple-600 dark:text-purple-500 font-black uppercase tracking-wider">Anda</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-mono">{u.email}</td>
-                        <td className="px-6 py-4">
-                          <RoleBadge role={u.role} />
-                        </td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-500 text-xs font-mono whitespace-nowrap">
-                          {u.created_at ? new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            {/* Toggle Role Button */}
-                            {u.id !== session?.id && (
-                              <button
-                                onClick={() => handleToggleRole(u)}
-                                disabled={promotingId === u.id}
-                                title={u.role === 'admin' ? 'Turunkan ke User' : 'Jadikan Admin'}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ${
-                                  u.role === 'admin'
-                                    ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20 hover:bg-orange-500/20'
-                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-500 border border-purple-500/20 hover:bg-purple-500/20'
-                                }`}
-                              >
-                                {promotingId === u.id ? (
-                                  <RefreshCw size={10} className="animate-spin" />
-                                ) : (
-                                  <Crown size={10} />
-                                )}
-                                {u.role === 'admin' ? 'Turunkan' : 'Promosi'}
-                              </button>
-                            )}
-
-                            {/* Delete Button */}
-                            {u.id !== session?.id && (
-                              <button
-                                onClick={() => setConfirmDelete(u)}
-                                disabled={deletingId === u.id}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
-                              >
-                                {deletingId === u.id ? (
-                                  <RefreshCw size={10} className="animate-spin" />
-                                ) : (
-                                  <Trash2 size={10} />
-                                )}
-                                Hapus
-                              </button>
-                            )}
-
-                            {u.id === session?.id && (
-                              <span className="text-[10px] text-slate-500 font-mono italic">Akun Anda</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
+            <div className="p-4 h-64 flex flex-col items-center justify-center">
+              {stats?.packageDist && stats.packageDist.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie
+                        data={stats.packageDist}
+                        dataKey="count"
+                        nameKey="package_name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={3}
+                      >
+                        {stats.packageDist.map((entry, index) => (
+                          <Cell key={entry.package_name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(val, name) => [val, name]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap gap-3 justify-center mt-2">
+                    {stats.packageDist.map((p, i) => (
+                      <div key={p.package_name} className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">{p.package_name} ({p.count})</span>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* MOBILE CARDS */}
-              <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-slate-800/50">
-                {users.length === 0 ? (
-                  <div className="text-center py-16 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                    Belum ada pengguna terdaftar
                   </div>
-                ) : users.map((u) => (
-                  <div key={u.id} className={`p-5 ${u.id === session?.id ? 'bg-purple-500/[0.03]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'} transition-colors`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-white/10 flex items-center justify-center text-sm font-black text-slate-700 dark:text-slate-300 uppercase">
-                          {u.name?.charAt(0) || '?'}
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">{u.name}</p>
-                          <p className="text-xs text-slate-500 font-mono">{u.email}</p>
-                        </div>
-                      </div>
-                      <RoleBadge role={u.role} />
-                    </div>
+                </>
+              ) : (
+                <div className="text-slate-400 text-sm font-semibold">
+                  {loading ? 'Memuat...' : 'Belum ada transaksi'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-                    {u.created_at && (
-                      <p className="text-[10px] text-slate-500 font-mono mb-3">
-                        Terdaftar: {new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
-                    )}
+        {/* CHARTS ROW 2: Complaints + Danger Trend */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                    {u.id !== session?.id && (
-                      <div className="flex items-center gap-2 mt-3">
-                        <button
-                          onClick={() => handleToggleRole(u)}
-                          disabled={promotingId === u.id}
-                          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ${
-                            u.role === 'admin'
-                              ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
-                              : 'bg-purple-500/10 text-purple-600 dark:text-purple-500 border border-purple-500/20'
-                          }`}
-                        >
-                          <Crown size={10} />
-                          {u.role === 'admin' ? 'Turunkan' : 'Jadikan Admin'}
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(u)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20"
-                        >
-                          <Trash2 size={10} /> Hapus
-                        </button>
-                      </div>
-                    )}
-                    {u.id === session?.id && (
-                      <p className="text-[10px] text-purple-600 dark:text-purple-500 font-black uppercase tracking-wider mt-2">✦ Akun Anda</p>
-                    )}
+          {/* Complaints by Status */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+              <MessageSquare size={14} className="text-blue-500" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Pengaduan per Status</span>
+            </div>
+            <div className="p-4 h-52">
+              {stats?.complaintsByStatus && stats.complaintsByStatus.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.complaintsByStatus} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="status" fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Bar dataKey="count" name="Jumlah" radius={[6, 6, 0, 0]}>
+                      {stats.complaintsByStatus.map((entry) => (
+                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || '#94a3b8'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-400 text-sm font-semibold">
+                  {loading ? 'Memuat...' : 'Belum ada pengaduan'}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Danger Events Trend */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+              <ShieldAlert size={14} className="text-red-500" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Tren Event Bahaya (Total Keseluruhan)</span>
+            </div>
+            <div className="p-4 h-52">
+              {stats?.dangerTrend && stats.dangerTrend.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stats.dangerTrend} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="label" fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis fontSize={9} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Line type="monotone" dataKey="total_events" name="Event Bahaya" stroke="#ef4444" strokeWidth={2.5} dot={{ fill: '#ef4444', r: 4 }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <ShieldAlert size={28} className="text-emerald-400 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm font-semibold">
+                      {loading ? 'Memuat...' : 'Tidak ada event bahaya tercatat 🎉'}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </>
-          )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}

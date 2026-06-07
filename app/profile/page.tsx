@@ -31,6 +31,7 @@ export default function ProfilePage() {
   // States sharing alat (invite pegawai)
   const [shares, setShares] = useState<any[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteDeviceId, setInviteDeviceId] = useState('');
   const [inviting, setInviting] = useState(false);
   const [sharesLoading, setSharesLoading] = useState(false);
   const [shareStatus, setShareStatus] = useState({ type: '', text: '' });
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const [devices, setDevices] = useState<any[]>([]);
   const [newDeviceId, setNewDeviceId] = useState('');
   const [newDeviceName, setNewDeviceName] = useState('');
+  const [newDeviceType, setNewDeviceType] = useState('real');
   const [addingDevice, setAddingDevice] = useState(false);
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceStatus, setDeviceStatus] = useState({ type: '', text: '' });
@@ -112,19 +114,20 @@ export default function ProfilePage() {
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteEmail) return;
+    if (!inviteEmail || !inviteDeviceId) return;
     setInviting(true);
     setShareStatus({ type: '', text: '' });
     try {
       const res = await fetch('/api/shares', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail })
+        body: JSON.stringify({ email: inviteEmail, device_id: inviteDeviceId })
       });
       const data = await res.json();
       if (res.ok) {
         setShareStatus({ type: 'success', text: data.message });
         setInviteEmail('');
+        setInviteDeviceId('');
         fetchShares();
       } else {
         setShareStatus({ type: 'error', text: data.error || 'Gagal mengirim undangan' });
@@ -170,13 +173,18 @@ export default function ProfilePage() {
       const res = await fetch('/api/devices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device_id: newDeviceId, device_name: newDeviceName })
+        body: JSON.stringify({ 
+          device_id: newDeviceId, 
+          device_name: newDeviceName,
+          device_type: devices.length === 0 ? 'real' : newDeviceType 
+        })
       });
       const data = await res.json();
       if (res.ok) {
         setDeviceStatus({ type: 'success', text: data.message });
         setNewDeviceId('');
         setNewDeviceName('');
+        setNewDeviceType('real');
         fetchDevices();
         await fetchProfile();
       } else {
@@ -578,7 +586,7 @@ export default function ProfilePage() {
             </p>
 
             <form onSubmit={handleAddDevice} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6">
-              <div className="sm:col-span-5">
+              <div className={devices.length > 0 ? "sm:col-span-4" : "sm:col-span-5"}>
                 <input 
                   type="text" 
                   placeholder="ID Perangkat (e.g. ESP32_KITCHEN_02)"
@@ -587,7 +595,7 @@ export default function ProfilePage() {
                   className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
-              <div className="sm:col-span-4">
+              <div className={devices.length > 0 ? "sm:col-span-3" : "sm:col-span-4"}>
                 <input 
                   type="text" 
                   placeholder="Nama Lokasi/Sensor"
@@ -596,7 +604,19 @@ export default function ProfilePage() {
                   className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
-              <div className="sm:col-span-3">
+              {devices.length > 0 && (
+                <div className="sm:col-span-3">
+                  <select
+                    value={newDeviceType}
+                    onChange={e => setNewDeviceType(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer font-bold"
+                  >
+                    <option value="real">Real (Alat Asli)</option>
+                    <option value="sim">Sim (Wokwi)</option>
+                  </select>
+                </div>
+              )}
+              <div className={devices.length > 0 ? "sm:col-span-2" : "sm:col-span-3"}>
                 <button 
                   type="submit"
                   disabled={addingDevice || !newDeviceId || !newDeviceName}
@@ -634,8 +654,17 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {devices.map((dev: any) => (
                     <div key={dev.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl">
-                      <div className="min-w-0 pr-3">
-                        <p className="text-xs font-black text-slate-800 dark:text-slate-200 truncate">{dev.device_name}</p>
+                      <div className="min-w-0 pr-3 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-xs font-black text-slate-800 dark:text-slate-200 truncate">{dev.device_name}</p>
+                          <span className={`text-[8px] font-black px-1.5 py-0.25 rounded uppercase tracking-wider ${
+                            dev.device_type === 'sim' 
+                              ? 'bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-450' 
+                              : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-450'
+                          }`}>
+                            {dev.device_type === 'sim' ? 'SIM' : 'REAL'}
+                          </span>
+                        </div>
                         <p className="text-[9px] text-slate-450 font-mono truncate">{dev.device_id}</p>
                       </div>
                       <button 
@@ -800,19 +829,43 @@ export default function ProfilePage() {
                         Masukkan email pegawai/pengawas yang ingin Anda undang untuk memantau sensor Anda:
                       </p>
 
-                      <form onSubmit={handleInvite} className="flex gap-2">
-                        <input
-                          type="email"
-                          placeholder="email.pegawai@anda.com"
-                          value={inviteEmail}
-                          onChange={e => setInviteEmail(e.target.value)}
-                          className="flex-1 bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-slate-800 dark:text-white"
-                        />
-                        <button type="submit" disabled={inviting || !inviteEmail}
-                          className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
-                          {inviting ? 'Mengundang...' : 'Undang'}
-                        </button>
-                      </form>
+                      {devices.length === 0 ? (
+                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-xl">
+                          ⚠️ Pasang sensor Anda terlebih dahulu di bagian "Pasangkan Sensor" sebelum mengundang pegawai.
+                        </div>
+                      ) : (
+                        <form onSubmit={handleInvite} className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                          <div className="sm:col-span-5">
+                            <input
+                              type="email"
+                              placeholder="email.pegawai@anda.com"
+                              value={inviteEmail}
+                              onChange={e => setInviteEmail(e.target.value)}
+                              className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-slate-800 dark:text-white"
+                            />
+                          </div>
+                          <div className="sm:col-span-4">
+                            <select
+                              value={inviteDeviceId}
+                              onChange={e => setInviteDeviceId(e.target.value)}
+                              className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-slate-800 dark:text-white cursor-pointer"
+                            >
+                              <option value="">-- Pilih Sensor --</option>
+                              {devices.map((d: any) => (
+                                <option key={d.device_id} value={d.device_id}>
+                                  {d.device_name} ({d.device_type === 'sim' ? 'SIM' : 'REAL'})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="sm:col-span-3">
+                            <button type="submit" disabled={inviting || !inviteEmail || !inviteDeviceId}
+                              className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
+                              {inviting ? 'Mengundang...' : 'Undang'}
+                            </button>
+                          </div>
+                        </form>
+                      )}
 
                       {shareStatus.text && (
                         <p className={`text-xs font-bold ${shareStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
@@ -841,6 +894,9 @@ export default function ProfilePage() {
                                     )}
                                   </div>
                                   <p className="text-[9px] text-slate-450 font-mono truncate">{s.member_email}</p>
+                                  <p className="text-[10px] text-slate-550 dark:text-slate-450 mt-1">
+                                    Sensor: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{s.device_name ? `${s.device_name} (${s.device_id})` : (s.device_id || 'Semua Sensor')}</span>
+                                  </p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <button
