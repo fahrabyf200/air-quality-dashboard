@@ -447,11 +447,11 @@ export default function LandingPage() {
                 className="hidden md:block absolute inset-0 w-full h-full border-0 z-10" 
               />
               {/* Overlay Gradient (Only on Desktop) - Modified to only cover left half */}
-              <div className="hidden md:block absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#070d1a] to-transparent pointer-events-none z-20" />
+              <div className="hidden md:block absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#070d1a] to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500 z-20" />
             </div>
 
             {/* Text Overlay (Desktop) / Underneath (Mobile) */}
-            <div className="relative md:absolute md:inset-y-0 md:left-0 flex flex-col justify-center p-8 md:px-12 text-left w-full md:w-5/12 md:pointer-events-none z-30">
+            <div className="relative md:absolute md:inset-y-0 md:left-0 flex flex-col justify-center p-8 md:px-12 text-left w-full md:w-5/12 md:pointer-events-none md:group-hover:opacity-0 transition-opacity duration-500 z-30">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 rounded-full bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-[10px] font-black uppercase tracking-widest backdrop-blur-md w-fit">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" /> New Generation
               </div>
