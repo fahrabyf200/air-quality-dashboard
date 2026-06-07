@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { notifyAdmins } from '@/lib/notifications';
+import { logActivity, getIp } from '@/lib/activity-logger';
 
 export async function POST(req: Request) {
   try {
@@ -32,6 +33,15 @@ export async function POST(req: Request) {
       `${name} (${email}) baru saja mendaftar akun di SkyWatch.`,
       'info'
     );
+
+    // Log aktivitas registrasi
+    logActivity({
+      user_name: name,
+      user_email: email,
+      action: 'register',
+      description: `Akun baru didaftarkan: ${name} (${email})`,
+      ip_address: getIp(req),
+    });
 
     return NextResponse.json({ message: "Registrasi berhasil" }, { status: 201 });
   } catch (error: any) {

@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
+import { logActivity, getIp } from '@/lib/activity-logger';
 
 export async function POST(req: Request) {
   try {
@@ -36,6 +37,16 @@ export async function POST(req: Request) {
 
     const hashed = await bcrypt.hash(newPassword, 10);
     await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashed, userId]);
+
+    // Log aktivitas ubah password
+    logActivity({
+      user_id: userId,
+      user_name: (session as any).name,
+      user_email: (session as any).email,
+      action: 'change_password',
+      description: 'Password berhasil diubah',
+      ip_address: getIp(req),
+    });
 
     return NextResponse.json({ message: "Password berhasil diubah" }, { status: 200 });
   } catch (error: any) {

@@ -4,34 +4,50 @@ import { getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET - Ambil semua perangkat milik user saat ini, ATAU milik owner yang mengundangnya (sharing)
+// GET - Ambil semua perangkat milik user saat ini, ATAU yang ditugaskan kepada mereka
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const userId = (session as any).id;
   const userEmail = (session as any).email;
 
-  // Cari owner_id dari share
+  // 1. Ambil perangkat yang dimiliki sendiri
+  const [ownedDevices]: any = await db.query(
+    'SELECT * FROM user_devices WHERE user_id = ? ORDER BY created_at DESC',
+    [userId]
+  );
+
+  // 2. Ambil perangkat yang di-share ke user (berdasarkan email)
   const [shares]: any = await db.query(
-    'SELECT owner_id FROM device_shares WHERE member_email = ?',
+    'SELECT owner_id, device_id FROM device_shares WHERE member_email = ?',
     [userEmail]
   );
 
-  const userIds = [userId];
+  let sharedDevices: any[] = [];
   if (shares && shares.length > 0) {
-    shares.forEach((s: any) => {
-      if (!userIds.includes(s.owner_id)) {
-        userIds.push(s.owner_id);
+    for (const share of shares) {
+      if (share.device_id) {
+        const [devs]: any = await db.query(
+          'SELECT * FROM user_devices WHERE user_id = ? AND device_id = ?',
+          [share.owner_id, share.device_id]
+        );
+        sharedDevices = [...sharedDevices, ...devs];
+      } else {
+        // Fallback untuk share lama tanpa spesifik device_id (semua device owner)
+        const [devs]: any = await db.query(
+          'SELECT * FROM user_devices WHERE user_id = ?',
+          [share.owner_id]
+        );
+        sharedDevices = [...sharedDevices, ...devs];
       }
-    });
+    }
   }
 
-  const placeholders = userIds.map(() => '?').join(',');
-  const [rows] = await db.query(
-    `SELECT * FROM user_devices WHERE user_id IN (${placeholders}) ORDER BY created_at DESC`,
-    userIds
-  );
-  return NextResponse.json({ devices: rows });
+  // Gabungkan dan hilangkan duplikasi berdasarkan device_id
+  const combined = [...ownedDevices, ...sharedDevices];
+  const uniqueDevices = combined.filter((v, i, a) => a.findIndex(t => t.device_id === v.device_id) === i);
+
+  return NextResponse.json({ devices: uniqueDevices });
 }
 
 // POST - Daftarkan/Hubungkan alat baru
@@ -41,7 +57,7 @@ export async function POST(req: Request) {
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const userId = (session as any).id;
 
-    const { device_id, device_name } = await req.json();
+    const { device_id, device_name, device_type } = await req.json();
     if (!device_id || device_id.trim() === '') {
       return NextResponse.json({ error: 'Device ID wajib diisi' }, { status: 400 });
     }
@@ -52,7 +68,7 @@ export async function POST(req: Request) {
     const cleanDeviceId = device_id.trim();
     const cleanDeviceName = device_name.trim();
 
-    // Pastikan device_id belum dipakai oleh user lain (opsional, tapi bagus untuk validasi)
+    // Pastikan device_id belum dipakai oleh user lain
     const [existing]: any = await db.query(
       'SELECT ud.*, u.name as user_name FROM user_devices ud JOIN users u ON ud.user_id = u.id WHERE ud.device_id = ? AND ud.user_id != ?',
       [cleanDeviceId, userId]
@@ -64,10 +80,26 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
+    // Hitung jumlah device saat ini untuk user ini
+    const [countRows]: any = await db.query(
+      'SELECT COUNT(*) as count FROM user_devices WHERE user_id = ?',
+      [userId]
+    );
+    const hasDevices = countRows && countRows[0].count > 0;
+    
+    // Jika awal menggunakan sensor (device count === 0), otomatis gunakan 'real'.
+    // Jika menambah (device count > 0), gunakan device_type yang dipilih ('real' atau 'sim').
+    let finalDeviceType = 'real';
+    if (hasDevices) {
+      if (device_type === 'sim') {
+        finalDeviceType = 'sim';
+      }
+    }
+
     // Daftarkan alat ke user_devices
     await db.query(
-      'INSERT INTO user_devices (user_id, device_id, device_name) VALUES (?, ?, ?)',
-      [userId, cleanDeviceId, cleanDeviceName]
+      'INSERT INTO user_devices (user_id, device_id, device_name, device_type) VALUES (?, ?, ?, ?)',
+      [userId, cleanDeviceId, cleanDeviceName, finalDeviceType]
     );
 
     // Update juga kolom device_id di tabel users (untuk backward compatibility)
@@ -84,6 +116,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Gagal memasangkan sensor: ' + e.message }, { status: 500 });
   }
 }
+
 
 // DELETE - Putuskan/hapus hubungan alat
 export async function DELETE(req: Request) {

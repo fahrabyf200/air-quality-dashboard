@@ -205,45 +205,70 @@ export async function GET(req: Request) {
 
     // Jika user sedang login, ambil data sensor yang terikat pada user tersebut
     if (session && (session as any).id) {
-      // Ambil id user_id yang sah untuk user ini: dirinya sendiri atau pemilik alat yang mengundangnya
-      const [shares]: any = await db.execute(
-        'SELECT owner_id FROM device_shares WHERE member_email = ?',
+      // 1. Ambil device_id yang dimiliki sendiri
+      const [owned]: any = await db.query(
+        'SELECT device_id FROM user_devices WHERE user_id = ?',
+        [(session as any).id]
+      );
+
+      // 2. Ambil device_id yang di-share ke user ini (pegawai)
+      const [shares]: any = await db.query(
+        'SELECT owner_id, device_id FROM device_shares WHERE member_email = ?',
         [(session as any).email]
       );
-      
-      const userIds = [(session as any).id];
+
+      let allowedDeviceIds: string[] = owned.map((d: any) => d.device_id);
+
       if (shares && shares.length > 0) {
-        shares.forEach((s: any) => userIds.push(s.owner_id));
+        for (const share of shares) {
+          if (share.device_id) {
+            allowedDeviceIds.push(share.device_id);
+          } else {
+            // Jika share legacy (NULL), dapatkan semua device milik owner
+            const [ownerDevs]: any = await db.query(
+              'SELECT device_id FROM user_devices WHERE user_id = ?',
+              [share.owner_id]
+            );
+            ownerDevs.forEach((d: any) => allowedDeviceIds.push(d.device_id));
+          }
+        }
       }
 
-      let rows: any = [];
-      const placeholders = userIds.map(() => '?').join(',');
+      // Filter yang unik dan hilangkan string kosong
+      allowedDeviceIds = Array.from(new Set(allowedDeviceIds)).filter(id => id && id.trim() !== '');
 
-      if (filterDeviceId && filterDeviceId !== 'all' && filterDeviceId.trim() !== '') {
-        // Ambil data untuk sensor spesifik yang dipilih
-        [rows] = await db.execute(
-          `SELECT * FROM sensor_data 
-           WHERE (user_id IN (${placeholders}) OR user_id IS NULL) 
-             AND device_id = ? 
-           ORDER BY created_at DESC ${limitQuery}`,
-          [...userIds, filterDeviceId.trim()]
-        );
-      } else {
-        // Ambil data dari sensor mana pun yang terikat ke user/owner ini
-        [rows] = await db.execute(
-          `SELECT * FROM sensor_data 
-           WHERE user_id IN (${placeholders}) OR user_id IS NULL 
-           ORDER BY created_at DESC ${limitQuery}`,
-          userIds
-        );
-      }
-
-      // Jika user belum punya data terikat, berikan data sensor terakhir sebagai fallback
-      if (rows.length === 0) {
+      // Jika user belum punya alat sama sekali, berikan data sensor terakhir sebagai fallback/demo onboarding
+      if (allowedDeviceIds.length === 0) {
         const [fallbackRows] = await db.execute(
           `SELECT * FROM sensor_data ORDER BY created_at DESC ${limitQuery}`
         );
         return NextResponse.json(fallbackRows);
+      }
+
+      let rows: any = [];
+      const placeholders = allowedDeviceIds.map(() => '?').join(',');
+
+      if (filterDeviceId && filterDeviceId !== 'all' && filterDeviceId.trim() !== '') {
+        const cleanFilterId = filterDeviceId.trim();
+        // Pastikan device_id tersebut ada di daftar yang diizinkan
+        if (allowedDeviceIds.includes(cleanFilterId)) {
+          [rows] = await db.execute(
+            `SELECT * FROM sensor_data 
+             WHERE device_id = ? 
+             ORDER BY created_at DESC ${limitQuery}`,
+            [cleanFilterId]
+          );
+        } else {
+          rows = []; // Tidak diizinkan
+        }
+      } else {
+        // Ambil data dari semua sensor yang diizinkan
+        [rows] = await db.execute(
+          `SELECT * FROM sensor_data 
+           WHERE device_id IN (${placeholders}) 
+           ORDER BY created_at DESC ${limitQuery}`,
+          allowedDeviceIds
+        );
       }
 
       return NextResponse.json(rows);

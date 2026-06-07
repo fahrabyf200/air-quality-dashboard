@@ -3,10 +3,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Users, Crown, UserCircle, Search, RefreshCw, Plus,
+  Users, Crown, UserCircle, Search, RefreshCw,
   UserPlus, Pencil, Trash2, Eye, X, Check, AlertTriangle,
-  UserX, Database, ShieldAlert, Zap
+  UserX, Database, ShieldAlert, Zap, CreditCard
 } from 'lucide-react';
+
+const PACKAGE_PRICES: Record<string, number> = {
+  '1 Bulan': 349000,
+  '1 Tahun': 599000,
+};
+
+const PAYMENT_METHODS = ['Transfer Bank', 'GoPay', 'OVO', 'Dana', 'ShopeePay', 'QRIS', 'Tunai'];
+
+function formatRupiah(n: number) {
+  return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+}
 
 interface UserRow {
   id: number;
@@ -112,6 +123,60 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [subLoading, setSubLoading] = useState<number | null>(null);
 
+  // Transaction popup state
+  const [txPopup, setTxPopup] = useState<{ user: UserRow; packageName: string; action: string } | null>(null);
+  const [txPaymentMethod, setTxPaymentMethod] = useState('Transfer Bank');
+  const [txSaving, setTxSaving] = useState(false);
+
+  const openTransactionPopup = (user: UserRow, packageName: string, action: string) => {
+    setTxPaymentMethod('Transfer Bank');
+    setTxPopup({ user, packageName, action });
+  };
+
+  const handleTransactionConfirm = async () => {
+    if (!txPopup) return;
+    setTxSaving(true);
+    try {
+      // 1. Activate subscription
+      const subRes = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: txPopup.user.id, subscription_action: txPopup.action }),
+      });
+      if (!subRes.ok) { const d = await subRes.json(); setError(d.error); return; }
+
+      // 2. Record transaction in sales
+      await fetch('/api/admin/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: txPopup.user.id,
+          user_name: txPopup.user.name,
+          user_email: txPopup.user.email,
+          package_name: txPopup.packageName,
+          amount: PACKAGE_PRICES[txPopup.packageName] || 0,
+          payment_method: txPaymentMethod,
+          notes: `Diaktifkan oleh admin`,
+        }),
+      });
+
+      // 3. Log activity
+      await fetch('/api/admin/activity-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'transaction',
+          description: `Transaksi ${txPopup.packageName} (${formatRupiah(PACKAGE_PRICES[txPopup.packageName] || 0)}) via ${txPaymentMethod} untuk ${txPopup.user.name} (${txPopup.user.email})`,
+        }),
+      });
+
+      setTxPopup(null);
+      await fetchUsers();
+      showSuccess(`Langganan ${txPopup.packageName} berhasil diaktifkan & transaksi dicatat!`);
+    } catch { setError('Gagal memproses transaksi.'); }
+    finally { setTxSaving(false); }
+  };
+
   const handleSubscription = async (userId: number, action: string) => {
     setSubLoading(userId);
     try {
@@ -127,6 +192,7 @@ export default function AdminUsersPage() {
     } catch { setError('Gagal mengubah status langganan.'); }
     finally { setSubLoading(null); }
   };
+
   // Modal states
   const [createModal, setCreateModal] = useState(false);
   const [editUser, setEditUser] = useState<UserRow | null>(null);
@@ -233,6 +299,84 @@ export default function AdminUsersPage() {
 
   return (
     <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
+
+      {/* TRANSACTION POPUP */}
+      {txPopup && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl animate-in zoom-in duration-200">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-[#4edea3]/15 border border-[#4edea3]/20 flex items-center justify-center">
+                  <CreditCard size={16} className="text-[#059669] dark:text-[#4edea3]" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white">Konfirmasi Transaksi</h2>
+                  <p className="text-[10px] text-slate-400">Pilih metode pembayaran</p>
+                </div>
+              </div>
+              <button onClick={() => setTxPopup(null)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Summary */}
+            <div className="rounded-2xl bg-[#4edea3]/8 border border-[#4edea3]/20 p-4 mb-5">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Pengguna</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white capitalize">{txPopup.user.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Email</span>
+                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">{txPopup.user.email}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Paket</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#4edea3]/15 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/20">{txPopup.packageName}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1 border-t border-[#4edea3]/20">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total</span>
+                  <span className="text-lg font-black text-[#047857] dark:text-[#4edea3]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                    {formatRupiah(PACKAGE_PRICES[txPopup.packageName] || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="space-y-2 mb-5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode Pembayaran</label>
+              <div className="grid grid-cols-2 gap-2">
+                {PAYMENT_METHODS.map(method => (
+                  <button
+                    key={method}
+                    onClick={() => setTxPaymentMethod(method)}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all ${
+                      txPaymentMethod === method
+                        ? 'bg-[#4edea3]/15 border-[#4edea3]/40 text-[#047857] dark:text-[#4edea3]'
+                        : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    {method}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setTxPopup(null)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Batal</button>
+              <button
+                onClick={handleTransactionConfirm}
+                disabled={txSaving}
+                className="flex-1 py-3 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50"
+              >
+                {txSaving ? 'Memproses...' : 'Konfirmasi & Aktifkan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* CREATE MODAL */}
       {createModal && (
         <Modal title="Tambah User Baru" onClose={() => setCreateModal(false)}>
@@ -448,7 +592,7 @@ export default function AdminUsersPage() {
                           {u.role !== 'admin' && (
                             <>
                               <button
-                                onClick={() => handleSubscription(u.id, 'activate_1month')}
+                                onClick={() => openTransactionPopup(u, '1 Bulan', 'activate_1month')}
                                 disabled={subLoading === u.id}
                                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 hover:bg-[#4edea3]/20 transition-all disabled:opacity-50 whitespace-nowrap"
                                 title="Aktifkan Premium 1 Bulan"
@@ -457,7 +601,7 @@ export default function AdminUsersPage() {
                                 1 Bln
                               </button>
                               <button
-                                onClick={() => handleSubscription(u.id, 'activate_1year')}
+                                onClick={() => openTransactionPopup(u, '1 Tahun', 'activate_1year')}
                                 disabled={subLoading === u.id}
                                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all disabled:opacity-50 whitespace-nowrap"
                                 title="Aktifkan Premium 1 Tahun"
@@ -533,13 +677,13 @@ export default function AdminUsersPage() {
                   {/* Subscription Buttons (mobile) */}
                   {u.role !== 'admin' && (
                     <div className="flex gap-2 mb-2">
-                      <button onClick={() => handleSubscription(u.id, 'activate_1month')} disabled={subLoading === u.id}
+                      <button onClick={() => openTransactionPopup(u, '1 Bulan', 'activate_1month')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 disabled:opacity-50">
-                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />} 1 Bln
+                        <Zap size={9} /> 1 Bln
                       </button>
-                      <button onClick={() => handleSubscription(u.id, 'activate_1year')} disabled={subLoading === u.id}
+                      <button onClick={() => openTransactionPopup(u, '1 Tahun', 'activate_1year')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 disabled:opacity-50">
-                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Crown size={9} />} 1 Thn
+                        <Crown size={9} /> 1 Thn
                       </button>
                       <button onClick={() => handleSubscription(u.id, 'deactivate')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 disabled:opacity-50">

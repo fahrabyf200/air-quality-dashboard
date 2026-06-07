@@ -5,16 +5,17 @@ import { sendInvitationEmail } from '../../../lib/mailer';
 
 export const dynamic = 'force-dynamic';
 
-// GET - Ambil semua orang yang diundang oleh user saat ini
+// GET - Ambil semua orang yang diundang oleh user saat ini beserta detail sensornya
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const userId = (session as any).id;
 
   const [rows] = await db.query(
-    `SELECT ds.id, ds.member_email, ds.created_at, u.name as member_name 
+    `SELECT ds.id, ds.member_email, ds.device_id, ds.created_at, u.name as member_name, ud.device_name 
      FROM device_shares ds 
      LEFT JOIN users u ON ds.member_email = u.email 
+     LEFT JOIN user_devices ud ON ds.device_id = ud.device_id AND ud.user_id = ds.owner_id
      WHERE ds.owner_id = ? 
      ORDER BY ds.created_at DESC`,
     [userId]
@@ -23,7 +24,7 @@ export async function GET() {
   return NextResponse.json({ shares: rows });
 }
 
-// POST - Undang orang baru berdasarkan email
+// POST - Undang orang baru berdasarkan email dan pilih sensor
 export async function POST(req: Request) {
   try {
     const session = await getSession();
@@ -45,12 +46,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Hanya pengguna Premium Active yang dapat mengundang/membagi akses alat' }, { status: 403 });
     }
 
-    const { email } = await req.json();
+    const { email, device_id } = await req.json();
     if (!email || email.trim() === '') {
       return NextResponse.json({ error: 'Email wajib diisi' }, { status: 400 });
     }
+    if (!device_id || device_id.trim() === '') {
+      return NextResponse.json({ error: 'Harap pilih sensor untuk pegawai ini' }, { status: 400 });
+    }
 
     const targetEmail = email.trim().toLowerCase();
+    const targetDeviceId = device_id.trim();
 
     if (targetEmail === (session as any).email.toLowerCase()) {
       return NextResponse.json({ error: 'Anda tidak bisa mengundang email Anda sendiri' }, { status: 400 });
@@ -58,8 +63,8 @@ export async function POST(req: Request) {
 
     // Insert ke device_shares
     await db.query(
-      'INSERT INTO device_shares (owner_id, member_email) VALUES (?, ?)',
-      [userId, targetEmail]
+      'INSERT INTO device_shares (owner_id, member_email, device_id) VALUES (?, ?, ?)',
+      [userId, targetEmail, targetDeviceId]
     );
 
     // Kirim notifikasi ke user target jika dia sudah terdaftar
@@ -91,7 +96,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Undangan berhasil dikirim! Email telah dikirim ke ' + targetEmail }, { status: 201 });
   } catch (e: any) {
     if (e.code === 'ER_DUP_ENTRY') {
-      return NextResponse.json({ error: 'Email ini sudah diundang sebelumnya' }, { status: 400 });
+      return NextResponse.json({ error: 'Pegawai dengan email ini sudah ditugaskan ke sensor tersebut' }, { status: 400 });
     }
     return NextResponse.json({ error: 'Gagal mengirim undangan: ' + e.message }, { status: 500 });
   }
