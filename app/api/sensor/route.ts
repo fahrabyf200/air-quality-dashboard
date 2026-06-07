@@ -117,7 +117,7 @@ export async function POST(req: Request) {
         [cleanId]
       );
 
-      const targetUserIds: number[] = [];
+      let targetUserIds: number[] = [];
       if (devs && devs.length > 0) {
         devs.forEach((d: any) => {
           if (!targetUserIds.includes(d.user_id)) {
@@ -137,6 +137,33 @@ export async function POST(req: Request) {
             targetUserIds.push(u.id);
           }
         });
+      }
+
+      // AUTO-REGISTER: Jika device_id dikirim tapi belum terdaftar,
+      // otomatis daftarkan ke user pertama agar data tidak menyebar ke semua user.
+      if (targetUserIds.length === 0) {
+        const [firstUser]: any = await db.execute(
+          'SELECT id FROM users ORDER BY id ASC LIMIT 1'
+        );
+        if (firstUser && firstUser.length > 0) {
+          const autoUserId = firstUser[0].id;
+          try {
+            await db.execute(
+              'INSERT INTO user_devices (user_id, device_id, device_name) VALUES (?, ?, ?)',
+              [autoUserId, cleanId, `Auto: ${cleanId}`]
+            );
+            await db.execute(
+              'UPDATE users SET device_id = ? WHERE id = ? AND (device_id IS NULL OR device_id = "")',
+              [cleanId, autoUserId]
+            );
+            console.log(`[AUTO-REGISTER] Device "${cleanId}" didaftarkan ke user_id=${autoUserId}`);
+          } catch (regErr: any) {
+            if (regErr.code !== 'ER_DUP_ENTRY') {
+              console.error('[AUTO-REGISTER] Gagal:', regErr.message);
+            }
+          }
+          targetUserIds = [autoUserId];
+        }
       }
 
       // Distribusikan data sensor ke semua user_id terkait
