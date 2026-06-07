@@ -210,7 +210,7 @@ export default function LandingPage() {
               Demo Live
             </a>
             <a href="#pricing" className="hover:text-[#4edea3] transition-colors">Pilihan Paket</a>
-            <a href="#about" className="hover:text-[#4edea3] transition-colors">Cara Kerja</a>
+            <Link href="/about" className="hover:text-[#4edea3] transition-colors">Tentang Kami</Link>
           </nav>
 
           {/* Desktop Right Actions */}
@@ -302,13 +302,13 @@ export default function LandingPage() {
               >
                 Pilihan Paket
               </a>
-              <a 
-                href="#about" 
+              <Link 
+                href="/about" 
                 onClick={() => setMobileMenuOpen(false)} 
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
-                Cara Kerja
-              </a>
+                Tentang Kami
+              </Link>
             </nav>
           </div>
 
@@ -421,6 +421,34 @@ export default function LandingPage() {
             </div>
           </ScrollReveal>
         </div>
+      </section>
+
+      {/* POSTER / PROMO BANNER */}
+      <section className="relative w-full max-w-7xl mx-auto px-6 pb-20">
+        <ScrollReveal delay={100}>
+          <div className="relative rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/10 aspect-[4/3] md:aspect-[21/9] bg-black shadow-2xl group">
+            <iframe 
+              src="https://drive.google.com/file/d/1NoMa_m4q9Kwa-tMB-913-XlFGT54W0gV/preview"
+              title="PBL Air Quality Video"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              className="w-full h-full object-cover opacity-80 border-0" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#070d1a]/90 via-[#070d1a]/40 to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500" />
+            <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 text-left w-full md:w-2/3 pointer-events-none group-hover:opacity-0 transition-opacity duration-500">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 rounded-full bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-[10px] font-black uppercase tracking-widest backdrop-blur-md w-fit">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" /> New Generation
+              </div>
+              <h3 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-[1.1] mb-4 drop-shadow-xl" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                Presisi Tinggi.<br/>
+                Perlindungan Maksimal.
+              </h3>
+              <p className="text-slate-300 text-xs md:text-sm max-w-md drop-shadow-md">
+                Dilengkapi dengan teknologi laser mutakhir dan sensor gas semikonduktor berpresisi tinggi, SkyWatch mendeteksi partikel mikroskopis sebelum menjadi ancaman nyata bagi dapur dan bisnis Anda.
+              </p>
+            </div>
+          </div>
+        </ScrollReveal>
       </section>
 
       {/* SECTION INTERACTIVE SIMULATOR (SANDBOX) */}

@@ -328,17 +328,17 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (mounted) {
+    if (mounted && user) {
       fetchData();
       const iv = setInterval(fetchData, 1000);
       return () => clearInterval(iv);
     }
-  }, [mounted, fetchData]);
+  }, [mounted, fetchData, user]);
 
   // Audio Alarm Logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (mounted && data && !alarmAcknowledged) {
+    if (mounted && user && data && !alarmAcknowledged) {
       const isDangerNow = data.co2 > T.co2 || data.nh3 > T.nh3 || data.voc > T.voc || data.temp > T.temp;
       if (isDangerNow) {
         const playAlarm = () => {
