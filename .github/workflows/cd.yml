@@ -1,135 +1,79 @@
-name: SkyWatch CI/CD to Vercel
+name: SkyWatch — Deploy to Vercel
+
+# =============================================================
+# Pipeline ini dijalankan setiap push ke main/master.
+# Fokus: Deploy cepat ke Vercel (~1-2 menit).
+# Docker build dipisah ke docker-release.yml (hanya saat tag).
+# =============================================================
 
 on:
   push:
     branches: ["main", "master"]
 
 jobs:
-  build-docker:
-    name: 🐳 Build & Push Docker Image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write  # ✅ Diperlukan untuk push ke ghcr.io
-
-    steps:
-      # 1. Checkout kode
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-
-      # 2. Login ke GitHub Container Registry (pakai GITHUB_TOKEN bawaan - tidak perlu secrets)
-      - name: 🔐 Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # 3. Setup Docker Buildx
-      - name: 🔧 Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # 4. Build dan Push Docker Image ke ghcr.io
-      - name: 🏗️ Build and Push Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/skywatch-app:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-
   deploy-vercel:
     name: 🚀 Deploy to Vercel Production
     runs-on: ubuntu-latest
-    needs: build-docker  # ✅ Jalankan setelah Docker build sukses
-    # Expose URL deployment agar bisa dipakai oleh job health-check
-    outputs:
-      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
 
     steps:
       # 1. Checkout kode
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Deploy ke Vercel via Vercel CLI resmi
+      # 2. Install Vercel CLI
       - name: 📦 Install Vercel CLI
         run: npm install --global vercel@latest
 
+      # 3. Pull environment variables dari Vercel
       - name: 🌐 Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      # 4. Build project via Vercel
       - name: 🏗️ Build Project via Vercel
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      # 5. Deploy ke Vercel Production
       - name: 🚀 Deploy to Vercel Production
-        id: deploy
-        run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   health-check:
-    name: 🏥 Post-Deploy Health Check (Informational)
+    name: 🏥 Health Check (Informational)
     runs-on: ubuntu-latest
     needs: deploy-vercel
-    # Health check bersifat informatif saja — tidak pernah gagalkan pipeline
     continue-on-error: true
 
     steps:
-      - name: ⏳ Tunggu Instance Baru Siap (45 detik)
-        run: sleep 45
+      # Tunggu lebih singkat — Vercel biasanya siap dalam 20 detik
+      - name: ⏳ Tunggu Instance Siap (20 detik)
+        run: sleep 20
 
-      - name: 🔍 Cek Health Endpoint (Informational Only)
+      - name: 🔍 Cek Health Endpoint
         run: |
-          # Gunakan URL produksi dari secret (URL utama yang tidak diproteksi auth)
           APP_URL="${{ secrets.VERCEL_APP_URL }}"
 
           if [ -z "$APP_URL" ]; then
-            echo "ℹ️  VERCEL_APP_URL secret belum diset."
-            echo "💡 Tambahkan di: GitHub Repo → Settings → Secrets → Actions"
-            echo "   Key: VERCEL_APP_URL"
-            echo "   Value: URL produksi Vercel kamu (cek di Vercel Dashboard → Project → Domains)"
-            echo ""
-            echo "✅ Deploy tetap SUKSES — health check dilewati karena URL tidak tersedia."
+            echo "ℹ️  VERCEL_APP_URL belum diset — health check dilewati."
+            echo "💡 Set di: GitHub Repo → Settings → Secrets → Actions"
             exit 0
           fi
 
           echo "🌐 Mengecek: $APP_URL/api/health"
 
-          HTTP_CODE=$(curl -s -o /tmp/health_response.json -w "%{http_code}" \
-            --max-time 15 \
-            "$APP_URL/api/health" || echo "000")
+          HTTP_CODE=$(curl -s -o /tmp/health.json -w "%{http_code}" \
+            --max-time 10 "$APP_URL/api/health" || echo "000")
 
-          echo "📊 HTTP Status Code: $HTTP_CODE"
-          echo ""
-          echo "📋 Response:"
-          cat /tmp/health_response.json | python3 -m json.tool 2>/dev/null || cat /tmp/health_response.json
+          echo "📊 HTTP $HTTP_CODE"
+          cat /tmp/health.json | python3 -m json.tool 2>/dev/null || cat /tmp/health.json
 
-          echo ""
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Health check LULUS — sistem sehat!"
-          elif [ "$HTTP_CODE" = "401" ]; then
-            echo "⚠️  HTTP 401: Endpoint dilindungi Vercel Deployment Protection."
-            echo "💡 Nonaktifkan di: Vercel Dashboard → Project → Settings → Deployment Protection"
-            echo "✅ Deploy tetap SUKSES — ini keterbatasan platform, bukan error aplikasi."
-          else
-            echo "⚠️  HTTP $HTTP_CODE — cek Vercel Dashboard untuk detail."
-            echo "✅ Deploy tetap SUKSES — health check informatif saja."
-          fi
-
+          if   [ "$HTTP_CODE" = "200" ]; then echo "✅ Sistem sehat!"
+          elif [ "$HTTP_CODE" = "401" ]; then echo "⚠️ Protected by Vercel Auth (expected on Hobby plan)"
+          else echo "⚠️ HTTP $HTTP_CODE — cek Vercel Dashboard"; fi
