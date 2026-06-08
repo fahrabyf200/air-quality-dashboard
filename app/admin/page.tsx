@@ -212,13 +212,13 @@ export default function AdminPage() {
                           innerRadius={45}
                           outerRadius={65}
                           paddingAngle={3}
-                          onMouseEnter={(data) => {
+                          onMouseEnter={(data: any) => {
                             const pkgName = data?.package_name || data?.payload?.package_name;
                             if (pkgName) {
                               setSelectedPackage(pkgName);
                             }
                           }}
-                          onClick={(data) => {
+                          onClick={(data: any) => {
                             const pkgName = data?.package_name || data?.payload?.package_name;
                             if (pkgName) {
                               setSelectedPackage(selectedPackage === pkgName ? null : pkgName);

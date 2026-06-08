@@ -215,29 +215,29 @@ export default function LandingPage() {
 
           {/* Desktop Right Actions */}
           <div className="hidden md:flex items-center gap-2.5">
-            <Link 
+            <a 
               href="/login" 
               className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95"
             >
               Masuk
-            </Link>
-            <Link 
+            </a>
+            <a 
               href="/register" 
               className="px-4 py-2 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/30 active:scale-95 flex items-center gap-1"
             >
               Daftar <ArrowRight size={12} strokeWidth={2.5} />
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Right Actions (Matches Image 1) */}
           <div className="flex md:hidden items-center gap-2">
-            <Link 
+            <a 
               href="/login" 
               className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-[#070d1a] text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all active:scale-95 flex items-center justify-center h-8"
               style={{ letterSpacing: '0.05em' }}
             >
               MASUK
-            </Link>
+            </a>
             <button 
               onClick={() => setMobileMenuOpen(true)}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.05] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
@@ -302,32 +302,32 @@ export default function LandingPage() {
               >
                 Pilihan Paket
               </a>
-              <Link 
+              <a 
                 href="/about" 
                 onClick={() => setMobileMenuOpen(false)} 
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
                 Tentang Kami
-              </Link>
+              </a>
             </nav>
           </div>
 
           {/* Action buttons at bottom */}
           <div className="space-y-3 pb-8">
-            <Link 
+            <a 
               href="/login" 
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white dark:bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all block"
             >
               Masuk
-            </Link>
-            <Link 
+            </a>
+            <a 
               href="/register" 
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center text-xs font-black uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20"
             >
               Daftar
-            </Link>
+            </a>
           </div>
         </div>
       )}
@@ -351,13 +351,13 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-              <Link 
+              <a 
                 href="/register" 
                 className="px-8 py-4.5 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
               >
                 Mulai Monitoring Sekarang
                 <ArrowRight size={16} strokeWidth={2.8} />
-              </Link>
+              </a>
               <a 
                 href="#simulator" 
                 className="px-8 py-4.5 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-black text-sm uppercase tracking-wider text-center transition-all active:scale-[0.98] flex items-center justify-center gap-2"

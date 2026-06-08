@@ -23,31 +23,16 @@ export default function AdminSalesPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
-
-  const [form, setForm] = useState({
-    user_id: '',
-    package_name: '1 Bulan',
-    amount: '',
-    payment_method: 'Transfer Bank',
-    notes: '',
-  });
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [salesRes, usersRes] = await Promise.all([
-        fetch('/api/admin/sales'),
-        fetch('/api/admin/users'),
-      ]);
+      const salesRes = await fetch('/api/admin/sales');
       const salesData = await salesRes.json();
-      const usersData = await usersRes.json();
       setTransactions(salesData.transactions || []);
       setStats(salesData.stats || null);
-      setUsers(usersData.users?.filter((u: any) => u.role !== 'admin') || []);
     } catch {}
     finally { setLoading(false); }
   }, []);
@@ -56,34 +41,11 @@ export default function AdminSalesPage() {
 
   const showSuccessMsg = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(''), 3000); };
 
-  const handleCreate = async () => {
-    if (!form.user_id || !form.amount) return;
-    setSaving(true);
-    try {
-      const selectedUser = users.find(u => u.id === Number(form.user_id));
-      const res = await fetch('/api/admin/sales', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          user_id: Number(form.user_id),
-          user_name: selectedUser?.name,
-          user_email: selectedUser?.email,
-          amount: Number(form.amount),
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setShowForm(false);
-        setForm({ user_id: '', package_name: '1 Bulan', amount: '', payment_method: 'Transfer Bank', notes: '' });
-        await fetchData();
-        showSuccessMsg(data.message);
-      }
-    } finally { setSaving(false); }
-  };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Hapus transaksi ini?')) return;
+  const handleDelete = async () => {
+    if (deleteConfirmId === null) return;
+    const id = deleteConfirmId;
+    setDeleteConfirmId(null);
     await fetch('/api/admin/sales', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -98,65 +60,21 @@ export default function AdminSalesPage() {
 
   return (
     <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
-      {/* Create Modal */}
-      {showForm && (
+
+      {/* Delete Modal */}
+      {deleteConfirmId !== null && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4">
-          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-3xl p-7 max-w-md w-full shadow-2xl animate-in zoom-in duration-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">Catat Transaksi Baru</h2>
-              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
-                <X size={14} />
-              </button>
+          <div className="bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border border-red-500/20 rounded-3xl p-7 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200 text-center">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+              <Trash2 size={24} />
             </div>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pilih Pengguna</label>
-                <select value={form.user_id} onChange={e => setForm({ ...form, user_id: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
-                  <option value="">-- Pilih pengguna --</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paket</label>
-                <select value={form.package_name} onChange={e => setForm({ ...form, package_name: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
-                  <option>1 Bulan</option>
-                  <option>1 Tahun</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Jumlah Pembayaran (Rp)</label>
-                <input type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })}
-                  placeholder="Contoh: 50000" className={inputClass} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode Pembayaran</label>
-                <select value={form.payment_method} onChange={e => setForm({ ...form, payment_method: e.target.value })}
-                  className="w-full bg-[#FFFFFF] dark:bg-slate-900 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50">
-                  <option>Transfer Bank</option>
-                  <option>GoPay</option>
-                  <option>OVO</option>
-                  <option>Dana</option>
-                  <option>ShopeePay</option>
-                  <option>QRIS</option>
-                  <option>Tunai</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Catatan (Opsional)</label>
-                <input type="text" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Catatan tambahan..." className={inputClass} />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowForm(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
-                <button onClick={handleCreate} disabled={saving || !form.user_id || !form.amount}
-                  className="flex-1 py-3 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20">
-                  {saving ? 'Menyimpan...' : 'Simpan Transaksi'}
-                </button>
-              </div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white mb-2">Hapus Transaksi?</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Data transaksi ini akan dihapus secara permanen dari sistem dan tidak dapat dikembalikan.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={handleDelete} className="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-black text-xs transition-all shadow-[0px_4px_20px_rgba(239,68,68,0.2)] shadow-red-500/20">Ya, Hapus</button>
             </div>
           </div>
         </div>
@@ -168,9 +86,6 @@ export default function AdminSalesPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Penjualan</h1>
           <p className="text-slate-500 text-xs mt-1 font-mono">Log transaksi langganan premium</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-[11px] uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20 transition-all">
-          <Plus size={13} /> Catat Transaksi
-        </button>
       </div>
 
       {success && (
@@ -257,7 +172,7 @@ export default function AdminSalesPage() {
                         {new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-5 py-4">
-                        <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
+                        <button onClick={() => setDeleteConfirmId(t.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
                           <Trash2 size={11} />
                         </button>
                       </td>
@@ -278,7 +193,7 @@ export default function AdminSalesPage() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-[10px] text-slate-400 font-mono">{new Date(t.created_at).toLocaleDateString('id-ID')}</p>
-                    <button onClick={() => handleDelete(t.id)} className="mt-2 p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20">
+                    <button onClick={() => setDeleteConfirmId(t.id)} className="mt-2 p-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-500 border border-red-500/20">
                       <Trash2 size={11} />
                     </button>
                   </div>
