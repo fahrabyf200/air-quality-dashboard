@@ -6,6 +6,7 @@ import {
   Database, RefreshCw, AlertTriangle, ShieldAlert, ShieldCheck,
   TrendingUp, Thermometer, Droplets, Zap, Wind, Users, ChevronDown, X, Activity
 } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 const T = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 const PER_PAGE = 20;
@@ -39,6 +40,7 @@ export default function AdminSensorPage() {
   const [selectedUser, setSelectedUser] = useState<UserOption | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [hasUserIdCol, setHasUserIdCol] = useState(false);
+  const { lang, t } = useLanguage();
 
   const fetchData = useCallback(async (p = 1, uid?: number | null) => {
     setLoading(true);
@@ -56,9 +58,9 @@ export default function AdminSensorPage() {
       setHasUserIdCol(data.hasUserIdCol || false);
       setPage(p);
       setError('');
-    } catch { setError('Gagal memuat data sensor.'); }
+    } catch { setError(t('Gagal memuat data sensor.', 'Failed to load sensor data.')); }
     finally { setLoading(false); }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => { fetchData(1, null); }, [fetchData]);
 
@@ -80,19 +82,19 @@ export default function AdminSensorPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Sensor</h1>
-          <p className="text-slate-500 text-xs mt-1 font-mono">Seluruh rekaman dari perangkat ESP32</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>{t('Data Sensor', 'Sensor Data')}</h1>
+          <p className="text-slate-555 dark:text-slate-500 text-xs mt-1 font-mono">{t('Seluruh rekaman dari perangkat ESP32', 'All records from ESP32 devices')}</p>
         </div>
         <button onClick={() => fetchData(page, selectedUser?.id ?? null)} disabled={loading}
           className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
-          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> {t('Refresh', 'Refresh')}
         </button>
       </div>
 
       {/* USER FILTER */}
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 flex items-center gap-2">
-          <Users size={12} /> Filter Per User:
+          <Users size={12} /> {t('Filter Per User:', 'Filter By User:')}
         </p>
 
         {/* Dropdown */}
@@ -107,7 +109,7 @@ export default function AdminSensorPage() {
               <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-[#FFFFFF]/10 text-[#1E293B] dark:text-slate-400'}`}>
                 {selectedUser ? selectedUser.name.charAt(0) : '?'}
               </div>
-              <span className="text-sm">{selectedUser ? selectedUser.name : 'Semua Pengguna'}</span>
+              <span className="text-sm">{selectedUser ? selectedUser.name : t('Semua Pengguna', 'All Users')}</span>
             </div>
             <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -118,11 +120,11 @@ export default function AdminSensorPage() {
               <button onClick={() => handleSelectUser(null)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-[#FFFFFF]/5 ${!selectedUser ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>
                 <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#FFFFFF]/10 border border-[#E2E8F0] dark:border-white/10 flex items-center justify-center">
-                  <Users size={14} className="text-slate-500 dark:text-slate-400" />
+                  <Users size={14} className="text-slate-555 dark:text-slate-400" />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-sm">Semua Pengguna</p>
-                  <p className="text-[10px] text-slate-500">{users.length} akun terdaftar</p>
+                  <p className="font-bold text-sm">{t('Semua Pengguna', 'All Users')}</p>
+                  <p className="text-[10px] text-slate-500">{users.length} {t('akun terdaftar', 'registered accounts')}</p>
                 </div>
                 {!selectedUser && <div className="ml-auto w-2 h-2 rounded-full bg-purple-400" />}
               </button>
@@ -149,7 +151,7 @@ export default function AdminSensorPage() {
         {/* Active filter badge */}
         {selectedUser && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-400 text-[11px] font-black">
-            Menampilkan: {selectedUser.name}
+            {t('Menampilkan:', 'Showing:')} {selectedUser.name}
             <button onClick={() => handleSelectUser(null)} className="hover:text-purple-900 dark:hover:text-white transition-colors">
               <X size={12} />
             </button>
@@ -158,19 +160,18 @@ export default function AdminSensorPage() {
 
         {!hasUserIdCol && (
           <span className="text-[10px] text-yellow-600 dark:text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-xl font-bold">
-            ⚠ Jalankan migrasi untuk filter per user
+            ⚠ {t('Jalankan migrasi untuk filter per user', 'Run migrations to filter by user')}
           </span>
         )}
       </div>
-
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: 'Total Rekaman', value: total, color: '#8b5cf6', icon: Database },
-          { label: 'Event Bahaya', value: dangerCount, color: '#ef4444', icon: ShieldAlert },
-          { label: 'Event Aman', value: total - dangerCount, color: '#22c55e', icon: ShieldCheck },
+          { label: t('Total Rekaman', 'Total Records'), value: total, color: '#8b5cf6', icon: Database },
+          { label: t('Event Bahaya', 'Danger Events'), value: dangerCount, color: '#ef4444', icon: ShieldAlert },
+          { label: t('Event Aman', 'Safe Events'), value: total - dangerCount, color: '#22c55e', icon: ShieldCheck },
           { label: 'Avg CO₂', value: `${co2Avg.toFixed(0)}`, color: '#3b82f6', icon: TrendingUp, unit: 'PPM' },
-          { label: 'Avg Suhu', value: `${tempAvg.toFixed(1)}`, color: '#f97316', icon: Thermometer, unit: '°C' },
+          { label: t('Avg Suhu', 'Avg Temp'), value: `${tempAvg.toFixed(1)}`, color: '#f97316', icon: Thermometer, unit: '°C' },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-4 overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
             <div className="absolute -top-4 -right-4 w-14 h-14 rounded-full blur-xl opacity-20 pointer-events-none" style={{ background: s.color }} />
@@ -190,8 +191,8 @@ export default function AdminSensorPage() {
           { label: 'Avg CO₂', value: co2Avg.toFixed(0), unit: 'PPM', icon: Zap, color: '#3b82f6' },
           { label: 'Avg NH₃', value: nh3Avg.toFixed(2), unit: 'PPM', icon: Wind, color: '#a78bfa' },
           { label: 'Avg VOC', value: vocAvg.toFixed(2), unit: 'PPM', icon: Activity, color: '#ec4899' },
-          { label: 'Avg Suhu', value: tempAvg.toFixed(1), unit: '°C', icon: Thermometer, color: '#f97316' },
-          { label: 'Avg Hum', value: humAvg.toFixed(0), unit: '%', icon: Droplets, color: '#38bdf8' },
+          { label: t('Avg Suhu', 'Avg Temp'), value: tempAvg.toFixed(1), unit: '°C', icon: Thermometer, color: '#f97316' },
+          { label: t('Avg Hum', 'Avg Hum'), value: humAvg.toFixed(0), unit: '%', icon: Droplets, color: '#38bdf8' },
         ].map(s => (
           <div key={s.label} className="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${s.color}15` }}>
@@ -221,9 +222,9 @@ export default function AdminSensorPage() {
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
-                {selectedUser ? `Sensor: ${selectedUser.name}` : 'Semua Rekaman Sensor'}
+                {selectedUser ? `${t('Sensor:', 'Sensor:')} ${selectedUser.name}` : t('Semua Rekaman Sensor', 'All Sensor Records')}
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">{total} data • Halaman {page}/{totalPages || 1}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{total} data • {t('Halaman', 'Page')} {page}/{totalPages || 1}</p>
             </div>
           </div>
         </div>
@@ -231,12 +232,12 @@ export default function AdminSensorPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <RefreshCw size={22} className="text-blue-600 dark:text-blue-500 dark:text-blue-400 animate-spin" />
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat...', 'Loading...')}</p>
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Database size={28} className="text-slate-300 dark:text-slate-600" />
-            <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Tidak ada data</p>
+            <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">{t('Tidak ada data', 'No data')}</p>
           </div>
         ) : (
           <>
@@ -245,21 +246,31 @@ export default function AdminSensorPage() {
               <table className="w-full min-w-[850px]">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
-                    {['#', 'Waktu', ...(hasUserIdCol && !selectedUser ? ['User'] : []), 'CO₂', 'NH₃', 'VOC', 'Suhu', 'Hum', 'Status'].map(h => (
+                    {[
+                      '#',
+                      t('Waktu', 'Time'),
+                      ...(hasUserIdCol && !selectedUser ? [t('User', 'User')] : []),
+                      'CO₂',
+                      'NH₃',
+                      'VOC',
+                      t('Suhu', 'Temp'),
+                      'Hum',
+                      t('Status', 'Status')
+                    ].map(h => (
                       <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
                   {rows.map((row, i) => {
-                    const t = row.temp ?? row.temperature ?? 0;
+                    const tVal = row.temp ?? row.temperature ?? 0;
                     const h = row.hum ?? row.humidity ?? 0;
-                    const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || t > T.temp;
+                    const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || tVal > T.temp;
                     return (
                       <tr key={row.id ?? i} className={`hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] transition-colors ${danger ? 'bg-red-500/[0.03]' : ''}`}>
                         <td className="px-5 py-3.5 text-slate-500 dark:text-slate-600 font-mono text-xs">{(page - 1) * PER_PAGE + i + 1}</td>
                         <td className="px-5 py-3.5 text-slate-500 dark:text-slate-500 text-xs font-mono whitespace-nowrap">
-                          {row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}
+                          {row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}
                         </td>
                         {hasUserIdCol && !selectedUser && (
                           <td className="px-5 py-3.5">
@@ -271,19 +282,19 @@ export default function AdminSensorPage() {
                                 <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold capitalize">{row.user_name}</span>
                               </div>
                             ) : (
-                              <span className="text-xs text-slate-400 dark:text-slate-600 italic">Tidak ada</span>
+                              <span className="text-xs text-slate-400 dark:text-slate-600 italic">{t('Tidak ada', 'None')}</span>
                             )}
                           </td>
                         )}
                         <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.co2 > T.co2 ? '#f87171' : '#64748b' }}>{row.co2?.toFixed(0)}</td>
                         <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.nh3 > T.nh3 ? '#f87171' : '#64748b' }}>{row.nh3?.toFixed(2)}</td>
                         <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: (row.voc || 0) > T.voc ? '#f87171' : '#64748b' }}>{(row.voc || 0).toFixed(2)}</td>
-                        <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: t > T.temp ? '#f87171' : '#64748b' }}>{t.toFixed(1)}</td>
+                        <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: tVal > T.temp ? '#f87171' : '#64748b' }}>{tVal.toFixed(1)}</td>
                         <td className="px-5 py-3.5 font-black text-sm font-mono text-slate-400 dark:text-slate-400">{h.toFixed(0)}</td>
                         <td className="px-5 py-3.5">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${danger ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${danger ? 'bg-red-500' : 'bg-emerald-500'}`} />
-                            {danger ? 'Danger' : 'Safe'}
+                            {danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                           </span>
                         </td>
                       </tr>
@@ -296,20 +307,26 @@ export default function AdminSensorPage() {
             {/* Mobile Cards */}
             <div className="md:hidden divide-y divide-slate-100 dark:divide-white/[0.04]">
               {rows.map((row, i) => {
-                const t = row.temp ?? row.temperature ?? 0;
+                const tVal = row.temp ?? row.temperature ?? 0;
                 const h = row.hum ?? row.humidity ?? 0;
-                const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || t > T.temp;
+                const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || tVal > T.temp;
                 return (
                   <div key={row.id ?? i} className="p-4">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-slate-500 font-mono">{row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}</span>
-                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${danger ? 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>{danger ? 'Danger' : 'Safe'}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">{row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}</span>
+                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${danger ? 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>{danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}</span>
                     </div>
                     {hasUserIdCol && !selectedUser && row.user_name && (
                       <p className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mb-2 capitalize">👤 {row.user_name}</p>
                     )}
                     <div className="grid grid-cols-5 gap-2">
-                      {[{ l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 }, { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 }, { l: 'VOC', v: `${(row.voc || 0).toFixed(2)}`, over: (row.voc || 0) > T.voc }, { l: 'Temp', v: `${t.toFixed(1)}°`, over: t > T.temp }, { l: 'Hum', v: `${h.toFixed(0)}%`, over: false }].map(s => (
+                      {[
+                        { l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 },
+                        { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 },
+                        { l: 'VOC', v: `${(row.voc || 0).toFixed(2)}`, over: (row.voc || 0) > T.voc },
+                        { l: t('Suhu', 'Temp'), v: `${tVal.toFixed(1)}°`, over: tVal > T.temp },
+                        { l: t('Hum', 'Hum'), v: `${h.toFixed(0)}%`, over: false }
+                      ].map(s => (
                         <div key={s.l} className="bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.03] border border-slate-100 dark:border-white/5 p-2 rounded-xl text-center">
                           <p className="text-[9px] text-slate-400 dark:text-slate-600 font-black mb-0.5">{s.l}</p>
                           <p className={`text-xs font-black font-mono ${s.over ? 'text-red-600 dark:text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>{s.v}</p>
@@ -324,12 +341,12 @@ export default function AdminSensorPage() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="px-6 py-4 border-t border-slate-100 dark:border-white/[0.05] flex items-center justify-between bg-[#F8F9FA]/25 dark:bg-[#FFFFFF]/[0.005]">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Hal {page} / {totalPages}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">{t('Hal', 'Page')} {page} / {totalPages}</span>
                 <div className="flex gap-2">
                   <button onClick={() => fetchData(page - 1, selectedUser?.id)} disabled={page === 1}
-                    className="px-4 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 text-xs font-semibold uppercase transition-all">← Prev</button>
+                    className="px-4 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 text-xs font-semibold uppercase transition-all">← {t('Sebelumnya', 'Prev')}</button>
                   <button onClick={() => fetchData(page + 1, selectedUser?.id)} disabled={page === totalPages}
-                    className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase transition-all">Next →</button>
+                    className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase transition-all">{t('Berikutnya', 'Next')} →</button>
                 </div>
               </div>
             )}
@@ -339,3 +356,4 @@ export default function AdminSensorPage() {
     </div>
   );
 }
+

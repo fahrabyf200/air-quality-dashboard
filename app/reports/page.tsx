@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from 'react';
 import { FileBarChart, RefreshCw, TrendingUp, Activity, Wind, Thermometer, Droplets, ShieldCheck, Database, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 function SummaryCard({
   label,
@@ -19,6 +20,7 @@ function SummaryCard({
   danger: boolean;
   icon: any;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="relative rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden group transition-all duration-300 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700">
       {/* Glow Lampu */}
@@ -60,7 +62,7 @@ function SummaryCard({
             </div>
             {maxValue !== undefined && (
               <div className="mt-1 text-[10px] text-slate-500 dark:text-slate-500 font-mono">
-                MAX: <span className="font-bold text-slate-700 dark:text-slate-400">{maxValue} {unit}</span>
+                {t('MAX:', 'MAX:')} <span className="font-bold text-slate-700 dark:text-slate-400">{maxValue} {unit}</span>
               </div>
             )}
           </div>
@@ -82,7 +84,7 @@ function SummaryCard({
                 }`}
             >
               {danger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
-              {danger ? 'Melebihi Batas' : 'Dalam Batas Aman'}
+              {danger ? t('Melebihi Batas', 'Exceeded Limit') : t('Dalam Batas Aman', 'Within Safe Limit')}
             </div>
           </div>
 
@@ -102,7 +104,7 @@ function SummaryCard({
             </div>
             {maxValue !== undefined && (
               <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-500 font-mono tracking-wide">
-                NILAI PUNCAK: <span className="font-bold text-slate-700 dark:text-slate-300">{maxValue} {unit}</span>
+                {t('NILAI PUNCAK:', 'PEAK VALUE:')} <span className="font-bold text-slate-700 dark:text-slate-300">{maxValue} {unit}</span>
               </div>
             )}
           </div>
@@ -160,6 +162,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function ReportsPage() {
   const { thresholds: T, isLoaded: thresholdsLoaded } = useThresholds();
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -192,11 +195,11 @@ export default function ReportsPage() {
       setRows(Array.isArray(json) ? json : [json]);
       setError('');
     } catch (e: any) {
-      if (!silent) setError('Gagal memuat data laporan.');
+      if (!silent) setError(t('Gagal memuat data laporan.', 'Failed to load report data.'));
     } finally {
       if (!silent) setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchData();
@@ -234,19 +237,19 @@ export default function ReportsPage() {
   const hums = filteredRows.map(r => r.hum ?? r.humidity ?? 0);
 
   const dangerCount = filteredRows.filter(r => {
-    const t = r.temp ?? r.temperature ?? 0;
-    return r.co2 > T.co2 || r.nh3 > T.nh3 || (r.voc || 0) > T.voc || t > T.temp;
+    const tVal = r.temp ?? r.temperature ?? 0;
+    return r.co2 > T.co2 || r.nh3 > T.nh3 || (r.voc || 0) > T.voc || tVal > T.temp;
   }).length;
 
   const safeRate = filteredRows.length ? (((filteredRows.length - dangerCount) / filteredRows.length) * 100).toFixed(1) : '0';
 
   const summaryStats = [
-    { label: 'CO₂ (Sisa Pembakaran)', value: avg(co2s).toFixed(0), maxValue: maxVal(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2, icon: Wind },
-    { label: 'NH₃ (Indikator Kimia)', value: avg(nh3s).toFixed(2), maxValue: maxVal(nh3s).toFixed(2), unit: 'PPM', color: '#f59e0b', danger: avg(nh3s) > T.nh3, icon: Activity },
-    { label: 'VOC (GAS LPG MUDAH TERBAKAR)', value: avg(vocs).toFixed(2), maxValue: maxVal(vocs).toFixed(2), unit: 'PPM', color: '#ec4899', danger: avg(vocs) > T.voc, icon: Activity },
-    { label: 'Suhu Udara', value: avg(temps).toFixed(1), maxValue: maxVal(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp, icon: Thermometer },
-    { label: 'Kelembapan', value: avg(hums).toFixed(0), maxValue: maxVal(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum, icon: Droplets },
-    { label: 'Tingkat Keamanan Sistem', value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
+    { label: t('CO₂ (Sisa Pembakaran)', 'CO₂ (Combustion Residue)'), value: avg(co2s).toFixed(0), maxValue: maxVal(co2s).toFixed(0), unit: 'PPM', color: '#3b82f6', danger: avg(co2s) > T.co2, icon: Wind },
+    { label: t('NH₃ (Indikator Kimia)', 'NH₃ (Chemical Indicator)'), value: avg(nh3s).toFixed(2), maxValue: maxVal(nh3s).toFixed(2), unit: 'PPM', color: '#f59e0b', danger: avg(nh3s) > T.nh3, icon: Activity },
+    { label: t('VOC (GAS LPG MUDAH TERBAKAR)', 'VOC (FLAMMABLE LPG GAS)'), value: avg(vocs).toFixed(2), maxValue: maxVal(vocs).toFixed(2), unit: 'PPM', color: '#ec4899', danger: avg(vocs) > T.voc, icon: Activity },
+    { label: t('Suhu Udara', 'Air Temperature'), value: avg(temps).toFixed(1), maxValue: maxVal(temps).toFixed(1), unit: '°C', color: '#ef4444', danger: avg(temps) > T.temp, icon: Thermometer },
+    { label: t('Kelembapan', 'Humidity'), value: avg(hums).toFixed(0), maxValue: maxVal(hums).toFixed(0), unit: '%', color: '#8b5cf6', danger: avg(hums) > T.hum, icon: Droplets },
+    { label: t('Tingkat Keamanan Sistem', 'System Safety Rate'), value: safeRate, unit: '%', color: '#4ade80', danger: Number(safeRate) < 80, icon: ShieldCheck },
   ];
 
   // Tidak lagi di-group per menit/jam, melainkan langsung mengambil data mentah terakhir 
@@ -258,10 +261,10 @@ export default function ReportsPage() {
       let timeStr = '--:--';
       if (ts) {
         const d = new Date(ts);
-        timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        timeStr = d.toLocaleTimeString(lang === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' });
         // Jika bukan filter harian, tambahkan tanggal
         if (filterType !== 'day') {
-          timeStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ' ' + timeStr;
+          timeStr = d.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' }) + ' ' + timeStr;
         }
       }
       return {
@@ -278,8 +281,8 @@ export default function ReportsPage() {
   // We duplicate it to create a flat line if there's only 1 record group.
   const displayChartData = chartData.length === 1
     ? [
-      { ...chartData[0], time: `${chartData[0].time} (Awal)` },
-      { ...chartData[0], time: `${chartData[0].time} (Akhir)` }
+      { ...chartData[0], time: `${chartData[0].time} (${t('Awal', 'Start')})` },
+      { ...chartData[0], time: `${chartData[0].time} (${t('Akhir', 'End')})` }
     ]
     : chartData;
 
@@ -289,23 +292,23 @@ export default function ReportsPage() {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full border-b border-slate-200/60 dark:border-slate-800/40 pb-5">
         <div>
           <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">Kitchen Sensor Node</p>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-950 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            Reports
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-955 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            {t('Reports', 'Reports')}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Ringkasan Statistik &amp; Analisis Trend Sensor</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">{t('Ringkasan Statistik & Analisis Trend Sensor', 'Statistical Summary & Sensor Trend Analysis')}</p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="relative">
               <button
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-                className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-350 outline-none hover:border-slate-300 dark:hover:border-slate-750 transition-all shadow-sm active:scale-95 cursor-pointer min-w-[125px] justify-between relative z-10"
+                className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-355 outline-none hover:border-slate-300 dark:hover:border-slate-750 transition-all shadow-sm active:scale-95 cursor-pointer min-w-[125px] justify-between relative z-10"
               >
                 <span>
-                  {filterType === 'all' && 'Semua Data'}
-                  {filterType === 'day' && 'Harian'}
-                  {filterType === 'week' && 'Mingguan'}
-                  {filterType === 'month' && 'Bulanan'}
+                  {filterType === 'all' && t('Semua Data', 'All Data')}
+                  {filterType === 'day' && t('Harian', 'Daily')}
+                  {filterType === 'week' && t('Mingguan', 'Weekly')}
+                  {filterType === 'month' && t('Bulanan', 'Monthly')}
                 </span>
                 <ChevronDown size={11} className={`text-slate-400 transition-transform duration-200 ${filterDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -315,10 +318,10 @@ export default function ReportsPage() {
                   <div className="fixed inset-0 z-10" onClick={() => setFilterDropdownOpen(false)} />
                   <div className="absolute right-0 mt-1.5 w-40 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-xl overflow-hidden py-1.5 z-20 animate-in fade-in slide-in-from-top-2 duration-150">
                     {[
-                      { v: 'all', l: 'Semua Data' },
-                      { v: 'day', l: 'Harian' },
-                      { v: 'week', l: 'Mingguan' },
-                      { v: 'month', l: 'Bulanan' },
+                      { v: 'all', l: t('Semua Data', 'All Data') },
+                      { v: 'day', l: t('Harian', 'Daily') },
+                      { v: 'week', l: t('Mingguan', 'Weekly') },
+                      { v: 'month', l: t('Bulanan', 'Monthly') },
                     ].map(opt => {
                       const isSelected = filterType === opt.v;
                       return (
@@ -363,7 +366,7 @@ export default function ReportsPage() {
             className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-all text-xs font-semibold active:scale-95 disabled:opacity-50 shadow-sm"
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            <span>Refresh</span>
+            <span>{t('Refresh', 'Refresh')}</span>
           </button>
         </div>
       </div>
@@ -384,7 +387,7 @@ export default function ReportsPage() {
               <div className="absolute inset-0 bg-emerald-500/10 rounded-2xl blur-xl animate-pulse" />
             </div>
             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
-              Loading report data...
+              {t('Memuat data laporan...', 'Loading report data...')}
             </p>
           </div>
         ) : (
@@ -413,7 +416,7 @@ export default function ReportsPage() {
                     <div className="flex items-center gap-2">
                       <FileBarChart size={13} className="text-emerald-600 dark:text-emerald-500" />
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">
-                        All Sensors Trend
+                        {t('Tren Semua Sensor', 'All Sensors Trend')}
                       </span>
                     </div>
 
@@ -424,7 +427,7 @@ export default function ReportsPage() {
                         { k: 'NH₃', c: 'bg-yellow-500' },
                         { k: 'VOC', c: 'bg-teal-500' },
                         { k: 'TEMP', c: 'bg-orange-500' },
-                        { k: 'HUM', c: 'bg-purple-500' }
+                        { k: 'HUM', c: 'bg-purple-550' }
                       ].map(i => (
                         <div key={i.k} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/40 px-2 py-0.5 rounded border border-slate-200/60 dark:border-slate-800/60">
                           <span className={`w-1.5 h-1.5 rounded-full ${i.c}`} />
@@ -504,8 +507,8 @@ export default function ReportsPage() {
                 <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/40 rounded-full flex items-center justify-center mb-4 border border-slate-200/50 dark:border-slate-800/50">
                   <Database size={24} className="text-slate-400 dark:text-slate-500 animate-pulse" />
                 </div>
-                <h3 className="text-xs font-black text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-widest">Tidak Ada Data</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-500">Belum ada data sensor yang terekam pada tanggal/periode yang kamu pilih.</p>
+                <h3 className="text-xs font-black text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-widest">{t('Tidak Ada Data', 'No Data')}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-500">{t('Belum ada data sensor yang terekam pada tanggal/periode yang kamu pilih.', 'No sensor data has been recorded during the selected date/period.')}</p>
               </div>
             )}
 
@@ -513,7 +516,7 @@ export default function ReportsPage() {
             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 overflow-hidden shadow-sm transition-colors duration-300">
               <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60">
                 <span className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">
-                  Kitchen Threshold Reference
+                  {t('Referensi Ambang Batas Dapur', 'Kitchen Threshold Reference')}
                 </span>
               </div>
               {/* DESKTOP TABLE */}
@@ -521,7 +524,7 @@ export default function ReportsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-slate-800/60">
-                      {['Parameter', 'Threshold', 'Dataset Average', 'Dataset Max', 'Status'].map(h => (
+                      {[t('Parameter', 'Parameter'), t('Ambang Batas', 'Threshold'), t('Rata-rata Dataset', 'Dataset Average'), t('Maksimum Dataset', 'Dataset Max'), t('Status', 'Status')].map(h => (
                         <th key={h} className="text-left px-5 py-3 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{h}</th>
                       ))}
                     </tr>
@@ -531,8 +534,8 @@ export default function ReportsPage() {
                       { name: 'CO₂', threshold: `${T.co2} PPM`, avg: `${avg(co2s).toFixed(0)} PPM`, max: `${maxVal(co2s).toFixed(0)} PPM`, ok: avg(co2s) <= T.co2 },
                       { name: 'NH₃', threshold: `${T.nh3} PPM`, avg: `${avg(nh3s).toFixed(2)} PPM`, max: `${maxVal(nh3s).toFixed(2)} PPM`, ok: avg(nh3s) <= T.nh3 },
                       { name: 'VOC', threshold: `${T.voc} PPM`, avg: `${avg(vocs).toFixed(2)} PPM`, max: `${maxVal(vocs).toFixed(2)} PPM`, ok: avg(vocs) <= T.voc },
-                      { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
-                      { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
+                      { name: t('Suhu', 'Temperature'), threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
+                      { name: t('Kelembapan', 'Humidity'), threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                     ].map(row => (
                       <tr key={row.name} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
                         <td className="px-5 py-3.5 text-slate-700 dark:text-slate-400 font-bold text-xs uppercase tracking-tight">{row.name}</td>
@@ -544,7 +547,7 @@ export default function ReportsPage() {
                             ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                             : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
                             }`}>
-                            {row.ok ? '✓ Normal' : '⚠ Exceeded'}
+                            {row.ok ? t('✓ Normal', '✓ Normal') : t('⚠ Terlampaui', '⚠ Exceeded')}
                           </span>
                         </td>
                       </tr>
@@ -559,8 +562,8 @@ export default function ReportsPage() {
                   { name: 'CO₂', threshold: `${T.co2} PPM`, avg: `${avg(co2s).toFixed(0)} PPM`, max: `${maxVal(co2s).toFixed(0)} PPM`, ok: avg(co2s) <= T.co2 },
                   { name: 'NH₃', threshold: `${T.nh3} PPM`, avg: `${avg(nh3s).toFixed(2)} PPM`, max: `${maxVal(nh3s).toFixed(2)} PPM`, ok: avg(nh3s) <= T.nh3 },
                   { name: 'VOC', threshold: `${T.voc} PPM`, avg: `${avg(vocs).toFixed(2)} PPM`, max: `${maxVal(vocs).toFixed(2)} PPM`, ok: avg(vocs) <= T.voc },
-                  { name: 'Temperature', threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
-                  { name: 'Humidity', threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
+                  { name: t('Suhu', 'Temperature'), threshold: `${T.temp}°C`, avg: `${avg(temps).toFixed(1)}°C`, max: `${maxVal(temps).toFixed(1)}°C`, ok: avg(temps) <= T.temp },
+                  { name: t('Kelembapan', 'Humidity'), threshold: `${T.hum}%`, avg: `${avg(hums).toFixed(0)}%`, max: `${maxVal(hums).toFixed(0)}%`, ok: avg(hums) <= T.hum },
                 ].map(row => (
                   <div key={row.name} className="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
                     <div className="flex items-center justify-between mb-4">
@@ -570,21 +573,21 @@ export default function ReportsPage() {
                         : 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-500/20'
                         }`}>
                         {row.ok ? <CheckCircle size={10} /> : <AlertTriangle size={10} />}
-                        {row.ok ? 'Normal' : 'Exceeded'}
+                        {row.ok ? t('Normal', 'Normal') : t('Terlampaui', 'Exceeded')}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">THRESHOLD</p>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">{t('AMBANG BATAS', 'THRESHOLD')}</p>
                         <p className="text-xs font-black text-slate-600 dark:text-slate-300 font-mono">{row.threshold}</p>
                       </div>
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">AVERAGE</p>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">{t('RATA-RATA', 'AVERAGE')}</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#ef4444' }}>{row.avg}</p>
                       </div>
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">MAXIMUM</p>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">{t('MAKSIMUM', 'MAXIMUM')}</p>
                         <p className="text-xs font-black font-mono" style={{ color: row.ok ? undefined : '#fca5a5' }}>{row.max}</p>
                       </div>
                     </div>

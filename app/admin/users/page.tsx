@@ -7,6 +7,7 @@ import {
   UserPlus, Pencil, Trash2, Eye, X, Check, AlertTriangle,
   UserX, Database, ShieldAlert, Zap, CreditCard
 } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 const PACKAGE_PRICES: Record<string, number> = {
   '1 Bulan': 349000,
@@ -18,6 +19,7 @@ const PAYMENT_METHODS = ['Transfer Bank', 'GoPay', 'OVO', 'Dana', 'ShopeePay', '
 function formatRupiah(n: number) {
   return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 }
+
 
 interface UserRow {
   id: number;
@@ -50,16 +52,17 @@ function RoleBadge({ role }: { role: string }) {
 function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string; endDate?: string; invitedByName?: string }) {
   const isActive = status === 'active' && endDate && new Date(endDate) > new Date();
   const daysLeft = endDate ? Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+  const { t } = useLanguage();
   
   if (invitedByName) {
     return (
       <div className="text-left">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Pegawai
+          {t('Pegawai', 'Employee')}
         </span>
-        <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 truncate max-w-[125px]" title={`Diundang oleh: ${invitedByName}`}>
-          Oleh: {invitedByName}
+        <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 truncate max-w-[125px]" title={`${t('Diundang oleh:', 'Invited by:')} ${invitedByName}`}>
+          {t('Oleh:', 'By:')} {invitedByName}
         </p>
       </div>
     );
@@ -72,7 +75,7 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
           <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse" />
           Premium
         </span>
-        <p className="text-[10px] text-slate-400 font-mono mt-1">{daysLeft}h lagi</p>
+        <p className="text-[10px] text-slate-400 font-mono mt-1">{daysLeft}{t('h lagi', 'd left')}</p>
       </div>
     );
   }
@@ -82,6 +85,7 @@ function SubscriptionBadge({ status, endDate, invitedByName }: { status?: string
       Free
     </span>
   );
+
 }
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -122,6 +126,7 @@ export default function AdminUsersPage() {
   const [success, setSuccess] = useState('');
   const [search, setSearch] = useState('');
   const [subLoading, setSubLoading] = useState<number | null>(null);
+  const { lang, t } = useLanguage();
 
   // Transaction popup state
   const [txPopup, setTxPopup] = useState<{ user: UserRow; packageName: string; action: string } | null>(null);
@@ -156,7 +161,7 @@ export default function AdminUsersPage() {
           package_name: txPopup.packageName,
           amount: PACKAGE_PRICES[txPopup.packageName] || 0,
           payment_method: txPaymentMethod,
-          notes: `Diaktifkan oleh admin`,
+          notes: t('Diaktifkan oleh admin', 'Activated by admin'),
         }),
       });
 
@@ -166,14 +171,14 @@ export default function AdminUsersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'transaction',
-          description: `Transaksi ${txPopup.packageName} (${formatRupiah(PACKAGE_PRICES[txPopup.packageName] || 0)}) via ${txPaymentMethod} untuk ${txPopup.user.name} (${txPopup.user.email})`,
+          description: `${t('Transaksi', 'Transaction')} ${txPopup.packageName} (${formatRupiah(PACKAGE_PRICES[txPopup.packageName] || 0)}) ${t('via', 'via')} ${txPaymentMethod} ${t('untuk', 'for')} ${txPopup.user.name} (${txPopup.user.email})`,
         }),
       });
 
       setTxPopup(null);
       await fetchUsers();
-      showSuccess(`Langganan ${txPopup.packageName} berhasil diaktifkan & transaksi dicatat!`);
-    } catch { setError('Gagal memproses transaksi.'); }
+      showSuccess(t(`Langganan ${txPopup.packageName} berhasil diaktifkan & transaksi dicatat!`, `Subscription ${txPopup.packageName} successfully activated & transaction recorded!`));
+    } catch { setError(t('Gagal memproses transaksi.', 'Failed to process transaction.')); }
     finally { setTxSaving(false); }
   };
 
@@ -189,7 +194,7 @@ export default function AdminUsersPage() {
       if (!res.ok) { setError(data.error); return; }
       await fetchUsers();
       showSuccess(data.message);
-    } catch { setError('Gagal mengubah status langganan.'); }
+    } catch { setError(t('Gagal mengubah status langganan.', 'Failed to change subscription status.')); }
     finally { setSubLoading(null); }
   };
 
@@ -216,9 +221,9 @@ export default function AdminUsersPage() {
       const data = await res.json();
       setUsers(data.users || []);
       setError('');
-    } catch { setError('Gagal memuat data pengguna.'); }
+    } catch { setError(t('Gagal memuat data pengguna.', 'Failed to load user data.')); }
     finally { setLoading(false); }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -229,7 +234,7 @@ export default function AdminUsersPage() {
 
   // CREATE
   const handleCreate = async () => {
-    if (!form.name || !form.email || !form.password) { setError('Semua field wajib diisi'); return; }
+    if (!form.name || !form.email || !form.password) { setError(t('Semua field wajib diisi', 'All fields are required')); return; }
     setSaving(true);
     try {
       const res = await fetch('/api/admin/users', {
@@ -242,8 +247,8 @@ export default function AdminUsersPage() {
       setCreateModal(false);
       setForm({ name: '', email: '', password: '', role: 'user' });
       await fetchUsers();
-      showSuccess('User berhasil dibuat!');
-    } catch { setError('Gagal membuat user.'); }
+      showSuccess(t('User berhasil dibuat!', 'User successfully created!'));
+    } catch { setError(t('Gagal membuat user.', 'Failed to create user.')); }
     finally { setSaving(false); }
   };
 
@@ -261,8 +266,8 @@ export default function AdminUsersPage() {
       if (!res.ok) { setError(data.error); return; }
       setEditUser(null);
       await fetchUsers();
-      showSuccess('User berhasil diupdate!');
-    } catch { setError('Gagal update user.'); }
+      showSuccess(t('User berhasil diupdate!', 'User successfully updated!'));
+    } catch { setError(t('Gagal update user.', 'Failed to update user.')); }
     finally { setSaving(false); }
   };
 
@@ -278,8 +283,8 @@ export default function AdminUsersPage() {
       const data = await res.json();
       if (!res.ok) { setError(data.error); return; }
       await fetchUsers();
-      showSuccess('User berhasil dihapus!');
-    } catch { setError('Gagal menghapus user.'); }
+      showSuccess(t('User berhasil dihapus!', 'User successfully deleted!'));
+    } catch { setError(t('Gagal menghapus user.', 'Failed to delete user.')); }
   };
 
   const openEdit = (u: UserRow) => {
@@ -297,6 +302,11 @@ export default function AdminUsersPage() {
   const premiumCount = users.filter(u => u.subscription_status === 'active' && u.subscription_end_date && new Date(u.subscription_end_date) > new Date()).length;
   const freeCount = users.filter(u => u.role !== 'admin').length - premiumCount;
 
+
+  const localPaymentMethods = PAYMENT_METHODS.map(m => 
+    m === 'Transfer Bank' ? t('Transfer Bank', 'Bank Transfer') : m === 'Tunai' ? t('Tunai', 'Cash') : m
+  );
+
   return (
     <div className="px-6 md:px-10 xl:px-12 pt-7 pb-8 space-y-6 w-full transition-colors duration-300">
 
@@ -310,8 +320,8 @@ export default function AdminUsersPage() {
                   <CreditCard size={16} className="text-[#059669] dark:text-[#4edea3]" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black text-slate-900 dark:text-white">Konfirmasi Transaksi</h2>
-                  <p className="text-[10px] text-slate-400">Pilih metode pembayaran</p>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white">{t('Konfirmasi Transaksi', 'Confirm Transaction')}</h2>
+                  <p className="text-[10px] text-slate-400">{t('Pilih metode pembayaran', 'Select payment method')}</p>
                 </div>
               </div>
               <button onClick={() => setTxPopup(null)} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white">
@@ -323,7 +333,7 @@ export default function AdminUsersPage() {
             <div className="rounded-2xl bg-[#4edea3]/8 border border-[#4edea3]/20 p-4 mb-5">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Pengguna</span>
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{t('Pengguna', 'User')}</span>
                   <span className="text-xs font-black text-slate-900 dark:text-white capitalize">{txPopup.user.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -331,8 +341,10 @@ export default function AdminUsersPage() {
                   <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">{txPopup.user.email}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Paket</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#4edea3]/15 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/20">{txPopup.packageName}</span>
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{t('Paket', 'Package')}</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#4edea3]/15 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/20">
+                    {txPopup.packageName === '1 Bulan' ? t('1 Bulan', '1 Month') : txPopup.packageName === '1 Tahun' ? t('1 Tahun', '1 Year') : txPopup.packageName}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center pt-1 border-t border-[#4edea3]/20">
                   <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total</span>
@@ -345,32 +357,35 @@ export default function AdminUsersPage() {
 
             {/* Payment Method */}
             <div className="space-y-2 mb-5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode Pembayaran</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('Metode Pembayaran', 'Payment Method')}</label>
               <div className="grid grid-cols-2 gap-2">
-                {PAYMENT_METHODS.map(method => (
-                  <button
-                    key={method}
-                    onClick={() => setTxPaymentMethod(method)}
-                    className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all ${
-                      txPaymentMethod === method
-                        ? 'bg-[#4edea3]/15 border-[#4edea3]/40 text-[#047857] dark:text-[#4edea3]'
-                        : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                    }`}
-                  >
-                    {method}
-                  </button>
-                ))}
+                {PAYMENT_METHODS.map((method, idx) => {
+                  const translatedMethod = localPaymentMethods[idx];
+                  return (
+                    <button
+                      key={method}
+                      onClick={() => setTxPaymentMethod(method)}
+                      className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all ${
+                        txPaymentMethod === method
+                          ? 'bg-[#4edea3]/15 border-[#4edea3]/40 text-[#047857] dark:text-[#4edea3]'
+                          : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                      }`}
+                    >
+                      {translatedMethod}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setTxPopup(null)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Batal</button>
+              <button onClick={() => setTxPopup(null)} className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-50 dark:hover:bg-white/5 transition-all">{t('Batal', 'Cancel')}</button>
               <button
                 onClick={handleTransactionConfirm}
                 disabled={txSaving}
                 className="flex-1 py-3 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-xs transition-all disabled:opacity-50"
               >
-                {txSaving ? 'Memproses...' : 'Konfirmasi & Aktifkan'}
+                {txSaving ? t('Memproses...', 'Processing...') : t('Konfirmasi & Aktifkan', 'Confirm & Activate')}
               </button>
             </div>
           </div>
@@ -379,27 +394,27 @@ export default function AdminUsersPage() {
 
       {/* CREATE MODAL */}
       {createModal && (
-        <Modal title="Tambah User Baru" onClose={() => setCreateModal(false)}>
+        <Modal title={t('Tambah User Baru', 'Add New User')} onClose={() => setCreateModal(false)}>
           <div className="space-y-4">
-            <FormField label="Nama Lengkap">
-              <input type="text" placeholder="Masukkan nama..." value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inputClass} />
+            <FormField label={t('Nama Lengkap', 'Full Name')}>
+              <input type="text" placeholder={t('Masukkan nama...', 'Enter name...')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inputClass} />
             </FormField>
             <FormField label="Email">
-              <input type="email" placeholder="Masukkan email..." value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputClass} />
+              <input type="email" placeholder={t('Masukkan email...', 'Enter email...')} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputClass} />
             </FormField>
             <FormField label="Password">
-              <input type="password" placeholder="Minimal 6 karakter..." value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={inputClass} />
+              <input type="password" placeholder={t('Minimal 6 karakter...', 'At least 6 characters...')} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={inputClass} />
             </FormField>
-            <FormField label="Hak Akses / Role">
+            <FormField label={t('Hak Akses / Role', 'Access Role')}>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className={selectClass}>
-                <option value="user">User Biasa</option>
+                <option value="user">{t('User Biasa', 'Standard User')}</option>
                 <option value="admin">Administrator</option>
               </select>
             </FormField>
             <div className="flex gap-3 pt-4">
-              <button onClick={() => setCreateModal(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={() => setCreateModal(false)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">{t('Batal', 'Cancel')}</button>
               <button onClick={handleCreate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10">
-                {saving ? 'Menyimpan...' : 'Buat Akun'}
+                {saving ? t('Menyimpan...', 'Saving...') : t('Buat Akun', 'Create Account')}
               </button>
             </div>
           </div>
@@ -408,27 +423,27 @@ export default function AdminUsersPage() {
 
       {/* EDIT MODAL */}
       {editUser && (
-        <Modal title="Edit Akun Pengguna" onClose={() => setEditUser(null)}>
+        <Modal title={t('Edit Akun Pengguna', 'Edit User Account')} onClose={() => setEditUser(null)}>
           <div className="space-y-4">
-            <FormField label="Nama Lengkap">
+            <FormField label={t('Nama Lengkap', 'Full Name')}>
               <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inputClass} />
             </FormField>
             <FormField label="Email">
               <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputClass} />
             </FormField>
-            <FormField label="Hak Akses / Role">
+            <FormField label={t('Hak Akses / Role', 'Access Role')}>
               <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className={selectClass} disabled={editUser.id === session?.id}>
-                <option value="user">User Biasa</option>
+                <option value="user">{t('User Biasa', 'Standard User')}</option>
                 <option value="admin">Administrator</option>
               </select>
             </FormField>
             {editUser.id === session?.id && (
-              <p className="text-[10px] text-yellow-500 font-mono">⚠️ Anda tidak bisa menurunkan peran akun Anda sendiri.</p>
+              <p className="text-[10px] text-yellow-500 font-mono">{t('⚠️ Anda tidak bisa menurunkan peran akun Anda sendiri.', '⚠️ You cannot demote your own account role.')}</p>
             )}
             <div className="flex gap-3 pt-4">
-              <button onClick={() => setEditUser(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
+              <button onClick={() => setEditUser(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">{t('Batal', 'Cancel')}</button>
               <button onClick={handleUpdate} disabled={saving} className="flex-1 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs transition-all disabled:opacity-50 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/10">
-                {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                {saving ? t('Menyimpan...', 'Saving...') : t('Simpan Perubahan', 'Save Changes')}
               </button>
             </div>
           </div>
@@ -442,13 +457,14 @@ export default function AdminUsersPage() {
             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <UserX size={26} className="text-red-600 dark:text-red-500" />
             </div>
-            <h2 className="text-lg font-black text-slate-900 dark:text-white text-center mb-2">Hapus Pengguna?</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-1">Akun ini akan dihapus permanen:</p>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white text-center mb-2">{t('Hapus Pengguna?', 'Delete User?')}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-1">{t('Akun ini akan dihapus permanen:', 'This account will be permanently deleted:')}</p>
             <p className="text-sm font-black text-red-600 dark:text-red-500 text-center mb-2 font-mono">{confirmDelete.email}</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-600 text-center mb-6">Data sensor yang terhubung akan diputus namun tidak dihapus.</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-600 text-center mb-6">{t('Data sensor yang terhubung akan diputus namun tidak dihapus.', 'Connected sensor data will be unlinked but not deleted.')}</p>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">Batal</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/10">Ya, Hapus</button>
+
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-3 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-slate-600 dark:text-slate-300 font-black text-sm hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all">{t('Batal', 'Cancel')}</button>
+              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/10">{t('Ya, Hapus', 'Yes, Delete')}</button>
             </div>
           </div>
         </div>
@@ -457,22 +473,22 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Kelola Pengguna</h1>
-          <p className="text-slate-500 text-xs mt-1 font-mono">CRUD manajemen akun dan hak akses pengguna</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>{t('Kelola Pengguna', 'Manage Users')}</h1>
+          <p className="text-slate-500 text-xs mt-1 font-mono">{t('CRUD manajemen akun dan hak akses pengguna', 'CRUD account management and user roles')}</p>
         </div>
         <button onClick={() => { setForm({ name: '', email: '', password: '', role: 'user' }); setError(''); setCreateModal(true); }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-all text-[11px] font-black uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-purple-500/20">
-          <UserPlus size={13} /> Tambah User
+          <UserPlus size={13} /> {t('Tambah User', 'Add User')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Pengguna', value: users.length, color: '#8b5cf6', icon: Users },
-          { label: 'Administrator', value: adminCount, color: '#f59e0b', icon: Crown },
-          { label: 'Premium Active', value: premiumCount, color: '#4edea3', icon: ShieldAlert },
-          { label: 'Free Member', value: freeCount, color: '#64748b', icon: UserCircle },
+          { label: t('Total Pengguna', 'Total Users'), value: users.length, color: '#8b5cf6', icon: Users },
+          { label: t('Administrator', 'Administrators'), value: adminCount, color: '#f59e0b', icon: Crown },
+          { label: t('Premium Aktif', 'Active Premium'), value: premiumCount, color: '#4edea3', icon: ShieldAlert },
+          { label: t('Member Gratis', 'Free Members'), value: freeCount, color: '#64748b', icon: UserCircle },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-5 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-slate-400 dark:hover:border-slate-500 group transition-all duration-300">
             {/* Glow Lampu */}
@@ -504,7 +520,7 @@ export default function AdminUsersPage() {
       {error && (
         <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
           <AlertTriangle size={16} /> {error}
-          <button onClick={() => setError('')} className="ml-auto text-xs underline">Tutup</button>
+          <button onClick={() => setError('')} className="ml-auto text-xs underline">{t('Tutup', 'Close')}</button>
         </div>
       )}
 
@@ -516,19 +532,19 @@ export default function AdminUsersPage() {
               <Users size={15} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Daftar Pengguna</p>
-              <p className="text-xs text-slate-500 mt-0.5">{filtered.length} dari {users.length} akun</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{t('Daftar Pengguna', 'User List')}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{filtered.length} {t('dari', 'of')} {users.length} {t('akun', 'accounts')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input type="text" placeholder="Cari nama / email..." value={search} onChange={e => setSearch(e.target.value)}
+              <input type="text" placeholder={t('Cari nama / email...', 'Search name / email...')} value={search} onChange={e => setSearch(e.target.value)}
                 className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-purple-500/40 w-48 transition-colors shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none" />
             </div>
             <button onClick={fetchUsers} disabled={loading}
               className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#F8F9FA] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#FFFFFF]/10 transition-all text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50">
-              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {t('Refresh', 'Refresh')}
             </button>
           </div>
         </div>
@@ -536,7 +552,7 @@ export default function AdminUsersPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <RefreshCw size={22} className="text-purple-600 dark:text-purple-400 animate-spin" />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat data...</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat data...', 'Loading data...')}</p>
           </div>
         ) : (
           <>
@@ -545,14 +561,14 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-white/[0.05]">
-                    {['#', 'Pengguna', 'Email', 'Role', 'Langganan', 'Data Sensor', 'Bergabung', 'Aksi'].map(h => (
+                    {['#', t('Pengguna', 'User'), 'Email', 'Role', t('Langganan', 'Subscription'), t('Data Sensor', 'Sensor Data'), t('Bergabung', 'Joined'), t('Aksi', 'Actions')].map(h => (
                       <th key={h} className="text-left px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={8} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">Tidak ada pengguna</td></tr>
+                    <tr><td colSpan={8} className="text-center py-16 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">{t('Tidak ada pengguna', 'No users found')}</td></tr>
                   ) : filtered.map((u, i) => (
                     <tr key={u.id} className={`transition-all hover:bg-[#F8F9FA]/50 dark:hover:bg-[#FFFFFF]/[0.02] ${u.id === session?.id ? 'bg-purple-500/[0.04]' : ''}`}>
                       <td className="px-5 py-4 text-slate-500 dark:text-slate-600 font-mono text-xs">{i + 1}</td>
@@ -563,11 +579,11 @@ export default function AdminUsersPage() {
                           </div>
                           <div>
                             <p className="font-bold text-sm text-slate-900 dark:text-white capitalize leading-tight">{u.name}</p>
-                            {u.id === session?.id && <p className="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-wider mt-0.5">Akun Anda</p>}
+                            {u.id === session?.id && <p className="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-wider mt-0.5">{t('Akun Anda', 'Your Account')}</p>}
                             {u.invited_by_name && (
                               <p className="text-[8px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider mt-1.5 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md w-fit">
                                 <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                                Pegawai {u.invited_by_name}
+                                {t('Pegawai', 'Employee')} {u.invited_by_name}
                               </p>
                             )}
                           </div>
@@ -580,7 +596,7 @@ export default function AdminUsersPage() {
                         <div className="flex items-center gap-1.5 text-slate-500">
                           <Database size={11} className="text-slate-400" />
                           <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{u.sensor_count ?? 0}</span>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-600">rekaman</span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-600">{t('rekaman', 'records')}</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 text-slate-500 dark:text-slate-600 text-xs font-mono whitespace-nowrap">
@@ -595,45 +611,45 @@ export default function AdminUsersPage() {
                                 onClick={() => openTransactionPopup(u, '1 Bulan', 'activate_1month')}
                                 disabled={subLoading === u.id}
                                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 hover:bg-[#4edea3]/20 transition-all disabled:opacity-50 whitespace-nowrap"
-                                title="Aktifkan Premium 1 Bulan"
+                                title={t('Aktifkan Premium 1 Bulan', 'Activate 1 Month Premium')}
                               >
                                 {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Zap size={9} />}
-                                1 Bln
+                                {t('1 Bln', '1 Mo')}
                               </button>
                               <button
                                 onClick={() => openTransactionPopup(u, '1 Tahun', 'activate_1year')}
                                 disabled={subLoading === u.id}
                                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all disabled:opacity-50 whitespace-nowrap"
-                                title="Aktifkan Premium 1 Tahun"
+                                title={t('Aktifkan Premium 1 Tahun', 'Activate 1 Year Premium')}
                               >
                                 {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <Crown size={9} />}
-                                1 Thn
+                                {t('1 Thn', '1 Yr')}
                               </button>
                               <button
                                 onClick={() => handleSubscription(u.id, 'deactivate')}
                                 disabled={subLoading === u.id}
                                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
-                                title="Nonaktifkan Premium"
+                                title={t('Nonaktifkan Premium', 'Deactivate Premium')}
                               >
                                 {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <ShieldAlert size={9} />}
-                                Off
+                                {t('Off', 'Off')}
                               </button>
                             </>
                           )}
                           {/* View Detail */}
                           <button onClick={() => router.push(`/admin/users/${u.id}`)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all" title="Lihat Detail">
-                            <Eye size={10} /> Detail
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all" title={t('Lihat Detail', 'View Details')}>
+                            <Eye size={10} /> {t('Detail', 'Detail')}
                           </button>
                           {/* Edit */}
                           <button onClick={() => openEdit(u)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all" title="Edit">
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all" title={t('Edit', 'Edit')}>
                             <Pencil size={10} />
                           </button>
                           {/* Delete */}
                           {u.id !== session?.id && (
                             <button onClick={() => setConfirmDelete(u)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all" title="Hapus">
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all" title={t('Hapus', 'Delete')}>
                               <Trash2 size={10} />
                             </button>
                           )}
@@ -660,7 +676,7 @@ export default function AdminUsersPage() {
                         {u.invited_by_name && (
                           <p className="text-[8px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider mt-1 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md w-fit">
                             <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                            Pegawai {u.invited_by_name}
+                            {t('Pegawai', 'Employee')} {u.invited_by_name}
                           </p>
                         )}
                       </div>
@@ -672,38 +688,38 @@ export default function AdminUsersPage() {
                   </div>
                   <div className="flex items-center gap-1.5 text-slate-500 mb-3">
                     <Database size={10} />
-                    <span className="text-[11px] font-mono text-slate-700 dark:text-slate-300">{u.sensor_count ?? 0} rekaman sensor</span>
+                    <span className="text-[11px] font-mono text-slate-700 dark:text-slate-300">{u.sensor_count ?? 0} {t('rekaman sensor', 'sensor records')}</span>
                   </div>
                   {/* Subscription Buttons (mobile) */}
                   {u.role !== 'admin' && (
                     <div className="flex gap-2 mb-2">
                       <button onClick={() => openTransactionPopup(u, '1 Bulan', 'activate_1month')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-[#4edea3]/10 text-[#047857] dark:text-[#4edea3] border border-[#4edea3]/30 disabled:opacity-50">
-                        <Zap size={9} /> 1 Bln
+                        <Zap size={9} /> {t('1 Bln', '1 Mo')}
                       </button>
                       <button onClick={() => openTransactionPopup(u, '1 Tahun', 'activate_1year')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 disabled:opacity-50">
-                        <Crown size={9} /> 1 Thn
+                        <Crown size={9} /> {t('1 Thn', '1 Yr')}
                       </button>
                       <button onClick={() => handleSubscription(u.id, 'deactivate')} disabled={subLoading === u.id}
                         className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 disabled:opacity-50">
-                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <ShieldAlert size={9} />} Off
+                        {subLoading === u.id ? <RefreshCw size={9} className="animate-spin" /> : <ShieldAlert size={9} />} {t('Off', 'Off')}
                       </button>
                     </div>
                   )}
                   <div className="flex gap-2">
                     <button onClick={() => router.push(`/admin/users/${u.id}`)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                      <Eye size={10} /> Detail
+                      <Eye size={10} /> {t('Detail', 'Detail')}
                     </button>
                     <button onClick={() => openEdit(u)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      <Pencil size={10} /> Edit
+                      <Pencil size={10} /> {t('Edit', 'Edit')}
                     </button>
                     {u.id !== session?.id && (
                       <button onClick={() => setConfirmDelete(u)}
                         className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
-                        <Trash2 size={10} /> Hapus
+                        <Trash2 size={10} /> {t('Hapus', 'Delete')}
                       </button>
                     )}
                   </div>

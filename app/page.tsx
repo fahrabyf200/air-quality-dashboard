@@ -15,29 +15,44 @@ import LandingPage from '@/components/landing-page';
 
 const SENSOR_INFO = {
   co2: {
-    general: "Karbon Dioksida (CO2) adalah gas hasil sisa pembakaran api kompor. Di dapur, gas ini dipantau sebagai indikator kelancaran ventilasi udara. Pembakaran kompor yang terus-menerus tanpa ventilasi akan menyebabkan penumpukan gas CO2 beracun yang dapat memicu sesak napas.",
-    safe: "Kondisi saat ini: Sirkulasi gas hasil pembakaran kompor di area dapur Anda berjalan sangat baik.",
-    danger: "Kondisi saat ini: Bahaya! Terjadi penumpukan gas hasil pembakaran yang dapat memicu sesak napas (asfiksia). Segera nyalakan exhaust fan atau buka jendela lebar-lebar!"
+    general_id: "Karbon Dioksida (CO2) adalah gas hasil sisa pembakaran api kompor. Di dapur, gas ini dipantau sebagai indikator kelancaran ventilasi udara. Pembakaran kompor yang terus-menerus tanpa ventilasi akan menyebabkan penumpukan gas CO2 beracun yang dapat memicu sesak napas.",
+    general_en: "Carbon Dioxide (CO2) is a byproduct of stove combustion. In kitchens, this gas is monitored to indicate air ventilation efficiency. Continuous stove usage without ventilation will cause a build-up of toxic CO2 gas, which can lead to shortness of breath.",
+    safe_id: "Kondisi saat ini: Sirkulasi gas hasil pembakaran kompor di area dapur Anda berjalan sangat baik.",
+    safe_en: "Current condition: Gas circulation from stove combustion in your kitchen area is running very well.",
+    danger_id: "Kondisi saat ini: Bahaya! Terjadi penumpukan gas hasil pembakaran yang dapat memicu sesak napas (asfiksia). Segera nyalakan exhaust fan atau buka jendela lebar-lebar!",
+    danger_en: "Current condition: Danger! Combustion gas build-up has occurred, which can trigger asphyxiation. Turn on the exhaust fan or open windows immediately!"
   },
   nh3: {
-    general: "Amonia (NH3) adalah senyawa gas kimia tajam dan beracun. Di dapur, sensor NH3 berfungsi sebagai detektor pendukung untuk melacak adanya kebocoran senyawa gas kimia berbahaya selain LPG. Hal ini bertujuan untuk memastikan udara dapur tidak tercemar oleh akumulasi uap gas kimia beracun yang dapat membahayakan pernapasan.",
-    safe: "Kondisi saat ini: Aman. Tidak terdeteksi adanya kebocoran senyawa gas kimia beracun (NH3) di dapur.",
-    danger: "Kondisi saat ini: Peringatan! Terdeteksi adanya kebocoran gas kimia beracun (NH3) di udara dapur. Segera evakuasi ruangan dan buka jendela!"
+    general_id: "Amonia (NH3) adalah senyawa gas kimia tajam dan beracun. Di dapur, sensor NH3 berfungsi sebagai detektor pendukung untuk melacak adanya kebocoran senyawa gas kimia berbahaya selain LPG. Hal ini bertujuan untuk memastikan udara dapur tidak tercemar oleh akumulasi uap gas kimia beracun yang dapat membahayakan pernapasan.",
+    general_en: "Ammonia (NH3) is a sharp, toxic chemical gas compound. In kitchens, the NH3 sensor acts as a backup detector to track toxic chemical leaks other than LPG. This ensures kitchen air is not contaminated by toxic chemical vapor accumulation which can harm respiration.",
+    safe_id: "Kondisi saat ini: Aman. Tidak terdeteksi adanya kebocoran senyawa gas kimia beracun (NH3) di dapur.",
+    safe_en: "Current condition: Safe. No toxic chemical gas (NH3) leaks detected in the kitchen.",
+    danger_id: "Kondisi saat ini: Peringatan! Terdeteksi adanya kebocoran gas kimia beracun (NH3) di udara dapur. Segera evakuasi ruangan dan buka jendela!",
+    danger_en: "Current condition: Warning! Toxic chemical gas (NH3) leak detected in the kitchen air. Evacuate the room and open windows immediately!"
   },
   temp: {
-    general: "Suhu Udara (Temperature) dipantau sebagai indikator awal terjadinya kebakaran (titik api). Jika tabung gas LPG bocor lalu tersulut percikan api, sensor suhu akan mendeteksi lonjakan panas ekstrem secara seketika untuk membunyikan alarm evakuasi.",
-    safe: "Kondisi saat ini: Suhu area dapur normal dan stabil, tidak menunjukkan adanya tanda-tanda rambatan panas ekstrem.",
-    danger: "Kondisi saat ini: Bahaya! Terjadi lonjakan suhu ekstrem yang sangat cepat. Segera matikan kompor, evakuasi tabung gas, dan siapkan alat pemadam kebakaran!"
+    general_id: "Suhu Udara (Temperature) dipantau sebagai indikator awal terjadinya kebakaran (titik api). Jika tabung gas LPG bocor lalu tersulut percikan api, sensor suhu akan mendeteksi lonjakan panas ekstrem secara seketika untuk membunyikan alarm evakuasi.",
+    general_en: "Air Temperature is monitored as an early indicator of fire hotspots. If an LPG gas cylinder leaks and catches a spark, the temperature sensor will detect an extreme heat spike instantly to sound the evacuation alarm.",
+    safe_id: "Kondisi saat ini: Suhu area dapur normal dan stabil, tidak menunjukkan adanya tanda-tanda rambatan panas ekstrem.",
+    safe_en: "Current condition: Kitchen area temperature is normal and stable, showing no signs of extreme heat propagation.",
+    danger_id: "Kondisi saat ini: Bahaya! Terjadi lonjakan suhu ekstrem yang sangat cepat. Segera matikan kompor, evakuasi tabung gas, dan siapkan alat pemadam kebakaran!",
+    danger_en: "Current condition: Danger! Sudden extreme temperature spike occurred. Turn off the stove, evacuate the gas cylinder, and prepare a fire extinguisher immediately!"
   },
   hum: {
-    general: "Kelembapan Ruang (Humidity) dipantau karena gas elpiji (LPG) memiliki massa jenis yang lebih berat dibanding udara biasa. Pada kelembapan tinggi, gas elpiji yang bocor akan mengendap di bawah lantai dan sulit terbawa angin keluar melalui jendela atas.",
-    safe: "Kondisi saat ini: Kelembapan ideal. Udara cukup kering sehingga membantu meminimalkan risiko terjebaknya gas elpiji di lantai.",
-    danger: "Kondisi saat ini: Peringatan! Kelembapan terlalu tinggi. Gas bocor berisiko terperangkap pekat di bawah lantai. Segera buka pintu bawah dapur dan sapu udara di lantai ke arah luar."
+    general_id: "Kelembapan Ruang (Humidity) dipantau karena gas elpiji (LPG) memiliki massa jenis yang lebih berat dibanding udara biasa. Pada kelembapan tinggi, gas elpiji yang bocor akan mengendap di bawah lantai dan sulit terbawa angin keluar melalui jendela atas.",
+    general_en: "Room Humidity is monitored because liquefied petroleum gas (LPG) is heavier than normal air. Under high humidity, leaking LPG gas will settle under the floor level and struggle to be carried out by wind through upper windows.",
+    safe_id: "Kondisi saat ini: Kelembapan ideal. Udara cukup kering sehingga membantu meminimalkan risiko terjebaknya gas elpiji di lantai.",
+    safe_en: "Current condition: Ideal humidity. The air is dry enough to help minimize the risk of LPG gas being trapped on the floor.",
+    danger_id: "Kondisi saat ini: Peringatan! Kelembapan terlalu tinggi. Gas bocor berisiko terperangkap pekat di bawah lantai. Segera buka pintu bawah dapur dan sapu udara di lantai ke arah luar.",
+    danger_en: "Current condition: Warning! Humidity is too high. Leaked gas is at risk of being trapped densely under the floor. Open the kitchen lower doors immediately and sweep the floor air outwards."
   },
   voc: {
-    general: "VOC (Volatile Organic Compounds) dalam sistem ini berfungsi sebagai sensor UTAMA pendeteksi kebocoran gas LPG (Propana & Butana). Sensor ini sangat sensitif terhadap partikel gas elpiji mentah yang bocor dari tabung sebelum sempat tersulut api.",
-    safe: "Kondisi saat ini: Aman terenkripsi. Tidak terdeteksi adanya kebocoran partikel gas elpiji sama sekali di udara dapur.",
-    danger: "Kondisi saat ini: ALARM KEBOCORAN GAS AKTIF! Gas elpiji bocor pekat di udara. JANGAN menyentuh saklar lampu/listrik, JANGAN menyalakan korek api. Cabut regulator tabung gas segera!"
+    general_id: "VOC (Volatile Organic Compounds) dalam sistem ini berfungsi sebagai sensor UTAMA pendeteksi kebocoran gas LPG (Propana & Butana). Sensor ini sangat sensitif terhadap partikel gas elpiji mentah yang bocor dari tabung sebelum sempat tersulut api.",
+    general_en: "VOC (Volatile Organic Compounds) in this system acts as the PRIMARY LPG leak detector (Propane & Butane). This sensor is highly sensitive to raw LPG gas particles leaking from the cylinder before catching fire.",
+    safe_id: "Kondisi saat ini: Aman terenkripsi. Tidak terdeteksi adanya kebocoran partikel gas elpiji sama sekali di udara dapur.",
+    safe_en: "Current condition: Securely safe. No LPG gas particle leaks detected in the kitchen air.",
+    danger_id: "Kondisi saat ini: ALARM KEBOCORAN GAS AKTIF! Gas elpiji bocor pekat di udara. JANGAN menyentuh saklar lampu/listrik, JANGAN menyalakan korek api. Cabut regulator tabung gas segera!",
+    danger_en: "Current condition: GAS LEAK ALARM ACTIVE! LPG gas leaking heavily in the air. DO NOT touch light/electrical switches, DO NOT light matches. Disconnect gas regulator immediately!"
   }
 };
 
@@ -67,7 +82,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 // --- INFO DRAWER MOBILE ---
-function InfoDrawer({ open, onClose, label, value, unit, description, danger, delta, color }: any) {
+function InfoDrawer({ open, onClose, label, value, unit, description, danger, delta, color, lang }: any) {
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -83,7 +98,7 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
         <div className="w-10 h-1 bg-slate-300 dark:bg-white/15 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-5">
           <span className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
-            <Info size={12} /> Detail Sensor
+            <Info size={12} /> {lang === 'id' ? 'Detail Sensor' : 'Sensor Details'}
           </span>
           <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-900">
             <X size={13} />
@@ -103,14 +118,16 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
           )}
         </div>
         <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl px-5 py-4 border border-slate-200 dark:border-slate-800 mb-4">
-          <p className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-widest mb-2">Penjelasan</p>
+          <p className="text-[10px] font-semibold text-slate-800 dark:text-slate-400 uppercase tracking-widest mb-2">{lang === 'id' ? 'Penjelasan' : 'Explanation'}</p>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{description}</p>
         </div>
         <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-xs font-black uppercase tracking-wider ${
           danger ? 'bg-red-500/8 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-emerald-500/8 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
         }`}>
           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${danger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
-          {danger ? 'Melebihi Batas Aman — Perlu Perhatian' : 'Dalam Batas Aman'}
+          {danger 
+            ? (lang === 'id' ? 'Melebihi Batas Aman — Perlu Perhatian' : 'Exceeds Safe Limit — Attention Required') 
+            : (lang === 'id' ? 'Dalam Batas Aman' : 'Within Safe Limit')}
         </div>
       </div>
       <style>{`@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
@@ -121,11 +138,11 @@ function InfoDrawer({ open, onClose, label, value, unit, description, danger, de
 // --- SENSOR METRIC CARD — info langsung tampil di dalam card ---
 function SensorCard({
   label, value, unit, danger, color, bgColor,
-  description, delta, icon: Icon, threshold, infoKey
+  description, delta, icon: Icon, threshold, infoKey, lang
 }: {
   label: string; value: string; unit: string; danger: boolean;
   color: string; bgColor: string; description: string; delta: string;
-  icon: any; threshold: number; infoKey: keyof typeof SENSOR_INFO;
+  icon: any; threshold: number; infoKey: keyof typeof SENSOR_INFO; lang: string;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const numVal = parseFloat(value);
@@ -159,7 +176,7 @@ function SensorCard({
                 : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${danger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
-              {danger ? 'Danger' : 'Safe'}
+              {danger ? (lang === 'id' ? 'Bahaya' : 'Danger') : (lang === 'id' ? 'Aman' : 'Safe')}
             </div>
           </div>
 
@@ -197,7 +214,7 @@ function SensorCard({
             <p className={`text-[10px] font-mono transition-colors duration-300 ${
               danger ? 'text-red-600 dark:text-red-500 font-bold animate-pulse' : 'text-slate-600 dark:text-slate-400'
             }`}>
-              Batas: <span className={danger ? 'text-red-600 dark:text-red-400 font-black' : 'text-slate-500 dark:text-slate-400'}>{threshold} {unit}</span>
+              {lang === 'id' ? 'Batas:' : 'Limit:'} <span className={danger ? 'text-red-600 dark:text-red-400 font-black' : 'text-slate-500 dark:text-slate-400'}>{threshold} {unit}</span>
             </p>
             <span className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 transition-colors duration-300 ${
               danger ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
@@ -212,7 +229,9 @@ function SensorCard({
               ? 'text-red-600 dark:text-red-500 font-semibold' 
               : 'text-slate-600 dark:text-slate-400'
           }`}>
-            {danger ? SENSOR_INFO[infoKey].danger : SENSOR_INFO[infoKey].general}
+            {danger 
+              ? (lang === 'id' ? SENSOR_INFO[infoKey].danger_id : SENSOR_INFO[infoKey].danger_en) 
+              : (lang === 'id' ? SENSOR_INFO[infoKey].general_id : SENSOR_INFO[infoKey].general_en)}
           </p>
         </div>
       </div>
@@ -222,7 +241,7 @@ function SensorCard({
         onClose={() => setDrawerOpen(false)}
         label={label} value={value} unit={unit}
         description={description} danger={danger}
-        delta={delta} color={color}
+        delta={delta} color={color} lang={lang}
       />
     </>
   );
@@ -237,6 +256,21 @@ export default function Dashboard() {
   const [lastSync, setLastSync] = useState('');
   const [mounted, setMounted] = useState(false);
   const [realTimeClock, setRealTimeClock] = useState('');
+  const [lang, setLang] = useState<'id' | 'en'>('id');
+
+  useEffect(() => {
+    const updateLang = () => {
+      const cached = typeof window !== 'undefined' && localStorage.getItem('skywatch_lang') as 'id' | 'en';
+      if (cached && (cached === 'id' || cached === 'en')) {
+        setLang(cached);
+      }
+    };
+    updateLang();
+    window.addEventListener('skywatch_lang_change', updateLang);
+    return () => window.removeEventListener('skywatch_lang_change', updateLang);
+  }, []);
+
+  const t = (idText: string, enText: string) => lang === 'id' ? idText : enText;
 
   useEffect(() => {
     const update = () => {
@@ -251,13 +285,14 @@ export default function Dashboard() {
         second: '2-digit',
         hour12: false
       };
-      setRealTimeClock(now.toLocaleString('id-ID', options) + ' WIB');
+      setRealTimeClock(now.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', options) + (lang === 'id' ? ' WIB' : ' WIB'));
     };
     update();
     const iv = setInterval(update, 1000);
     return () => clearInterval(iv);
-  }, []);
-  
+  }, [lang]);
+
+
   // States Multi-Device
   const [devices, setDevices] = useState<any[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
@@ -311,10 +346,10 @@ export default function Dashboard() {
         setData(result[0]);
         const formatted = result.slice(0, 20).map((item: any) => ({
           ...item,
-          time: new Date(item.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          time: new Date(item.created_at).toLocaleTimeString(lang === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' }),
         })).reverse();
         setHistory(formatted);
-        setLastSync(new Date().toLocaleTimeString('id-ID'));
+        setLastSync(new Date().toLocaleTimeString(lang === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       } else {
         setData(null);
         setHistory([]);
@@ -324,7 +359,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [selectedDeviceId]);
+  }, [selectedDeviceId, lang]);
 
   useEffect(() => {
     setMounted(true);
@@ -435,53 +470,53 @@ export default function Dashboard() {
     if (data.co2 > T.co2) dangerLabels.push('CO2');
     if (data.nh3 > T.nh3) dangerLabels.push('NH3');
     if (data.voc > T.voc) dangerLabels.push('VOC');
-    if (data.temp > T.temp) dangerLabels.push('TEMP');
+    if (data.temp > T.temp) dangerLabels.push(lang === 'id' ? 'SUHU' : 'TEMP');
   }
 
   // Nama sensor yang sedang aktif dipantau
   const activeDevice = devices.find(d => d.device_id === selectedDeviceId);
-  const activeSensorLabel = activeDevice?.device_name || selectedDeviceId || 'Sensor Monitoring';
+  const activeSensorLabel = activeDevice?.device_name || selectedDeviceId || (lang === 'id' ? 'Sensor Monitoring' : 'Monitoring Sensor');
 
   const sensors = [
     {
       key: 'co2' as const,
-      label: 'CO2 (Sisa Pembakaran)', value: data?.co2?.toFixed(0) ?? '--', unit: 'PPM',
+      label: t('CO2 (Sisa Pembakaran)', 'CO2 (Combustion residue)'), value: data?.co2?.toFixed(0) ?? '--', unit: 'PPM',
       danger: data ? data.co2 > T.co2 : false, color: '#3b82f6', bgColor: '#3b82f610',
-      delta: data ? (data.co2 > T.co2 ? 'Tinggi' : 'Normal') : 'No Data',
+      delta: data ? (data.co2 > T.co2 ? t('Tinggi', 'High') : t('Normal', 'Normal')) : t('No Data', 'No Data'),
       icon: Zap, threshold: T.co2, infoKey: 'co2' as const,
-      description: SENSOR_INFO.co2.general + '\n' + (data ? (data.co2 > T.co2 ? SENSOR_INFO.co2.danger : SENSOR_INFO.co2.safe) : ''),
+      description: (lang === 'id' ? SENSOR_INFO.co2.general_id : SENSOR_INFO.co2.general_en) + '\n' + (data ? (data.co2 > T.co2 ? (lang === 'id' ? SENSOR_INFO.co2.danger_id : SENSOR_INFO.co2.danger_en) : (lang === 'id' ? SENSOR_INFO.co2.safe_id : SENSOR_INFO.co2.safe_en)) : ''),
     },
     {
       key: 'nh3' as const,
-      label: 'NH3 (Amonia Kimia)', value: data?.nh3?.toFixed(2) ?? '--', unit: 'PPM',
+      label: t('NH3 (Amonia Kimia)', 'NH3 (Chemical Ammonia)'), value: data?.nh3?.toFixed(2) ?? '--', unit: 'PPM',
       danger: data ? data.nh3 > T.nh3 : false, color: '#a78bfa', bgColor: '#a78bfa10',
-      delta: data ? (data.nh3 > T.nh3 ? 'Bahaya' : 'Aman') : 'No Data',
+      delta: data ? (data.nh3 > T.nh3 ? t('Bahaya', 'Danger') : t('Aman', 'Safe')) : t('No Data', 'No Data'),
       icon: Wind, threshold: T.nh3, infoKey: 'nh3' as const,
-      description: SENSOR_INFO.nh3.general + '\n' + (data ? (data.nh3 > T.nh3 ? SENSOR_INFO.nh3.danger : SENSOR_INFO.nh3.safe) : ''),
+      description: (lang === 'id' ? SENSOR_INFO.nh3.general_id : SENSOR_INFO.nh3.general_en) + '\n' + (data ? (data.nh3 > T.nh3 ? (lang === 'id' ? SENSOR_INFO.nh3.danger_id : SENSOR_INFO.nh3.danger_en) : (lang === 'id' ? SENSOR_INFO.nh3.safe_id : SENSOR_INFO.nh3.safe_en)) : ''),
     },
     {
       key: 'voc' as const,
-      label: 'VOC (GAS LPG MUDAH TERBAKAR)', value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
+      label: t('VOC (GAS LPG MUDAH TERBAKAR)', 'VOC (FLAMMABLE LPG GAS)'), value: data?.voc?.toFixed(2) ?? '--', unit: 'PPM',
       danger: data ? data.voc > T.voc : false, color: '#14b8a6', bgColor: '#14b8a610',
-      delta: data ? (data.voc > T.voc ? 'Tinggi' : 'Aman') : 'No Data',
+      delta: data ? (data.voc > T.voc ? t('Tinggi', 'High') : t('Aman', 'Safe')) : t('No Data', 'No Data'),
       icon: Activity, threshold: T.voc, infoKey: 'voc' as const,
-      description: SENSOR_INFO.voc.general + '\n' + (data ? (data.voc > T.voc ? SENSOR_INFO.voc.danger : SENSOR_INFO.voc.safe) : ''),
+      description: (lang === 'id' ? SENSOR_INFO.voc.general_id : SENSOR_INFO.voc.general_en) + '\n' + (data ? (data.voc > T.voc ? (lang === 'id' ? SENSOR_INFO.voc.danger_id : SENSOR_INFO.voc.danger_en) : (lang === 'id' ? SENSOR_INFO.voc.safe_id : SENSOR_INFO.voc.safe_en)) : ''),
     },
     {
       key: 'temp' as const,
-      label: 'Suhu Udara (Titik Api)', value: data?.temp?.toFixed(1) ?? '--', unit: '°C',
+      label: t('Suhu Udara (Titik Api)', 'Air Temperature (Hotspot)'), value: data?.temp?.toFixed(1) ?? '--', unit: '°C',
       danger: data ? data.temp > T.temp : false, color: '#f97316', bgColor: '#f9731610',
-      delta: data ? (data.temp > T.temp ? 'Panas' : 'Normal') : 'No Data',
+      delta: data ? (data.temp > T.temp ? t('Panas', 'Hot') : t('Normal', 'Normal')) : t('No Data', 'No Data'),
       icon: Flame, threshold: T.temp, infoKey: 'temp' as const,
-      description: SENSOR_INFO.temp.general + '\n' + (data ? (data.temp > T.temp ? SENSOR_INFO.temp.danger : SENSOR_INFO.temp.safe) : ''),
+      description: (lang === 'id' ? SENSOR_INFO.temp.general_id : SENSOR_INFO.temp.general_en) + '\n' + (data ? (data.temp > T.temp ? (lang === 'id' ? SENSOR_INFO.temp.danger_id : SENSOR_INFO.temp.danger_en) : (lang === 'id' ? SENSOR_INFO.temp.safe_id : SENSOR_INFO.temp.safe_en)) : ''),
     },
     {
       key: 'hum' as const,
-      label: 'Kelembapan Ruangan', value: data?.hum?.toFixed(0) ?? '--', unit: '%',
+      label: t('Kelembapan Ruangan', 'Room Humidity'), value: data?.hum?.toFixed(0) ?? '--', unit: '%',
       danger: data ? data.hum > T.hum : false, color: '#38bdf8', bgColor: '#38bdf810',
-      delta: data ? (data.hum > T.hum ? 'Lembap' : 'Ideal') : 'No Data',
+      delta: data ? (data.hum > T.hum ? t('Lembap', 'Humid') : t('Ideal', 'Ideal')) : t('No Data', 'No Data'),
       icon: Droplets, threshold: T.hum, infoKey: 'hum' as const,
-      description: SENSOR_INFO.hum.general + '\n' + (data ? (data.hum > T.hum ? SENSOR_INFO.hum.danger : SENSOR_INFO.hum.safe) : ''),
+      description: (lang === 'id' ? SENSOR_INFO.hum.general_id : SENSOR_INFO.hum.general_en) + '\n' + (data ? (data.hum > T.hum ? (lang === 'id' ? SENSOR_INFO.hum.danger_id : SENSOR_INFO.hum.danger_en) : (lang === 'id' ? SENSOR_INFO.hum.safe_id : SENSOR_INFO.hum.safe_en)) : ''),
     },
   ];
 
@@ -494,14 +529,14 @@ export default function Dashboard() {
             {user?.is_invited && (
               <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-lg bg-[#4edea3]/10 border border-[#4edea3]/20 text-[#059669] dark:text-[#4edea3] text-[10px] font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse" />
-                Pegawai Diundang oleh: {user.invited_by_name || 'Pemilik Alat'}
+                {t('Pegawai Diundang oleh: ', 'Employee Invited by: ')}{user.invited_by_name || 'Pemilik Alat'}
               </div>
             )}
             <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em] mb-1 flex flex-wrap items-center gap-2">
               {isEspConnected ? (
-                <span className="flex items-center gap-1.5 bg-[#4edea3]/10 text-[#059669] dark:text-[#4edea3] px-2 py-0.5 rounded-md"><Cpu size={10} /> Monitoring Aktif</span>
+                <span className="flex items-center gap-1.5 bg-[#4edea3]/10 text-[#059669] dark:text-[#4edea3] px-2 py-0.5 rounded-md"><Cpu size={10} /> {t('Monitoring Aktif', 'Monitoring Active')}</span>
               ) : (
-                <span className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-md"><Cpu size={10} /> Monitoring Tidak Aktif</span>
+                <span className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-md"><Cpu size={10} /> {t('Monitoring Tidak Aktif', 'Monitoring Inactive')}</span>
               )}
               {realTimeClock && <span className="text-slate-500 font-mono select-none">• {realTimeClock}</span>}
             </p>
@@ -515,7 +550,7 @@ export default function Dashboard() {
                 </span>
               )}
               {lastSync && (
-                <span className="text-slate-500 text-[10px] font-mono">Sync {lastSync}</span>
+                <span className="text-slate-500 text-[10px] font-mono">{t('Sinkronisasi', 'Sync')} {lastSync}</span>
               )}
             </div>
           </div>
@@ -578,7 +613,7 @@ export default function Dashboard() {
                 : 'bg-emerald-500/8 border-emerald-500/15 text-emerald-600 dark:text-emerald-400'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${isDanger ? 'bg-red-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
-              <span className="hidden sm:inline">{isDanger ? `⚠ ${dangerLabels.join(' · ')}` : 'Optimal'}</span>
+              <span className="hidden sm:inline">{isDanger ? `⚠ ${dangerLabels.join(' · ')}` : t('Optimal', 'Optimal')}</span>
             </div>
             <button
               onClick={fetchData}
@@ -601,18 +636,18 @@ export default function Dashboard() {
                 <AlertTriangle size={48} className="text-red-600 dark:text-red-500 animate-ping absolute opacity-30" />
                 <AlertTriangle size={48} className="text-red-600 dark:text-red-500 relative z-10" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-3">KEBOCORAN DARURAT!</h2>
+              <h2 className="text-2xl md:text-3xl font-black text-red-600 dark:text-red-500 uppercase tracking-widest mb-3">{t('KEBOCORAN DARURAT!', 'EMERGENCY LEAK!')}</h2>
               <p className="text-slate-600 dark:text-slate-300 mb-6 font-bold text-sm md:text-base leading-relaxed">
-                Sensor mendeteksi level kritis pada: <span className="text-red-600 dark:text-red-500 font-black">{dangerLabels.join(', ')}</span>.<br/>Segera amankan area ruangan.
+                {t('Sensor mendeteksi level kritis pada: ', 'Sensor detected critical level on: ')}<span className="text-red-600 dark:text-red-500 font-black">{dangerLabels.join(', ')}</span>.<br/>{t('Segera amankan area ruangan.', 'Secure the room area immediately.')}
               </p>
 
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-left">
-                <p className="text-red-600 dark:text-red-500 text-xs font-bold uppercase tracking-wider mb-2">Tindakan Manual yang harus dilakukan:</p>
+                <p className="text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-2">{t('Tindakan Manual yang harus dilakukan:', 'Manual Actions Required:')}</p>
                 <ul className="text-slate-700 dark:text-slate-300 text-sm list-disc pl-5 space-y-1.5 font-medium">
-                  <li>Segera matikan kompor & sumber api.</li>
-                  <li>Cabut regulator gas jika aman dilakukan.</li>
-                  <li>Buka jendela & pintu lebar-lebar.</li>
-                  <li>Jangan menyalakan/mematikan saklar listrik!</li>
+                  <li>{t('Segera matikan kompor & sumber api.', 'Turn off stove & ignition sources immediately.')}</li>
+                  <li>{t('Cabut regulator gas jika aman dilakukan.', 'Disconnect gas regulator if safe to do.')}</li>
+                  <li>{t('Buka jendela & pintu lebar-lebar.', 'Open all windows & doors widely.')}</li>
+                  <li>{t('Jangan menyalakan/mematikan saklar listrik!', 'DO NOT switch electrical lights/plugs on or off!')}</li>
                 </ul>
               </div>
               
@@ -621,7 +656,7 @@ export default function Dashboard() {
                   onClick={() => setAlarmAcknowledged(true)}
                   className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-3 shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-red-500/30"
                 >
-                  <CheckCircle size={20} /> Mengerti & Matikan Suara Alarm
+                  <CheckCircle size={20} /> {t('Mengerti & Matikan Suara Alarm', 'Acknowledge & Mute Alarm Sound')}
                 </button>
               </div>
             </div>
@@ -642,10 +677,10 @@ export default function Dashboard() {
             <div>
               <p className={`font-black text-sm uppercase tracking-wide ${isDanger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}
                 style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-                {isDanger ? `DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS` : 'SYSTEM STATUS — SEMUA SENSOR OPTIMAL'}
+                {isDanger ? t(`DANGER — ${dangerLabels.join(', ')} MELEBIHI BATAS`, `DANGER — ${dangerLabels.join(', ')} EXCEEDED LIMITS`) : t('SYSTEM STATUS — SEMUA SENSOR OPTIMAL', 'SYSTEM STATUS — ALL SENSORS OPTIMAL')}
               </p>
               <p className="text-slate-500 text-xs mt-0.5">
-                {isDanger ? 'Peringatan: Level gas telah melebihi batas aman. Lakukan tindakan darurat manual.' : 'Kondisi dapur aman. Pemantauan aktif secara real-time.'}
+                {isDanger ? t('Peringatan: Level gas telah melebihi batas aman. Lakukan tindakan darurat manual.', 'Warning: Gas level has exceeded safe limits. Perform manual emergency actions.') : t('Kondisi dapur aman. Pemantauan aktif secara real-time.', 'Kitchen conditions are safe. Monitoring active in real-time.')}
               </p>
             </div>
           </div>
@@ -654,7 +689,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 ml-10 sm:ml-0">
             {isDanger && alarmAcknowledged && (
               <span className="text-[10px] font-black bg-red-500/10 text-red-600 dark:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/20">
-                Alarm Dimatikan
+                {t('Alarm Dimatikan', 'Alarm Muted')}
               </span>
             )}
           </div>
@@ -662,9 +697,9 @@ export default function Dashboard() {
 
         {/* SENSOR CARDS — grid */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-{sensors.map(({ key, ...sensor }) => (
-  <SensorCard key={key} {...sensor} />
-))}
+          {sensors.map(({ key, ...sensor }) => (
+            <SensorCard key={key} {...sensor} lang={lang} />
+          ))}
         </div>
 
         {/* CHART + SIDE STATS */}
@@ -677,9 +712,9 @@ export default function Dashboard() {
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <Activity size={12} className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-xs font-semibold text-[#1E293B] dark:text-slate-300 uppercase tracking-[0.2em]">Air Quality Trend</span>
+                  <span className="text-xs font-semibold text-[#1E293B] dark:text-slate-300 uppercase tracking-[0.2em]">{t('Tren Kualitas Udara', 'Air Quality Trend')}</span>
                 </div>
-                <p className="text-[10px] text-slate-700 font-mono">20 pembacaan terakhir</p>
+                <p className="text-[10px] text-slate-700 font-mono">{t('20 pembacaan terakhir', 'Last 20 readings')}</p>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {[
@@ -745,34 +780,34 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
                   <Activity size={14} className="text-[#4edea3]" />
-                  <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">IoT Node Status</span>
+                  <span className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em]">{t('Status Node IoT', 'IoT Node Status')}</span>
                 </div>
                 {isEspConnected ? (
                   <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Aktif / Online
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> {t('Aktif / Online', 'Active / Online')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1.5 text-[9px] font-black text-red-600 dark:text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-wider border border-red-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Tidak Aktif / Offline
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> {t('Tidak Aktif / Offline', 'Inactive / Offline')}
                   </span>
                 )}
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Device ID</span>
+                  <span className="text-xs text-slate-500 font-medium">{t('ID Perangkat', 'Device ID')}</span>
                   <span className="text-xs font-mono text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
                     {selectedDeviceId || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Device Name</span>
+                  <span className="text-xs text-slate-500 font-medium">{t('Nama Perangkat', 'Device Name')}</span>
                   <span className="text-xs text-slate-900 dark:text-white font-bold truncate max-w-[150px]">
                     {activeDevice?.device_name || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Network</span>
+                  <span className="text-xs text-slate-500 font-medium">{t('Jaringan', 'Network')}</span>
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">WiFi</span>
                     <div className="flex gap-0.5 items-end h-3">
@@ -783,7 +818,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Last Sync</span>
+                  <span className="text-xs text-slate-500 font-medium">{t('Sinkronisasi Terakhir', 'Last Sync')}</span>
                   <span className="text-xs font-mono text-slate-900 dark:text-white font-bold">{lastSync || '--:--:--'}</span>
                 </div>
               </div>
@@ -798,18 +833,18 @@ export default function Dashboard() {
               <div className="flex items-center gap-2 mb-4">
                 {isDanger ? <AlertTriangle size={14} className="text-red-600 dark:text-red-500" /> : <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-500" />}
                 <span className={`text-[10px] font-black uppercase tracking-[0.25em] ${isDanger ? 'text-red-600 dark:text-red-500' : 'text-emerald-600 dark:text-emerald-500'}`}>
-                  Rekomendasi Sistem
+                  {t('Rekomendasi Sistem', 'System Recommendation')}
                 </span>
               </div>
               
               <h3 className={`text-lg font-black mb-2 leading-tight ${isDanger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                {isDanger ? 'Tindakan Evakuasi Diperlukan!' : 'Udara Dapur Terjaga Baik'}
+                {isDanger ? t('Tindakan Evakuasi Diperlukan!', 'Evacuation Action Required!') : t('Udara Dapur Terjaga Baik', 'Kitchen Air is Well Maintained')}
               </h3>
               
               <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
                 {isDanger 
-                  ? 'Kadar gas telah melewati batas aman yang ditentukan. Segera cabut regulator gas, buka jendela lebar-lebar, dan jangan sentuh saklar listrik.' 
-                  : 'Sirkulasi udara dan kadar gas saat ini terpantau berada dalam rentang normal. Tidak ada tindakan khusus yang diperlukan.'}
+                  ? t('Kadar gas telah melewati batas aman yang ditentukan. Segera cabut regulator gas, buka jendela lebar-lebar, dan jangan sentuh saklar listrik.', 'Gas levels have crossed the designated safety limits. Disconnect gas regulator immediately, open windows widely, and do not touch electrical switches.') 
+                  : t('Sirkulasi udara dan kadar gas saat ini terpantau berada dalam rentang normal. Tidak ada tindakan khusus yang diperlukan.', 'Air circulation and gas levels are currently monitored to be within the normal range. No special action is required.')}
               </p>
             </div>
           </div>

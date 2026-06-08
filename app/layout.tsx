@@ -29,8 +29,10 @@ import {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/app/hooks/useLanguage";
 
 import "./globals.css";
+
 
 const monitoringMenu = [
   { name: "Dashboard Overview", icon: LayoutDashboard, path: "/" },
@@ -68,10 +70,27 @@ function ThemeToggle() {
   );
 }
 
+function LanguageToggle({ lang, onToggle }: { lang: string; onToggle: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <div className="w-9 h-9" />;
+
+  return (
+    <button
+      onClick={onToggle}
+      className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-350 dark:hover:border-slate-700 transition-all shadow-sm cursor-pointer"
+      title={lang === "id" ? "Switch to English" : "Ubah ke Bahasa Indonesia"}
+    >
+      {lang}
+    </button>
+  );
+}
+
 function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifs, setNotifs] = useState<any[]>([]);
   const [unread, setUnread] = useState(0);
+  const { lang, t } = useLanguage();
 
   const fetchNotifs = async () => {
     try {
@@ -126,10 +145,10 @@ function NotificationBell() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800/80">
             <div className="flex items-center gap-2">
               <Bell size={13} className="text-slate-500" />
-              <p className="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Notifikasi</p>
+              <p className="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">{t('Notifikasi', 'Notifications')}</p>
               {unread > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-500 text-[8px] font-black">
-                  {unread} baru
+                  {unread} {t('baru', 'new')}
                 </span>
               )}
             </div>
@@ -139,7 +158,7 @@ function NotificationBell() {
             {notifs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400">
                 <Bell size={24} className="mb-2 opacity-30" />
-                <p className="text-xs font-bold">Tidak ada notifikasi</p>
+                <p className="text-xs font-bold">{t('Tidak ada notifikasi', 'No notifications')}</p>
               </div>
             ) : notifs.map(n => {
               const isDangerNotif = n.type === 'danger' || n.type === 'alert';
@@ -168,7 +187,7 @@ function NotificationBell() {
                         {n.title}
                       </p>
                       <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">{n.message}</p>
-                      <p className="text-[9px] text-slate-350 dark:text-slate-600 font-mono mt-1">{new Date(n.created_at).toLocaleString('id-ID')}</p>
+                      <p className="text-[9px] text-slate-350 dark:text-slate-600 font-mono mt-1">{new Date(n.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US')}</p>
                     </div>
                   </div>
                 </div>
@@ -176,7 +195,7 @@ function NotificationBell() {
             })}
           </div>
           <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50">
-            <p className="text-[9px] text-slate-400 font-mono text-center">Auto-refresh setiap 30 detik</p>
+            <p className="text-[9px] text-slate-400 font-mono text-center">{t('Auto-refresh setiap 30 detik', 'Auto-refresh every 30 seconds')}</p>
           </div>
         </div>
       )}
@@ -184,19 +203,30 @@ function NotificationBell() {
   );
 }
 
-// Primary top navbar links
-const mainNavLinks = [
-  { name: "Dashboard", path: "/" },
-  { name: "Monitoring", path: "/monitoring" },
-  { name: "Reports", path: "/reports" },
-  { name: "About & Safety", path: "/education" },
-  { name: "Profile", path: "/profile" },
-];
-
 // Fixed Top Navbar
-function TopNavbar({ user, pathname, sidebarCollapsed }: { user: any; pathname: string; sidebarCollapsed: boolean }) {
+function TopNavbar({ 
+  user, 
+  pathname, 
+  sidebarCollapsed,
+  lang,
+  onToggleLang
+}: { 
+  user: any; 
+  pathname: string; 
+  sidebarCollapsed: boolean;
+  lang: string;
+  onToggleLang: () => void;
+}) {
   const isAdminPath = pathname.startsWith("/admin");
   const [espConnected, setEspConnected] = useState(false);
+
+  const mainNavLinks = [
+    { name: lang === 'id' ? "Dashboard" : "Dashboard", path: "/" },
+    { name: lang === 'id' ? "Log Data" : "Data Logs", path: "/monitoring" },
+    { name: lang === 'id' ? "Laporan" : "Reports", path: "/reports" },
+    { name: lang === 'id' ? "Edukasi & Keselamatan" : "About & Safety", path: "/education" },
+    { name: lang === 'id' ? "Profil" : "Profile", path: "/profile" },
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -233,18 +263,24 @@ function TopNavbar({ user, pathname, sidebarCollapsed }: { user: any; pathname: 
             {espConnected ? (
               <div className="hidden xl:flex items-center gap-1.5 bg-[#4edea3]/12 dark:bg-[#4edea3]/10 border border-[#4edea3]/35 px-3 py-1 rounded-full transition-all">
                 <span className="w-1.5 h-1.5 bg-[#4edea3] rounded-full animate-pulse shadow-[0_0_8px_rgba(78,222,163,0.7)]"></span>
-                <span className="text-[10px] font-bold text-[#005236] dark:text-[#4edea3] uppercase tracking-widest">ESP32 Network: Aktif</span>
+                <span className="text-[10px] font-bold text-[#005236] dark:text-[#4edea3] uppercase tracking-widest">
+                  {lang === 'id' ? 'ESP32 Network: Aktif' : 'ESP32 Network: Active'}
+                </span>
               </div>
             ) : (
               <div className="hidden xl:flex items-center gap-1.5 bg-red-500/12 dark:bg-red-500/10 border border-red-500/35 px-3 py-1 rounded-full transition-all">
                 <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
-                <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest">ESP32 Network: Tidak Aktif</span>
+                <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest">
+                  {lang === 'id' ? 'ESP32 Network: Tidak Aktif' : 'ESP32 Network: Inactive'}
+                </span>
               </div>
             )}
           </>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black text-slate-400 dark:text-[#86948a] uppercase tracking-wider">Admin Control Center</span>
+            <span className="text-xs font-black text-slate-400 dark:text-[#86948a] uppercase tracking-wider">
+              {lang === 'id' ? 'Pusat Kontrol Admin' : 'Admin Control Center'}
+            </span>
           </div>
         )}
       </div>
@@ -287,11 +323,16 @@ function TopNavbar({ user, pathname, sidebarCollapsed }: { user: any; pathname: 
       <div className="flex items-center gap-3">
         <div className="hidden xl:flex items-center relative w-48">
           <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <input type="text" placeholder="Cari data, node..." className="w-full bg-slate-100 dark:bg-[#1d2022] border border-slate-200 dark:border-[#3c4a42] pl-8 pr-4 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#4edea3]/30 dark:text-[#e0e3e5] transition-all"/>
+          <input 
+            type="text" 
+            placeholder={lang === 'id' ? "Cari data, node..." : "Search data, node..."} 
+            className="w-full bg-slate-100 dark:bg-[#1d2022] border border-slate-200 dark:border-[#3c4a42] pl-8 pr-4 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#4edea3]/30 dark:text-[#e0e3e5] transition-all"
+          />
         </div>
 
         <NotificationBell />
         <ThemeToggle />
+        <LanguageToggle lang={lang} onToggle={onToggleLang} />
 
         <div className="w-px h-5 bg-slate-200 dark:bg-[#3c4a42]" />
 
@@ -338,7 +379,8 @@ function SidebarNav({
   onClose, 
   onLogout,
   collapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  lang
 }: { 
   pathname: string; 
   user: any; 
@@ -347,9 +389,23 @@ function SidebarNav({
   onLogout: () => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  lang: string;
 }) {
   const isMobileDrawer = open;
   const isCurrentlyCollapsed = collapsed && !isMobileDrawer;
+
+  const manageMenu = [
+    { name: lang === 'id' ? "Dashboard Admin" : "Admin Dashboard", icon: LayoutDashboard, path: "/admin" },
+    { name: lang === 'id' ? "Manajemen Pengguna" : "User Management", icon: Users, path: "/admin/users" },
+    { name: lang === 'id' ? "Aduan Pengguna" : "User Complaints", icon: MessageSquare, path: "/admin/complaints" },
+    { name: lang === 'id' ? "Log Sistem" : "System Logs", icon: Activity, path: "/admin/logs" },
+    { name: lang === 'id' ? "Penjualan" : "Sales", icon: DollarSign, path: "/admin/sales" },
+  ];
+
+  const settingsMenu = [
+    { name: lang === 'id' ? "Ambang Batas Gas" : "Gas Thresholds", icon: Sliders, path: "/admin/thresholds" },
+    { name: lang === 'id' ? "Database Sensor" : "Sensor DB", icon: Database, path: "/admin/sensor" },
+  ];
 
   return (
     <>
@@ -392,7 +448,7 @@ function SidebarNav({
               <button 
                 onClick={onClose} 
                 className="lg:hidden p-1 rounded-lg text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-                aria-label="Tutup Menu"
+                aria-label={lang === 'id' ? "Tutup Menu" : "Close Menu"}
               >
                 <X size={15} />
               </button>
@@ -425,7 +481,9 @@ function SidebarNav({
                 {!isCurrentlyCollapsed && (
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[8px] font-black text-slate-400 dark:text-[#86948a] uppercase tracking-widest truncate">Administrator</span>
+                      <span className="text-[8px] font-black text-slate-400 dark:text-[#86948a] uppercase tracking-widest truncate">
+                        {lang === 'id' ? 'Administrator' : 'Administrator'}
+                      </span>
                       <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
                     </div>
                     <p className="text-xs font-bold text-slate-800 dark:text-[#e0e3e5] truncate group-hover:text-[#4edea3] transition-colors leading-tight capitalize">{user?.name || "Admin"}</p>
@@ -448,7 +506,9 @@ function SidebarNav({
               {isCurrentlyCollapsed ? (
                 <div className="border-t border-slate-200 dark:border-slate-800/80 my-3 mx-2" />
               ) : (
-                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase px-3 mb-2">Manage</p>
+                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase px-3 mb-2">
+                  {lang === 'id' ? 'Kelola' : 'Manage'}
+                </p>
               )}
               
               <div className="space-y-1">
@@ -463,10 +523,10 @@ function SidebarNav({
                   }`}
                 >
                   <LayoutDashboard size={15} className="shrink-0" />
-                  {!isCurrentlyCollapsed && <span>Tampilan User</span>}
+                  {!isCurrentlyCollapsed && <span>{lang === 'id' ? 'Tampilan User' : 'User View'}</span>}
                   {isCurrentlyCollapsed && (
                     <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 shadow-md border border-white/5 pointer-events-none">
-                      Tampilan User
+                      {lang === 'id' ? 'Tampilan User' : 'User View'}
                     </div>
                   )}
                 </Link>
@@ -503,7 +563,9 @@ function SidebarNav({
               {isCurrentlyCollapsed ? (
                 <div className="border-t border-slate-200 dark:border-slate-800/80 my-3 mx-2" />
               ) : (
-                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase px-3 mb-2">Settings</p>
+                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase px-3 mb-2">
+                  {lang === 'id' ? 'Pengaturan' : 'Settings'}
+                </p>
               )}
 
               <div className="space-y-1">
@@ -546,7 +608,7 @@ function SidebarNav({
             >
               <LogOut size={15} className="shrink-0" />
               <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 shadow-md border border-white/5 pointer-events-none">
-                Logout
+                {lang === 'id' ? 'Keluar' : 'Logout'}
               </div>
             </button>
           ) : (
@@ -555,7 +617,7 @@ function SidebarNav({
               className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 dark:border-red-500/30 hover:bg-red-500/20 dark:hover:bg-red-500/20 text-xs font-black uppercase tracking-wider transition-all"
             >
               <LogOut size={14} className="shrink-0" />
-              <span>Logout</span>
+              <span>{lang === 'id' ? 'Keluar' : 'Logout'}</span>
             </button>
           )}
         </div>
@@ -565,7 +627,19 @@ function SidebarNav({
 }
 
 // Mobile top header (compact)
-function MobileHeader({ onMenuClick, showMenuButton, user }: { onMenuClick?: () => void; showMenuButton?: boolean; user?: any }) {
+function MobileHeader({ 
+  onMenuClick, 
+  showMenuButton, 
+  user,
+  lang,
+  onToggleLang
+}: { 
+  onMenuClick?: () => void; 
+  showMenuButton?: boolean; 
+  user?: any;
+  lang: string;
+  onToggleLang: () => void;
+}) {
   return (
     <header className="lg:hidden fixed top-0 left-0 w-full z-50 h-14 px-4 flex items-center justify-between border-b border-slate-200 dark:border-[#3c4a42] bg-white/95 dark:bg-[#101415]/95 backdrop-blur-xl transition-colors shadow-sm">
       <div className="flex items-center gap-2">
@@ -596,21 +670,22 @@ function MobileHeader({ onMenuClick, showMenuButton, user }: { onMenuClick?: () 
         )}
         <NotificationBell />
         <ThemeToggle />
+        <LanguageToggle lang={lang} onToggle={onToggleLang} />
       </div>
     </header>
   );
 }
 
 // Mobile Bottom Navigation Bar
-function MobileBottomNav({ pathname, user }: { pathname: string; user: any }) {
+function MobileBottomNav({ pathname, user, lang }: { pathname: string; user: any; lang: string }) {
   const isAdmin = user?.role === 'admin';
 
   const bottomLinks = [
-    { name: "Home", icon: LayoutDashboard, path: "/" },
-    { name: "Monitor", icon: Table, path: "/monitoring" },
-    { name: "Reports", icon: FileBarChart, path: "/reports" },
-    { name: "Safety", icon: BookOpen, path: "/education" },
-    { name: "Profile", icon: User, path: "/profile" },
+    { name: lang === 'id' ? "Beranda" : "Home", icon: LayoutDashboard, path: "/" },
+    { name: lang === 'id' ? "Pantau" : "Monitor", icon: Table, path: "/monitoring" },
+    { name: lang === 'id' ? "Laporan" : "Reports", icon: FileBarChart, path: "/reports" },
+    { name: lang === 'id' ? "Edukasi" : "Safety", icon: BookOpen, path: "/education" },
+    { name: lang === 'id' ? "Profil" : "Profile", icon: User, path: "/profile" },
   ];
 
   return (
@@ -684,66 +759,73 @@ function isPremiumActive(user: any): boolean {
   return false;
 }
 
-const PACKAGES = [
-  {
-    id: '1month',
-    name: 'Bundle Alat + Web',
-    period: 'Langganan 1 Bulan',
-    price: 349000,
-    originalPrice: null,
-    badge: null,
-    highlight: false,
-    features: [
-      { ok: true, text: 'Alat Sensor ESP32 Fisik' },
-      { ok: true, text: 'Dashboard Web Monitoring' },
-      { ok: true, text: 'Multi-device & Invite Pegawai' },
-      { ok: true, text: 'Notifikasi & Laporan Real-time' },
-    ],
-    waText: (email: string) => `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Bulan (Bundle Alat + Web) Rp 349.000 untuk akun email: ${email}`,
-  },
-  {
-    id: '1year',
-    name: 'Bundle Alat + Web',
-    period: 'Langganan 1 Tahun',
-    price: 599000,
-    originalPrice: 749000,
-    badge: 'Hemat',
-    highlight: true,
-    features: [
-      { ok: true, text: 'Semua Fitur Paket Bulanan' },
-      { ok: true, text: 'Akses 12 Bulan Penuh' },
-      { ok: true, text: 'Harga Lebih Hemat' },
-      { ok: true, text: 'Prioritas Dukungan CS' },
-    ],
-    waText: (email: string) => `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Tahun (Bundle Alat + Web) Rp 599.000 untuk akun email: ${email}`,
-  },
-  {
-    id: 'device',
-    name: 'Alat Saja',
-    period: 'Hanya Beli Alat',
-    price: 249000,
-    originalPrice: null,
-    badge: null,
-    highlight: false,
-    features: [
-      { ok: true, text: 'Alat Sensor ESP32 Fisik' },
-      { ok: false, text: 'Akses Dashboard Web' },
-      { ok: false, text: 'Grafik & Laporan Online' },
-      { ok: true, text: 'Bisa Upgrade Kapan Saja' },
-    ],
-    waText: (email: string) => `Halo Admin SkyWatch, saya ingin membeli Alat Sensor ESP32 saja (Rp 249.000) untuk akun email: ${email}. Saya tidak memerlukan akses dashboard web saat ini.`,
-  },
-];
-
 function formatRp(n: number) {
   return 'Rp ' + n.toLocaleString('id-ID');
 }
 
 function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
+  const { lang, t } = useLanguage();
   const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
 
+  const localPackages = [
+    {
+      id: '1month',
+      name: t('Bundle Alat + Web', 'Device + Web Bundle'),
+      period: t('Langganan 1 Bulan', '1 Month Subscription'),
+      price: 349000,
+      originalPrice: null,
+      badge: null,
+      highlight: false,
+      features: [
+        { ok: true, text: t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device') },
+        { ok: true, text: t('Dashboard Web Monitoring', 'Web Monitoring Dashboard') },
+        { ok: true, text: t('Multi-device & Invite Pegawai', 'Multi-device & Employee Invitation') },
+        { ok: true, text: t('Notifikasi & Laporan Real-time', 'Real-time Notifications & Reports') },
+      ],
+      waText: (email: string) => lang === 'id'
+        ? `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Bulan (Bundle Alat + Web) Rp 349.000 untuk akun email: ${email}`
+        : `Hello SkyWatch Admin, I want to subscribe to the 1 Month Package (Device + Web Bundle) Rp 349,000 for email: ${email}`,
+    },
+    {
+      id: '1year',
+      name: t('Bundle Alat + Web', 'Device + Web Bundle'),
+      period: t('Langganan 1 Tahun', '1 Year Subscription'),
+      price: 599000,
+      originalPrice: 749000,
+      badge: t('Hemat', 'Save'),
+      highlight: true,
+      features: [
+        { ok: true, text: t('Semua Fitur Paket Bulanan', 'All Monthly Package Features') },
+        { ok: true, text: t('Akses 12 Bulan Penuh', 'Full 12-Month Access') },
+        { ok: true, text: t('Harga Lebih Hemat', 'More Economical Price') },
+        { ok: true, text: t('Prioritas Dukungan CS', 'Priority CS Support') },
+      ],
+      waText: (email: string) => lang === 'id'
+        ? `Halo Admin SkyWatch, saya ingin berlangganan Paket 1 Tahun (Bundle Alat + Web) Rp 599.000 untuk akun email: ${email}`
+        : `Hello SkyWatch Admin, I want to subscribe to the 1 Year Package (Device + Web Bundle) Rp 599,000 for email: ${email}`,
+    },
+    {
+      id: 'device',
+      name: t('Alat Saja', 'Device Only'),
+      period: t('Hanya Beli Alat', 'Device Only Purchase'),
+      price: 249000,
+      originalPrice: null,
+      badge: null,
+      highlight: false,
+      features: [
+        { ok: true, text: t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device') },
+        { ok: false, text: t('Akses Dashboard Web', 'Web Dashboard Access') },
+        { ok: false, text: t('Grafik & Laporan Online', 'Online Charts & Reports') },
+        { ok: true, text: t('Bisa Upgrade Kapan Saja', 'Can Upgrade Anytime') },
+      ],
+      waText: (email: string) => lang === 'id'
+        ? `Halo Admin SkyWatch, saya ingin membeli Alat Sensor ESP32 saja (Rp 249.000) untuk akun email: ${email}. Saya tidak memerlukan akses dashboard web saat ini.`
+        : `Hello SkyWatch Admin, I want to buy the ESP32 Sensor Device only (Rp 249,000) for email: ${email}. I do not need web dashboard access at this time.`,
+    },
+  ];
+
   const handleProceed = () => {
-    const pkg = PACKAGES.find(p => p.id === selectedPkg);
+    const pkg = localPackages.find(p => p.id === selectedPkg);
     if (!pkg) return;
     const waLink = `https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(pkg.waText(userEmail))}`;
     fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {});
@@ -766,25 +848,25 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
               <span className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-600 dark:text-[#4edea3]">SkyWatch Premium</span>
             </div>
           </div>
-          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-1">Pilih Paket Anda</h2>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white mb-1">{t('Pilih Paket Anda', 'Choose Your Package')}</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Fitur ini hanya untuk pengguna Premium. Pilih paket yang sesuai untuk melanjutkan.
+            {t('Fitur ini hanya untuk pengguna Premium. Pilih paket yang sesuai untuk melanjutkan.', 'This feature is only for Premium users. Please select a suitable package to continue.')}
           </p>
           {/* Free pages hint */}
           <div className="flex items-center justify-center gap-3 mt-3">
-            <span className="text-[10px] text-slate-400">Halaman gratis:</span>
+            <span className="text-[10px] text-slate-400">{t('Halaman gratis:', 'Free pages:')}</span>
             <Link href="/profile" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-              <User size={10} /> Profil Saya
+              <User size={10} /> {t('Profil Saya', 'My Profile')}
             </Link>
             <Link href="/education" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-              <BookOpen size={10} /> Tentang & Edukasi
+              <BookOpen size={10} /> {t('Tentang & Edukasi', 'About & Safety')}
             </Link>
           </div>
         </div>
 
         {/* Pricing Cards */}
         <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {PACKAGES.map(pkg => (
+          {localPackages.map(pkg => (
             <button
               key={pkg.id}
               onClick={() => setSelectedPkg(pkg.id)}
@@ -850,11 +932,11 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
-              Lanjutkan ke WhatsApp
+              {t('Lanjutkan ke WhatsApp', 'Continue to WhatsApp')}
             </button>
           ) : (
             <div className="text-center text-xs text-slate-400 py-2">
-              ← Pilih salah satu paket di atas untuk melanjutkan
+              {t('← Pilih salah satu paket di atas untuk melanjutkan', '← Select one of the packages above to proceed')}
             </div>
           )}
         </div>
@@ -864,7 +946,7 @@ function SubscriptionLockOverlay({ userEmail }: { userEmail: string }) {
 }
 
 
-function Footer() {
+function Footer({ lang }: { lang: string }) {
   const [currentTime, setCurrentTime] = useState('');
   const [mounted, setMounted] = useState(false);
 
@@ -872,7 +954,7 @@ function Footer() {
     setMounted(true);
     const updateTime = () => {
       const now = new Date();
-      const formatted = now.toLocaleString('id-ID', {
+      const formatted = now.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -882,12 +964,12 @@ function Footer() {
         second: '2-digit',
         timeZone: 'Asia/Jakarta',
       });
-      setCurrentTime(formatted + ' WIB');
+      setCurrentTime(formatted + (lang === 'id' ? ' WIB' : ' WIB')); // Keep WIB or convert text
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [lang]);
 
   return (
     <footer className="w-full mt-auto border-t border-slate-200 dark:border-white/5 bg-slate-100/90 dark:bg-[#0b0f10]/95 backdrop-blur-md transition-colors">
@@ -905,7 +987,9 @@ function Footer() {
               </div>
             </div>
             <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px] max-w-sm">
-              Sistem IoT terintegrasi untuk pemantauan kualitas sirkulasi udara dan proteksi darurat kebocoran gas dapur secara real-time.
+              {lang === 'id' 
+                ? "Sistem IoT terintegrasi untuk pemantauan kualitas sirkulasi udara dan proteksi darurat kebocoran gas dapur secara real-time."
+                : "Integrated IoT system for monitoring kitchen air circulation quality and emergency protection against gas leaks in real-time."}
             </p>
             {/* Live Clock */}
             {mounted && (
@@ -926,31 +1010,35 @@ function Footer() {
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
-                <span>WhatsApp CS</span>
+                <span>{lang === 'id' ? "Hubungi CS" : "Contact Support"}</span>
               </a>
             </div>
           </div>
 
           {/* Column 2: Navigasi */}
           <div className="md:col-span-3 space-y-4">
-            <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">Navigasi</h6>
+            <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">
+              {lang === 'id' ? "Navigasi" : "Navigation"}
+            </h6>
             <ul className="space-y-2.5 font-semibold text-slate-500 dark:text-slate-400">
-              <li><Link href="/" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Overview</Link></li>
-              <li><Link href="/monitoring" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Data Logs</Link></li>
-              <li><Link href="/reports" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Laporan</Link></li>
-              <li><Link href="/education" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Tentang &amp; Edukasi</Link></li>
-              <li><Link href="/complaints" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">Layanan Pengaduan</Link></li>
+              <li><Link href="/" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">{lang === 'id' ? "Ikhtisar" : "Overview"}</Link></li>
+              <li><Link href="/monitoring" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">{lang === 'id' ? "Log Data" : "Data Logs"}</Link></li>
+              <li><Link href="/reports" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">{lang === 'id' ? "Laporan" : "Reports"}</Link></li>
+              <li><Link href="/education" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">{lang === 'id' ? "Tentang & Edukasi" : "About & Safety"}</Link></li>
+              <li><Link href="/complaints" className="hover:text-emerald-600 dark:hover:text-[#4edea3] transition-colors">{lang === 'id' ? "Layanan Pengaduan" : "Complaints"}</Link></li>
             </ul>
           </div>
 
           {/* Column 3: Fitur Sistem */}
           <div className="md:col-span-4 space-y-4">
-            <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">Fitur Sistem</h6>
+            <h6 className="text-slate-900 dark:text-white font-bold uppercase tracking-wider text-[11px]">
+              {lang === 'id' ? "Fitur Sistem" : "System Features"}
+            </h6>
             <ul className="space-y-2.5 font-semibold text-slate-500 dark:text-slate-400">
-              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Dashboard IoT Real-time</span></li>
-              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Mikrokontroler ESP32</span></li>
-              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Sirene Alarm Browser</span></li>
-              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">Notifikasi WhatsApp Otomatis</span></li>
+              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">{lang === 'id' ? "Dashboard IoT Real-time" : "Real-time IoT Dashboard"}</span></li>
+              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">{lang === 'id' ? "Mikrokontroler ESP32" : "ESP32 Microcontroller"}</span></li>
+              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">{lang === 'id' ? "Sirene Alarm Browser" : "Browser Alarm Siren"}</span></li>
+              <li><span className="cursor-default hover:text-slate-800 dark:hover:text-white transition-colors">{lang === 'id' ? "Notifikasi WhatsApp Otomatis" : "Automatic WhatsApp Notification"}</span></li>
             </ul>
           </div>
         </div>
@@ -958,7 +1046,11 @@ function Footer() {
         <div className="border-t border-slate-200 dark:border-white/10 my-6"></div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 font-semibold text-[11px] text-slate-500 dark:text-slate-400">
-          <p>© {new Date().getFullYear()} SkyWatch — Sistem Monitoring Kualitas Udara IoT. All rights reserved.</p>
+          <p>
+            {lang === 'id'
+              ? `© ${new Date().getFullYear()} SkyWatch — Sistem Monitoring Kualitas Udara IoT. Hak cipta dilindungi undang-undang.`
+              : `© ${new Date().getFullYear()} SkyWatch — IoT Air Quality Monitoring System. All rights reserved.`}
+          </p>
           <p className="text-[10px] font-mono text-slate-400 dark:text-slate-600">Group 4 Polinema IT</p>
         </div>
       </div>
@@ -975,6 +1067,21 @@ export default function RootLayout({
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const [user, setUser] = useState<any>(null);
   const [clientLoggedIn, setClientLoggedIn] = useState(false);
+  const [lang, setLang] = useState<'id' | 'en'>('id');
+
+  useEffect(() => {
+    const cached = typeof window !== 'undefined' && localStorage.getItem('skywatch_lang') as 'id' | 'en';
+    if (cached && (cached === 'id' || cached === 'en')) {
+      setLang(cached);
+    }
+  }, []);
+
+  const toggleLang = () => {
+    const nextLang = lang === 'id' ? 'en' : 'id';
+    setLang(nextLang);
+    localStorage.setItem('skywatch_lang', nextLang);
+    window.dispatchEvent(new Event('skywatch_lang_change'));
+  };
 
   useEffect(() => {
     const cached = typeof window !== 'undefined' && localStorage.getItem('skywatch_logged_in') === 'true';
@@ -1034,7 +1141,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className="bg-[#f0f4f8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased transition-colors duration-300 min-h-screen flex flex-col">
         <ThemeProvider
           attribute="class"
@@ -1043,18 +1150,28 @@ export default function RootLayout({
         >
           <div className="min-h-screen flex flex-col flex-1">
             {/* Desktop top navbar */}
-            {showNavbarAndSidebar && <TopNavbar user={user} pathname={pathname} sidebarCollapsed={sidebarCollapsed} />}
+            {showNavbarAndSidebar && (
+              <TopNavbar 
+                user={user} 
+                pathname={pathname} 
+                sidebarCollapsed={sidebarCollapsed} 
+                lang={lang} 
+                onToggleLang={toggleLang} 
+              />
+            )}
             {/* Mobile top header */}
             {showNavbarAndSidebar && (
               <MobileHeader 
                 showMenuButton={pathname.startsWith("/admin")} 
                 onMenuClick={() => setSidebarOpen(!sidebarOpen)} 
                 user={user}
+                lang={lang}
+                onToggleLang={toggleLang}
               />
             )}
             {/* Mobile bottom nav bar - hidden in admin to focus on admin features */}
             {showNavbarAndSidebar && !pathname.startsWith("/admin") && (
-              <MobileBottomNav pathname={pathname} user={user} />
+              <MobileBottomNav pathname={pathname} user={user} lang={lang} />
             )}
 
             <div className={`flex flex-1 transition-all duration-300 ${
@@ -1073,6 +1190,7 @@ export default function RootLayout({
                   onLogout={handleLogout}
                   collapsed={sidebarCollapsed}
                   onToggleCollapse={toggleSidebar}
+                  lang={lang}
                 />
               )}
 
@@ -1084,7 +1202,7 @@ export default function RootLayout({
                 {children}
               </div>
 
-                {!isAuthPage && !isLandingPage && <Footer />}
+                {!isAuthPage && !isLandingPage && <Footer lang={lang} />}
 
                 {isLocked && user && (
                   <SubscriptionLockOverlay userEmail={user.email} />
@@ -1095,16 +1213,17 @@ export default function RootLayout({
             {/* FLOATING WHATSAPP BUTTON */}
             {!isAuthPage && !isLandingPage && (
               <a
-                href={`https://wa.me/${WA_ADMIN}?text=${encodeURIComponent("Halo Admin SkyWatch, saya butuh bantuan.")}`}
+                href={`https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(lang === 'id' ? "Halo Admin SkyWatch, saya butuh bantuan." : "Hello SkyWatch Admin, I need help.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {})}
                 className="fixed bottom-20 lg:bottom-6 right-6 z-[100] group flex items-center gap-2"
-                title="Hubungi Admin via WhatsApp"
+                title={lang === 'id' ? "Hubungi Admin via WhatsApp" : "Contact Admin via WhatsApp"}
               >
                 <span className="hidden lg:block opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 bg-[#25D366] text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-md whitespace-nowrap">
-                  Hubungi Admin
+                  {lang === 'id' ? "Hubungi Admin" : "Contact Admin"}
                 </span>
+
                 <div className="relative">
                   <div className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20" />
                   <div className="relative w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20c45c] flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-300">

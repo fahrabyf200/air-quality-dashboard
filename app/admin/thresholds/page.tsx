@@ -1,15 +1,18 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useThresholds } from '@/app/hooks/useThresholds';
-import { Cpu, RefreshCw, Save } from 'lucide-react';
+import { Cpu, RefreshCw, Save, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 export default function AdminThresholdsPage() {
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
   const [localThresholds, setLocalThresholds] = useState<typeof thresholds | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { lang, t } = useLanguage();
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -42,6 +45,8 @@ export default function AdminThresholdsPage() {
     if (localThresholds) {
       setIsSaving(true);
       await saveThresholds(localThresholds);
+      setSuccess(t('Pengaturan ambang batas berhasil disimpan!', 'Threshold settings saved successfully!'));
+      setTimeout(() => setSuccess(''), 3000);
       setTimeout(() => setIsSaving(false), 500); // efek loading sebentar
     }
   };
@@ -51,17 +56,23 @@ export default function AdminThresholdsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full border-b border-slate-200/60 dark:border-slate-800/40 pb-5">
         <div>
-          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">System Administration</p>
+          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">{t('Administrasi Sistem', 'System Administration')}</p>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-950 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            Gas Threshold Settings
+            {t('Pengaturan Ambang Batas Gas', 'Gas Threshold Settings')}
           </h1>
-          <p className="text-slate-555 dark:text-slate-400 text-xs mt-1">Sesuaikan nilai ambang batas toleransi deteksi bahaya sensor</p>
+          <p className="text-slate-555 dark:text-slate-400 text-xs mt-1">{t('Sesuaikan nilai ambang batas toleransi deteksi bahaya sensor', 'Adjust the tolerance threshold for sensor danger detection')}</p>
         </div>
       </div>
 
+      {success && (
+        <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+          <Check size={16} /> {success}
+        </div>
+      )}
+
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 md:p-8 relative overflow-hidden group transition-all duration-300">
         <p className="text-xs text-slate-500 dark:text-slate-450 mb-8 leading-relaxed">
-          Atur nilai batas maksimal toleransi untuk masing-masing parameter sensor di bawah ini. Ketika salah satu titik sensor mendeteksi nilai yang melebihi ambang batas ini, sistem akan otomatis mengaktifkan status bahaya (danger) dan membunyikan alarm darurat di dasbor pengguna.
+          {t('Atur nilai batas maksimal toleransi untuk masing-masing parameter sensor di bawah ini. Ketika salah satu titik sensor mendeteksi nilai yang melebihi ambang batas ini, sistem akan otomatis mengaktifkan status bahaya (danger) dan membunyikan alarm darurat di dasbor pengguna.', 'Set the maximum tolerance values for each sensor parameter below. When any sensor reading exceeds this threshold, the system will automatically trigger a danger status and sound the emergency alarm on the user\'s dashboard.')}
         </p>
 
         {isLoaded && localThresholds ? (
@@ -70,11 +81,11 @@ export default function AdminThresholdsPage() {
               {Object.entries(localThresholds).map(([key, val]) => (
                 <div key={key} className="flex flex-col gap-2">
                   <label className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.2em] flex items-center justify-between">
-                    <span>Maksimal {key === 'hum' ? 'Kelembapan' : key === 'temp' ? 'Suhu' : key.toUpperCase()}</span>
+                    <span>{t('Maksimal', 'Max')} {key === 'hum' ? t('Kelembapan', 'Humidity') : key === 'temp' ? t('Suhu', 'Temperature') : key.toUpperCase()}</span>
                     {key === 'co2' || key === 'nh3' || key === 'voc' ? (
                       <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-500 uppercase tracking-wider">Gas</span>
                     ) : (
-                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-500 uppercase tracking-wider">Udara</span>
+                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-500 uppercase tracking-wider">{t('Udara', 'Air')}</span>
                     )}
                   </label>
                   <div className="relative group">
@@ -100,17 +111,18 @@ export default function AdminThresholdsPage() {
                 className="flex items-center gap-1.5 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm"
               >
                 {isSaving ? <RefreshCw size={12} className="animate-spin" /> : <Save size={12} />}
-                <span>{isSaving ? 'Menyimpan...' : 'Simpan Pengaturan'}</span>
+                <span>{isSaving ? t('Menyimpan...', 'Saving...') : t('Simpan Pengaturan', 'Save Settings')}</span>
               </button>
             </div>
           </div>
         ) : (
           <div className="text-xs text-slate-500 flex items-center py-6 animate-pulse gap-2.5 font-bold uppercase tracking-widest">
             <RefreshCw size={14} className="animate-spin" />
-            <span>Memuat konfigurasi...</span>
+            <span>{t('Memuat konfigurasi...', 'Loading configuration...')}</span>
           </div>
         )}
       </div>
     </div>
   );
 }
+

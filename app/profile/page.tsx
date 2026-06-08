@@ -8,8 +8,10 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 export default function ProfilePage() {
+  const { lang, t } = useLanguage();
   const { thresholds, saveThresholds, isLoaded } = useThresholds();
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [uploadingPic, setUploadingPic] = useState(false);
@@ -24,6 +26,8 @@ export default function ProfilePage() {
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [alarmSound, setAlarmSound] = useState('siren');
+  const [savedAlarmSound, setSavedAlarmSound] = useState('siren');
+  const [alarmSuccess, setAlarmSuccess] = useState('');
   const [pwForm, setPwForm] = useState({ old: '', new: '' });
   const [pwStatus, setPwStatus] = useState({ type: '', text: '' });
   const [savingPw, setSavingPw] = useState(false);
@@ -63,16 +67,62 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const saved = localStorage.getItem('alarmSound');
-    if (saved) setAlarmSound(saved);
+    if (saved) {
+      setAlarmSound(saved);
+      setSavedAlarmSound(saved);
+    }
   }, []);
 
-  const handleSaveAlarm = (sound: string) => {
+  const handleSelectAlarm = (sound: string) => {
     setAlarmSound(sound);
-    localStorage.setItem('alarmSound', sound);
-    
     // Test the sound
     const audio = new Audio(`/${sound}.mp3`);
-    audio.play().catch(e => console.log('Audio play failed', e));
+    audio.play().catch(e => {
+      console.log('Audio play failed, falling back to synthesis', e);
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        if (sound === 'beep') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1000, ctx.currentTime);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.1);
+        } else if (sound === 'bell') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, ctx.currentTime);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+          osc.start();
+          osc.stop(ctx.currentTime + 1.5);
+        } else {
+          // siren
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+        }
+      } catch (err) {
+        console.error('Web Audio synthesis failed', err);
+      }
+    });
+  };
+
+  const handleSaveAlarm = () => {
+    localStorage.setItem('alarmSound', alarmSound);
+    setSavedAlarmSound(alarmSound);
+    setAlarmSuccess(t('Suara alarm berhasil disimpan!', 'Alarm sound saved successfully!'));
+    setTimeout(() => setAlarmSuccess(''), 3000);
   };
 
   const handleSavePassword = async () => {
@@ -344,17 +394,17 @@ export default function ProfilePage() {
       {/* Paket 1 Bulan — Bundle Alat + Web */}
       <div className="relative rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-5 flex flex-col justify-between hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all group">
         <div className="space-y-3 text-left">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Bulan</h3>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">{t('Langganan 1 Bulan', '1 Month Subscription')}</h3>
           <div className="flex flex-col">
             <span className="text-lg font-black text-slate-900 dark:text-white">Rp 349.000</span>
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Alat + Web 1 Bln</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{t('Alat + Web 1 Bln', 'Device + Web 1 Month')}</span>
           </div>
           <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-            <li className="flex items-center gap-1.5">✓ Dashboard Web Monitoring</li>
-            <li className="flex items-center gap-1.5">✓ Multi-device &amp; Invite Pegawai</li>
-            <li className="flex items-center gap-1.5">✓ Notifikasi &amp; Laporan Real-time</li>
+            <li className="flex items-center gap-1.5">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Dashboard Web Monitoring', 'Web Monitoring Dashboard')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Multi-device & Invite Pegawai', 'Multi-device & Employee Invitation')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Notifikasi & Laporan Real-time', 'Real-time Notifications & Reports')}</li>
           </ul>
         </div>
         <button
@@ -362,26 +412,26 @@ export default function ProfilePage() {
           onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Bulan (Bundle Alat + Web)", "Rp 349.000")}
           className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:text-white text-center font-black text-[10px] uppercase tracking-wider transition-all"
         >
-          Pilih Paket
+          {t('Pilih Paket', 'Select Package')}
         </button>
       </div>
 
       {/* Paket 1 Tahun — Bundle Best Value */}
       <div className="relative rounded-2xl border-2 border-[#4edea3]/40 bg-[#4edea3]/5 p-5 flex flex-col justify-between hover:border-[#4edea3] transition-all group shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]">
-        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">Hemat</div>
+        <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[8px] font-black uppercase tracking-wider">{t('Hemat', 'Save')}</div>
         <div className="space-y-3 text-left">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bundle Alat + Web</p>
-          <h3 className="text-sm font-black text-slate-800 dark:text-white">Langganan 1 Tahun</h3>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">{t('Langganan 1 Tahun', '1 Year Subscription')}</h3>
           <div className="flex flex-col">
             <span className="text-[10px] text-slate-400 line-through font-bold">Rp 749.000</span>
             <span className="text-lg font-black text-[#059669] dark:text-[#4edea3]">Rp 599.000</span>
-            <span className="text-[9px] text-[#047857] dark:text-[#4edea3]/80 font-black uppercase tracking-wider mt-0.5">Alat + Web 12 Bln (Best Offer)</span>
+            <span className="text-[9px] text-[#047857] dark:text-[#4edea3]/80 font-black uppercase tracking-wider mt-0.5">{t('Alat + Web 12 Bln (Best Offer)', 'Device + Web 12 Months (Best Offer)')}</span>
           </div>
           <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ Semua Fitur Paket Bulanan</li>
-            <li className="flex items-center gap-1.5">✓ Akses 12 Bulan Penuh</li>
-            <li className="flex items-center gap-1.5">✓ Harga Lebih Hemat</li>
-            <li className="flex items-center gap-1.5">✓ Prioritas Dukungan CS</li>
+            <li className="flex items-center gap-1.5 font-bold text-slate-600 dark:text-slate-300">✓ {t('Semua Fitur Paket Bulanan', 'All Monthly Package Features')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Akses 12 Bulan Penuh', 'Full 12-Month Access')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Harga Lebih Hemat', 'More Cost-effective Price')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Prioritas Dukungan CS', 'Priority CS Support')}</li>
           </ul>
         </div>
         <button
@@ -389,27 +439,27 @@ export default function ProfilePage() {
           onClick={() => handleWhatsAppRedirect("Paket Langganan 1 Tahun (Bundle Alat + Web - Best Value)", "Rp 599.000", true)}
           className="mt-5 w-full py-2.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center font-black text-[10px] uppercase tracking-wider transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] shadow-[#4edea3]/20"
         >
-          Pilih Paket
+          {t('Pilih Paket', 'Select Package')}
         </button>
       </div>
 
       {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
       <div className="relative rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-5 flex flex-col justify-between hover:border-slate-400/40 transition-all group">
         <div className="space-y-3 text-left">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alat Saja</p>
-          <h3 className="text-sm font-black text-slate-800 dark:text-white">Hanya Beli Alat</h3>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('Alat Saja', 'Device Only')}</p>
+          <h3 className="text-sm font-black text-slate-800 dark:text-white">{t('Hanya Beli Alat', 'Buy Device Only')}</h3>
           <div className="flex flex-col">
             <span className="text-lg font-black text-slate-900 dark:text-white">Rp 249.000</span>
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Modul Sensor ESP32 Saja</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{t('Modul Sensor ESP32 Saja', 'ESP32 Sensor Module Only')}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">⚠ Tanpa Akses Dashboard Web Monitoring</p>
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">{t('⚠ Tanpa Akses Dashboard Web Monitoring', '⚠ Without Web Monitoring Dashboard Access')}</p>
           </div>
           <ul className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <li className="flex items-center gap-1.5">✓ Alat Sensor ESP32 Fisik</li>
-            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Akses Dashboard Web</li>
-            <li className="flex items-center gap-1.5 line-through opacity-50">✗ Grafik &amp; Laporan Online</li>
-            <li className="flex items-center gap-1.5">✓ Bisa Upgrade Kapan Saja</li>
+            <li className="flex items-center gap-1.5">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ {t('Akses Dashboard Web', 'Web Dashboard Access')}</li>
+            <li className="flex items-center gap-1.5 line-through opacity-50">✗ {t('Grafik & Laporan Online', 'Online Charts & Reports')}</li>
+            <li className="flex items-center gap-1.5">✓ {t('Bisa Upgrade Kapan Saja', 'Can Upgrade Anytime')}</li>
           </ul>
         </div>
         <button
@@ -417,7 +467,7 @@ export default function ProfilePage() {
           onClick={() => handleWhatsAppRedirect("Pembelian Hanya Alat Sensor (Modul ESP32 Saja)", "Rp 249.000")}
           className="mt-5 w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-center font-semibold text-[10px] uppercase tracking-wider transition-all"
         >
-          Beli Alat Saja
+          {t('Beli Alat Saja', 'Buy Device Only')}
         </button>
       </div>
     </div>
@@ -428,11 +478,11 @@ export default function ProfilePage() {
       {/* PAGE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full border-b border-slate-200/60 dark:border-slate-800/40 pb-5">
         <div>
-          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">User Settings</p>
+          <p className="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">{t('Pengaturan Pengguna', 'User Settings')}</p>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-950 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            Profile
+            {t('Profil', 'Profile')}
           </h1>
-          <p className="text-slate-550 dark:text-slate-400 text-xs mt-1">Pengaturan Akun &amp; Konfigurasi Aplikasi</p>
+          <p className="text-slate-550 dark:text-slate-400 text-xs mt-1">{t('Pengaturan Akun & Konfigurasi Aplikasi', 'Account Settings & App Configuration')}</p>
         </div>
       </div>
 
@@ -463,23 +513,23 @@ export default function ProfilePage() {
               </label>
               <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
               {uploadingPic && (
-                <p className="text-[10px] text-[#4edea3] font-bold mb-1 animate-pulse">Mengupload foto...</p>
+                <p className="text-[10px] text-[#4edea3] font-bold mb-1 animate-pulse">{t('Mengupload foto...', 'Uploading photo...')}</p>
               )}
               {uploadStatus === 'success' && (
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mb-1 flex items-center gap-1"><Check size={10} /> Foto tersimpan!</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mb-1 flex items-center gap-1"><Check size={10} /> {t('Foto tersimpan!', 'Photo saved!')}</p>
               )}
               
               <h2 className="text-lg font-black text-slate-950 dark:text-white capitalize tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 {user?.name || 'Loading...'}
               </h2>
               <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-                {user?.role === 'admin' ? 'Administrator' : 'User'}
+                {user?.role === 'admin' ? 'Administrator' : t('Pengguna', 'User')}
               </div>
             </div>
 
             <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/60 text-left space-y-4">
               <div>
-                <p className="text-[9px] font-black text-slate-405 dark:text-slate-500 uppercase tracking-widest mb-1">Email Terdaftar</p>
+                <p className="text-[9px] font-black text-slate-405 dark:text-slate-500 uppercase tracking-widest mb-1">{t('Email Terdaftar', 'Registered Email')}</p>
                 <p className="text-xs font-bold text-slate-850 dark:text-slate-350 font-mono truncate">{user?.email || 'Loading...'}</p>
               </div>
             </div>
@@ -488,15 +538,15 @@ export default function ProfilePage() {
           {/* Subscription Card */}
           {user?.role !== 'admin' && (
             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
-              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Layanan</h3>
+              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('Status Layanan', 'Service Status')}</h3>
               {user?.is_invited ? (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl space-y-1">
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-600 dark:text-emerald-500 border border-emerald-500/30">
-                    Active Employee
+                    {t('Karyawan Aktif', 'Active Employee')}
                   </span>
-                  <p className="text-xs font-bold text-slate-850 dark:text-white">Akses Penuh</p>
+                  <p className="text-xs font-bold text-slate-850 dark:text-white">{t('Akses Penuh', 'Full Access')}</p>
                   <p className="text-[10px] text-slate-450 dark:text-slate-500 leading-normal pt-1">
-                    Diundang oleh: <span className="font-semibold text-emerald-600 dark:text-emerald-450">{user.invited_by_name}</span> ({user.invited_by_email})
+                    {t('Diundang oleh:', 'Invited by:')} <span className="font-semibold text-emerald-600 dark:text-emerald-450">{user.invited_by_name}</span> ({user.invited_by_email})
                   </p>
                 </div>
               ) : user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() ? (
@@ -505,7 +555,7 @@ export default function ProfilePage() {
                     Premium Active
                   </span>
                   <p className="text-sm font-black text-slate-900 dark:text-white leading-none">
-                    {Math.max(0, Math.ceil((new Date(user.subscription_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} Hari Tersisa
+                    {Math.max(0, Math.ceil((new Date(user.subscription_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} {t('Hari Tersisa', 'Days Remaining')}
                   </p>
                   <p className="text-[10px] text-slate-450 dark:text-slate-550 font-mono pt-1">
                     Berakhir: {new Date(user.subscription_end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -515,10 +565,10 @@ export default function ProfilePage() {
                 <div className="bg-slate-50 dark:bg-slate-850/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-2">
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-450" />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Free Member</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('Anggota Gratis', 'Free Member')}</span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-450 leading-relaxed">
-                    Akses pemantauan web dan notifikasi alarm darurat terbatas. Silakan upgrade untuk membuka sirkulasi dashboard penuh.
+                    {t('Akses pemantauan web dan notifikasi alarm darurat terbatas. Silakan upgrade untuk membuka sirkulasi dashboard penuh.', 'Web monitoring access and emergency alarm notifications are limited. Please upgrade to unlock the full dashboard.')}
                   </p>
                 </div>
               )}
@@ -527,13 +577,13 @@ export default function ProfilePage() {
 
           {/* Threshold references */}
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
-            <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Nilai Batas Sensor</h3>
+            <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('Nilai Batas Sensor', 'Sensor Threshold Values')}</h3>
             {isLoaded ? (
               <div className="grid grid-cols-2 gap-3">
                 {Object.entries(thresholds).map(([key, val]) => (
                   <div key={key} className="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800/80 p-2.5 rounded-xl text-center">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-                      {key}
+                      {key === 'co2' ? 'CO₂' : key === 'nh3' ? 'NH₃' : key === 'voc' ? 'VOC' : key === 'temp' ? t('Suhu', 'TEMP') : t('Kelembapan', 'HUM')}
                     </p>
                     <p className="text-sm font-black text-slate-900 dark:text-white font-mono">
                       {val} <span className="text-[9px] text-slate-400 font-normal font-sans">{key === 'co2' || key === 'nh3' || key === 'voc' ? 'PPM' : key === 'temp' ? '°C' : '%'}</span>
@@ -544,7 +594,7 @@ export default function ProfilePage() {
             ) : (
               <div className="text-xs text-slate-555 flex items-center py-4 animate-pulse gap-2">
                 <RefreshCw size={12} className="animate-spin" />
-                <span>Memuat batas...</span>
+                <span>{t('Memuat batas...', 'Loading thresholds...')}</span>
               </div>
             )}
           </div>
@@ -563,7 +613,7 @@ export default function ProfilePage() {
               >
                 <div className="flex items-center gap-2.5">
                   <Crown size={14} className="text-amber-600 dark:text-amber-500" />
-                  <span className="text-xs font-black uppercase tracking-widest">Opsi Upgrade &amp; Paket Alat</span>
+                  <span className="text-xs font-black uppercase tracking-widest">{t('Opsi Upgrade & Paket Alat', 'Upgrade Options & Device Packages')}</span>
                 </div>
                 <ChevronRight 
                   size={14} 
@@ -580,16 +630,16 @@ export default function ProfilePage() {
 
           {/* Device Management Pairing Card */}
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-6 relative overflow-hidden group transition-all duration-300">
-            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Pasangkan Sensor (Multi-Device)</h3>
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">{t('Pasangkan Sensor (Multi-Device)', 'Pair Sensor (Multi-Device)')}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              Tambahkan satu atau beberapa perangkat ESP32 ke akun Anda untuk memonitor beberapa titik area dapur terpisah secara real-time.
+              {t('Tambahkan satu atau beberapa perangkat ESP32 ke akun Anda untuk memonitor beberapa titik area dapur terpisah secara real-time.', 'Add one or more ESP32 devices to your account to monitor multiple separate kitchen areas in real-time.')}
             </p>
 
             <form onSubmit={handleAddDevice} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6">
               <div className={devices.length > 0 ? "sm:col-span-4" : "sm:col-span-5"}>
                 <input 
                   type="text" 
-                  placeholder="ID Perangkat (e.g. ESP32_KITCHEN_02)"
+                  placeholder={t('ID Perangkat (e.g. ESP32_KITCHEN_02)', 'Device ID (e.g. ESP32_KITCHEN_02)')}
                   value={newDeviceId}
                   onChange={e => setNewDeviceId(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -598,7 +648,7 @@ export default function ProfilePage() {
               <div className={devices.length > 0 ? "sm:col-span-3" : "sm:col-span-4"}>
                 <input 
                   type="text" 
-                  placeholder="Nama Lokasi/Sensor"
+                  placeholder={t('Nama Lokasi/Sensor', 'Location/Sensor Name')}
                   value={newDeviceName}
                   onChange={e => setNewDeviceName(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -611,8 +661,8 @@ export default function ProfilePage() {
                     onChange={e => setNewDeviceType(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer font-bold"
                   >
-                    <option value="real">Real (Alat Asli)</option>
-                    <option value="sim">Sim (Wokwi)</option>
+                    <option value="real">{t('Real (Alat Asli)', 'Real (Actual Device)')}</option>
+                    <option value="sim">{t('Sim (Wokwi)', 'Sim (Wokwi)')}</option>
                   </select>
                 </div>
               )}
@@ -623,7 +673,7 @@ export default function ProfilePage() {
                   className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   {addingDevice ? <RefreshCw size={12} className="animate-spin" /> : <UserPlus size={12} />}
-                  <span>Pasang</span>
+                  <span>{t('Pasang', 'Pair')}</span>
                 </button>
               </div>
             </form>
@@ -640,15 +690,15 @@ export default function ProfilePage() {
             )}
 
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60">
-              <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Sensor Aktif ({devices.length})</h4>
+              <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">{t('Daftar Sensor Aktif', 'Active Sensors List')} ({devices.length})</h4>
               {devicesLoading ? (
                 <div className="text-xs text-slate-450 flex items-center gap-2 py-2">
                   <RefreshCw size={11} className="animate-spin" />
-                  <span>Memuat daftar alat...</span>
+                  <span>{t('Memuat daftar alat...', 'Loading device list...')}</span>
                 </div>
               ) : devices.length === 0 ? (
                 <div className="text-center py-6 border border-dashed border-slate-200 dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-transparent">
-                  <p className="text-xs text-slate-400 italic">Belum ada sensor yang dipasangkan ke akun ini.</p>
+                  <p className="text-xs text-slate-400 italic">{t('Belum ada sensor yang dipasangkan ke akun ini.', 'No sensors have been paired with this account yet.')}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -694,7 +744,7 @@ export default function ProfilePage() {
                     <Smartphone size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
-                    Edit Profil (Nama &amp; WhatsApp)
+                    {t('Edit Profil (Nama & WhatsApp)', 'Edit Profile (Name & WhatsApp)')}
                   </span>
                 </div>
                 <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'profile-edit' ? 'rotate-90' : ''}`} />
@@ -704,32 +754,32 @@ export default function ProfilePage() {
                 <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   <div className="space-y-4 max-w-sm">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t('Nama Lengkap', 'Full Name')}</label>
                       <input 
                         type="text" 
-                        placeholder="Nama Lengkap" 
+                        placeholder={t('Nama Lengkap', 'Full Name')} 
                         value={nameInput} 
                         onChange={e => setNameInput(e.target.value)} 
                         className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all dark:text-white" 
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t('Nomor WhatsApp', 'WhatsApp Number')}</label>
                       <input 
                         type="text" 
-                        placeholder="Contoh: 085792524863" 
+                        placeholder={t('Contoh: 085792524863', 'Example: 085792524863')} 
                         value={phoneInput} 
                         onChange={e => setPhoneInput(e.target.value)} 
                         className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all dark:text-white" 
                       />
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Masukkan nomor WhatsApp aktif Anda agar notifikasi bahaya dikirim langsung via chat.</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{t('Masukkan nomor WhatsApp aktif Anda agar notifikasi bahaya dikirim langsung via chat.', 'Enter your active WhatsApp number so danger notifications can be sent directly via chat.')}</p>
                     </div>
                     <button 
                       onClick={handleSaveProfile} 
                       disabled={savingProfile} 
                       className="w-full px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm"
                     >
-                      {savingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
+                      {savingProfile ? t('Menyimpan...', 'Saving...') : t('Simpan Perubahan', 'Save Changes')}
                     </button>
                     {profileStatus.text && (
                       <p className={`text-xs font-bold mt-2 ${profileStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
@@ -752,7 +802,7 @@ export default function ProfilePage() {
                     <ShieldCheck size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
-                    Keamanan Akun (Ganti Password)
+                    {t('Keamanan Akun (Ganti Password)', 'Account Security (Change Password)')}
                   </span>
                 </div>
                 <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'security' ? 'rotate-90' : ''}`} />
@@ -761,10 +811,10 @@ export default function ProfilePage() {
               {activeMenu === 'security' && (
                 <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   <div className="space-y-3 max-w-sm">
-                    <input type="password" placeholder="Password Lama" value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
-                    <input type="password" placeholder="Password Baru" value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                    <input type="password" placeholder={t('Password Lama', 'Old Password')} value={pwForm.old} onChange={e => setPwForm({...pwForm, old: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                    <input type="password" placeholder={t('Password Baru', 'New Password')} value={pwForm.new} onChange={e => setPwForm({...pwForm, new: e.target.value})} className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
                     <button onClick={handleSavePassword} disabled={savingPw} className="w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
-                      {savingPw ? 'Menyimpan...' : 'Simpan Password'}
+                      {savingPw ? t('Menyimpan...', 'Saving...') : t('Simpan Password', 'Save Password')}
                     </button>
                     {pwStatus.text && (
                       <p className={`text-xs font-bold mt-2 ${pwStatus.type === 'success' ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
@@ -787,7 +837,7 @@ export default function ProfilePage() {
                     <UserPlus size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
-                    Kelola Akses Pegawai (Undang User)
+                    {t('Kelola Akses Pegawai (Undang User)', 'Manage Employee Access (Invite User)')}
                   </span>
                 </div>
                 <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'sharing' ? 'rotate-90' : ''}`} />
@@ -797,13 +847,13 @@ export default function ProfilePage() {
                 <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
                   {user?.role !== 'admin' && !(user?.subscription_status === 'active' && user?.subscription_end_date && new Date(user.subscription_end_date) > new Date()) ? (
                     <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold space-y-2.5">
-                      <p>Fitur Kelola Pegawai/Akses Multi-User hanya tersedia untuk pelanggan Premium Active.</p>
+                      <p>{t('Fitur Kelola Pegawai/Akses Multi-User hanya tersedia untuk pelanggan Premium Active.', 'The Manage Employee/Multi-User Access feature is only available for Premium Active subscribers.')}</p>
                       <a
                         href={`https://wa.me/6285792524863?text=${encodeURIComponent(`Halo Admin, saya ingin upgrade ke Premium agar bisa mengundang pegawai saya untuk monitoring alat.`)}`}
                         target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-[9px] uppercase tracking-wider hover:bg-amber-600 transition-colors shadow-sm"
                       >
-                        <Crown size={11} /> Upgrade Sekarang
+                        <Crown size={11} /> {t('Upgrade Sekarang', 'Upgrade Now')}
                       </a>
                     </div>
                   ) : (
@@ -811,27 +861,27 @@ export default function ProfilePage() {
                       {/* Guide */}
                       <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/15 space-y-2.5 text-xs">
                         <p className="text-[10px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest flex items-center gap-1.5">
-                          <span>ℹ️</span> Cara Pegawai Mengakses Dashboard
+                          <span>ℹ️</span> {t('Cara Pegawai Mengakses Dashboard', 'How Employees Access the Dashboard')}
                         </p>
                         <ol className="space-y-2 text-slate-600 dark:text-slate-350 list-decimal pl-4">
-                          <li>Pegawai membuka halaman <strong>Register</strong> di SkyWatch</li>
-                          <li>Mendaftar menggunakan <strong>email yang sama persis</strong> dengan yang Anda undang di bawah</li>
-                          <li>Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda</li>
+                          <li>{t('Pegawai membuka halaman <strong>Register</strong> di SkyWatch', 'Employee opens the Register page on SkyWatch')}</li>
+                          <li>{t('Mendaftar menggunakan <strong>email yang sama persis</strong> dengan yang Anda undang di bawah', 'Registering using the exact same email as the one you invite below')}</li>
+                          <li>{t('Setelah login, dashboard pegawai otomatis menampilkan data sensor milik Anda', 'After logging in, the employee dashboard automatically displays your sensor data')}</li>
                         </ol>
                         <div className="pt-1">
                           <Link href="/register" className="text-[10px] font-black bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-600 dark:text-blue-500 px-3 py-1.5 rounded-lg transition-all inline-block">
-                            Buka Halaman Register →
+                            {t('Buka Halaman Register →', 'Open Register Page →')}
                           </Link>
                         </div>
                       </div>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Masukkan email pegawai/pengawas yang ingin Anda undang untuk memantau sensor Anda:
+                        {t('Masukkan email pegawai/pengawas yang ingin Anda undang untuk memantau sensor Anda:', 'Enter the email of the employee/supervisor you want to invite to monitor your sensor:')}
                       </p>
 
                       {devices.length === 0 ? (
                         <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-xl">
-                          ⚠️ Pasang sensor Anda terlebih dahulu di bagian "Pasangkan Sensor" sebelum mengundang pegawai.
+                          ⚠️ {t('Pasang sensor Anda terlebih dahulu di bagian "Pasangkan Sensor" sebelum mengundang pegawai.', 'Please pair your sensor first in the "Pair Sensor" section before inviting employees.')}
                         </div>
                       ) : (
                         <form onSubmit={handleInvite} className="grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -850,10 +900,10 @@ export default function ProfilePage() {
                               onChange={e => setInviteDeviceId(e.target.value)}
                               className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-slate-800 dark:text-white cursor-pointer"
                             >
-                              <option value="">-- Pilih Sensor --</option>
+                              <option value="">{t('-- Pilih Sensor --', '-- Select Sensor --')}</option>
                               {devices.map((d: any) => (
                                 <option key={d.device_id} value={d.device_id}>
-                                  {d.device_name} ({d.device_type === 'sim' ? 'SIM' : 'REAL'})
+                                  {d.device_name} ({d.device_type === 'sim' ? t('SIM', 'SIM') : t('REAL', 'REAL')})
                                 </option>
                               ))}
                             </select>
@@ -861,7 +911,7 @@ export default function ProfilePage() {
                           <div className="sm:col-span-3">
                             <button type="submit" disabled={inviting || !inviteEmail || !inviteDeviceId}
                               className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm">
-                              {inviting ? 'Mengundang...' : 'Undang'}
+                              {inviting ? t('Mengundang...', 'Inviting...') : t('Undang', 'Invite')}
                             </button>
                           </div>
                         </form>
@@ -874,10 +924,10 @@ export default function ProfilePage() {
                       )}
 
                       <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Daftar Pegawai yang Diundang ({shares.length})</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">{t('Daftar Pegawai yang Diundang', 'List of Invited Employees')} ({shares.length})</p>
                         
                         {sharesLoading ? (
-                          <div className="text-xs text-slate-400 flex items-center gap-2 py-2"><RefreshCw size={11} className="animate-spin" /> Memuat data...</div>
+                          <div className="text-xs text-slate-400 flex items-center gap-2 py-2"><RefreshCw size={11} className="animate-spin" /> {t('Memuat data...', 'Loading data...')}</div>
                         ) : shares.length === 0 ? (
                           <p className="text-xs text-slate-450 py-2 italic">Belum ada pegawai yang diundang.</p>
                         ) : (
@@ -888,14 +938,14 @@ export default function ProfilePage() {
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className="text-xs font-bold text-slate-800 dark:text-slate-250 truncate">{s.member_name || '—'}</p>
                                     {s.member_name ? (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Aktif</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">{t('Aktif', 'Active')}</span>
                                     ) : (
-                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 uppercase tracking-wider">Belum Daftar</span>
+                                      <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 uppercase tracking-wider">{t('Belum Daftar', 'Not Registered')}</span>
                                     )}
                                   </div>
                                   <p className="text-[9px] text-slate-450 font-mono truncate">{s.member_email}</p>
                                   <p className="text-[10px] text-slate-550 dark:text-slate-450 mt-1">
-                                    Sensor: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{s.device_name ? `${s.device_name} (${s.device_id})` : (s.device_id || 'Semua Sensor')}</span>
+                                    {t('Sensor:', 'Sensor:')} <span className="font-semibold text-emerald-600 dark:text-emerald-400">{s.device_name ? `${s.device_name} (${s.device_id})` : (s.device_id || t('Semua Sensor', 'All Sensors'))}</span>
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -910,7 +960,7 @@ export default function ProfilePage() {
                                   >
                                     {copiedId === s.id ? (
                                       <span className="text-[8px] font-black uppercase tracking-wider px-1 flex items-center gap-0.5">
-                                        <Check size={10} strokeWidth={3} /> Salin!
+                                        <Check size={10} strokeWidth={3} /> {t('Salin!', 'Copied!')}
                                       </span>
                                     ) : (
                                       <Copy size={12} />
@@ -943,7 +993,7 @@ export default function ProfilePage() {
                     <Bell size={16} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355">
-                    Notifikasi Bahaya (Suara Alarm)
+                    {t('Notifikasi Bahaya (Suara Alarm)', 'Danger Notification (Alarm Sound)')}
                   </span>
                 </div>
                 <ChevronRight size={14} className={`text-slate-400 dark:text-slate-500 transform transition-transform ${activeMenu === 'alarm' ? 'rotate-90' : ''}`} />
@@ -951,16 +1001,16 @@ export default function ProfilePage() {
               
               {activeMenu === 'alarm' && (
                 <div className="p-6 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/80 animate-in slide-in-from-top-2">
-                  <p className="text-xs text-slate-500 mb-4">Pilih suara peringatan saat sensor mendeteksi bahaya:</p>
+                  <p className="text-xs text-slate-500 mb-4">{t('Pilih suara peringatan saat sensor mendeteksi bahaya:', 'Select the alert sound when the sensor detects danger:')}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
-                      { id: 'siren', label: 'Sirine Polisi' },
-                      { id: 'beep', label: 'Beep Cepat' },
-                      { id: 'bell', label: 'Lonceng Alarm' }
+                      { id: 'siren', label: t('Sirine Polisi', 'Police Siren') },
+                      { id: 'beep', label: t('Beep Cepat', 'Fast Beep') },
+                      { id: 'bell', label: t('Lonceng Alarm', 'Alarm Bell') }
                     ].map(sound => (
                       <button 
                         key={sound.id}
-                        onClick={() => handleSaveAlarm(sound.id)}
+                        onClick={() => handleSelectAlarm(sound.id)}
                         className={`py-2 px-3 rounded-lg text-xs font-black uppercase tracking-wider transition-all border ${
                           alarmSound === sound.id 
                             ? 'bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400' 
@@ -971,6 +1021,25 @@ export default function ProfilePage() {
                       </button>
                     ))}
                   </div>
+
+                  {alarmSound !== savedAlarmSound && (
+                    <div className="mt-4 flex items-center justify-end">
+                      <button 
+                        onClick={handleSaveAlarm}
+                        className="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                      >
+                        <Check size={12} />
+                        {t('Simpan', 'Save')}
+                      </button>
+                    </div>
+                  )}
+
+                  {alarmSuccess && (
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-500 mt-3 flex items-center gap-1">
+                      <Check size={12} />
+                      {alarmSuccess}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -987,10 +1056,10 @@ export default function ProfilePage() {
                   </div>
                   <div className="text-left">
                     <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-355 block">
-                      Layanan Pengaduan (Bantuan Teknis)
+                      {t('Layanan Pengaduan (Bantuan Teknis)', 'Complaint Service (Technical Assistance)')}
                     </span>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">
-                      Laporkan kendala alat, sistem, atau ajukan keluhan teknis lainnya
+                      {t('Laporkan kendala alat, sistem, atau ajukan keluhan teknis lainnya', 'Report device/system issues, or submit other technical complaints')}
                     </span>
                   </div>
                 </div>
@@ -1005,7 +1074,7 @@ export default function ProfilePage() {
             className="w-full bg-white dark:bg-red-500/[0.02] hover:bg-red-50 dark:hover:bg-red-500/[0.05] border border-red-500/20 py-4 rounded-xl flex items-center justify-center gap-2 transition-all group shadow-sm mt-8"
           >
             <LogOut size={16} className="text-red-600 dark:text-red-500 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-black text-red-600 dark:text-red-500 uppercase tracking-widest">Keluar Akun</span>
+            <span className="text-xs font-black text-red-600 dark:text-red-500 uppercase tracking-widest">{t('Keluar Akun', 'Logout')}</span>
           </button>
         </div>
       </div>
