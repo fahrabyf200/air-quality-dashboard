@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { useThresholds } from '@/app/hooks/useThresholds';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 interface SensorRow {
   id?: number;
@@ -31,6 +32,7 @@ interface SensorRow {
 }
 
 function StatusDot({ danger }: { danger: boolean }) {
+  const { t } = useLanguage();
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all ${
@@ -44,7 +46,7 @@ function StatusDot({ danger }: { danger: boolean }) {
           danger ? "bg-red-500 animate-ping" : "bg-emerald-500 animate-pulse"
         }`}
       />
-      {danger ? "Danger" : "Safe"}
+      {danger ? t("Bahaya", "Danger") : t("Aman", "Safe")}
     </span>
   );
 }
@@ -156,6 +158,7 @@ const PER_PAGE = 25;
 
 export default function MonitoringPage() {
   const { thresholds: T, isLoaded: thresholdsLoaded } = useThresholds();
+  const { t } = useLanguage();
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -174,11 +177,11 @@ export default function MonitoringPage() {
       setRows(Array.isArray(json) ? json : [json]);
       setError("");
     } catch (e: any) {
-      setError("Gagal memuat data dari API sensor.");
+      setError(t("Gagal memuat data dari API sensor.", "Failed to load data from sensor API."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchData();
@@ -203,18 +206,18 @@ export default function MonitoringPage() {
         <div className="max-w-[1700px] mx-auto flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.35em] mb-1">
-              Kitchen Sensor Node
+              {t('Kitchen Sensor Node', 'Kitchen Sensor Node')}
             </p>
 
             <h1
               className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
-              Monitoring Data
+              {t('Monitoring Data', 'Monitoring Data')}
             </h1>
 
             <p className="text-slate-600 text-xs mt-1 font-mono">
-              Real-time Sensor Log • SkyWatch Analytics
+              {t('Real-time Sensor Log • SkyWatch Analytics', 'Real-time Sensor Log • SkyWatch Analytics')}
             </p>
           </div>
 
@@ -228,7 +231,7 @@ export default function MonitoringPage() {
               className={loading ? "animate-spin" : ""}
             />
 
-            <span>Refresh</span>
+            <span>{t('Refresh', 'Refresh')}</span>
           </button>
         </div>
       </div>
@@ -237,28 +240,28 @@ export default function MonitoringPage() {
         {/* SUMMARY */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
           <SummaryCard
-            label="Total Records"
+            label={t('Total Rekaman', 'Total Records')}
             value={rows.length}
             color="#3b82f6"
             icon={Database}
           />
 
           <SummaryCard
-            label="Danger Events"
+            label={t('Kejadian Bahaya', 'Danger Events')}
             value={dangerCount}
             color="#ef4444"
             icon={ShieldAlert}
           />
 
           <SummaryCard
-            label="Safe Events"
+            label={t('Kejadian Aman', 'Safe Events')}
             value={rows.length - dangerCount}
             color="#22c55e"
             icon={ShieldCheck}
           />
 
           <SummaryCard
-            label="Latest Sync"
+            label={t('Sinkronisasi Terakhir', 'Latest Sync')}
             value={
               rows[0]?.created_at
                 ? new Date(rows[0].created_at).toLocaleTimeString("id-ID")
@@ -276,7 +279,7 @@ export default function MonitoringPage() {
 
             <div>
               <p className="font-black uppercase text-sm tracking-wide text-red-600 dark:text-red-400">
-                Connection Error
+                {t('Kesalahan Koneksi', 'Connection Error')}
               </p>
 
               <p className="text-xs text-slate-400 mt-0.5">{error}</p>
@@ -297,11 +300,11 @@ export default function MonitoringPage() {
 
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-800 dark:text-slate-400">
-                  Sensor Activity Log
+                  {t('Log Aktivitas Sensor', 'Sensor Activity Log')}
                 </p>
 
                 <p className="text-xs text-slate-600 mt-1">
-                  {rows.length} total records collected
+                  {rows.length} {t('total rekaman terkumpul', 'total records collected')}
                 </p>
               </div>
             </div>
@@ -322,7 +325,7 @@ export default function MonitoringPage() {
               </div>
 
               <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-800 dark:text-slate-400">
-                Loading Sensor Data...
+                {t('Memuat Data Sensor...', 'Loading Sensor Data...')}
               </p>
             </div>
           ) : (
@@ -334,11 +337,11 @@ export default function MonitoringPage() {
                     <tr className="border-b border-slate-200 dark:border-slate-800">
                       {[
                         "#",
-                        "Timestamp",
+                        t("Waktu", "Timestamp"),
                         "CO₂",
                         "NH₃",
-                        "Temperature",
-                        "Humidity",
+                        t("Suhu", "Temperature"),
+                        t("Kelembapan", "Humidity"),
                         "VOC",
                         "Status",
                       ].map((h) => (
@@ -358,18 +361,18 @@ export default function MonitoringPage() {
                           colSpan={8}
                           className="text-center py-20 text-[#1E293B] dark:text-slate-400 text-sm font-semibold uppercase tracking-[0.3em]"
                         >
-                          No sensor data available
+                          {t('Tidak ada data sensor', 'No sensor data available')}
                         </td>
                       </tr>
                     ) : (
                       paged.map((row, i) => {
-                        const t = row.temp ?? row.temperature ?? 0;
+                        const tVal = row.temp ?? row.temperature ?? 0;
                         const h = row.hum ?? row.humidity ?? 0;
                         const isDanger =
                           row.co2 > T.co2 ||
                           row.nh3 > T.nh3 ||
                           (row.voc || 0) > T.voc ||
-                          t > T.temp;
+                          tVal > T.temp;
                         const ts = row.created_at ?? row.timestamp;
 
                         return (
@@ -399,7 +402,7 @@ export default function MonitoringPage() {
                               <NumCell v={row.nh3} threshold={T.nh3} digits={2} />
                             </td>
                             <td className="px-6 py-4">
-                              <NumCell v={t} threshold={T.temp} digits={1} />
+                              <NumCell v={tVal} threshold={T.temp} digits={1} />
                             </td>
                             <td className="px-6 py-4">
                               <NumCell v={h} threshold={T.hum} digits={0} />
@@ -422,14 +425,14 @@ export default function MonitoringPage() {
               <div className="md:hidden flex flex-col divide-y divide-slate-200 dark:divide-slate-800/50">
                 {paged.length === 0 ? (
                   <div className="text-center py-20 text-slate-800 dark:text-slate-400 text-sm font-semibold uppercase tracking-[0.3em]">
-                    No sensor data available
+                    {t('Tidak ada data sensor', 'No sensor data available')}
                   </div>
                 ) : (
                   paged.map((row, i) => {
-                    const t = row.temp ?? row.temperature ?? 0;
+                    const tVal = row.temp ?? row.temperature ?? 0;
                     const h = row.hum ?? row.humidity ?? 0;
                     const isDanger =
-                      row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || t > T.temp;
+                      row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc || 0) > T.voc || tVal > T.temp;
                     const ts = row.created_at ?? row.timestamp;
 
                     return (
@@ -451,7 +454,7 @@ export default function MonitoringPage() {
                             }`}
                           >
                             {isDanger ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
-                            {isDanger ? "Danger" : "Safe"}
+                            {isDanger ? t("Bahaya", "Danger") : t("Aman", "Safe")}
                           </span>
                         </div>
 
@@ -469,11 +472,11 @@ export default function MonitoringPage() {
                             <NumCell v={row.voc || 0} threshold={T.voc} digits={2} />
                           </div>
                           <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">TEMP</p>
-                            <NumCell v={t} threshold={T.temp} digits={1} />
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">{t('SUHU', 'TEMP')}</p>
+                            <NumCell v={tVal} threshold={T.temp} digits={1} />
                           </div>
                           <div className="bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 p-2 rounded-xl text-center flex flex-col items-center justify-center">
-                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">HUM</p>
+                            <p className="text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 mb-1">{t('KELEMBAPAN', 'HUM')}</p>
                             <NumCell v={h} threshold={T.hum} digits={0} />
                           </div>
                         </div>
@@ -489,7 +492,7 @@ export default function MonitoringPage() {
           {totalPages > 1 && (
             <div className="px-4 sm:px-6 py-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-800 dark:text-slate-400">
-                Page {page} / {totalPages}
+                {t('Halaman', 'Page')} {page} / {totalPages}
               </span>
 
               <div className="flex items-center gap-2">
@@ -500,7 +503,7 @@ export default function MonitoringPage() {
                   disabled={page === 1}
                   className="px-4 py-2 rounded-2xl border border-slate-200 border-t-[1.5px] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-800 disabled:opacity-30 transition-all text-xs font-semibold uppercase tracking-wider shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
                 >
-                  ← Prev
+                  ← {t('Sebelumnya', 'Prev')}
                 </button>
 
                 <button
@@ -512,7 +515,7 @@ export default function MonitoringPage() {
                   disabled={page === totalPages}
                   className="px-4 py-2 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 transition-all text-xs font-black uppercase tracking-wider"
                 >
-                  Next →
+                  {t('Berikutnya', 'Next')} →
                 </button>
               </div>
             </div>

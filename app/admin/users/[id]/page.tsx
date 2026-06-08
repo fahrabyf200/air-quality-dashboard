@@ -7,6 +7,7 @@ import {
   ShieldAlert, ShieldCheck, Thermometer, Droplets, Zap, Wind,
   Clock, Crown, UserCircle, Calendar
 } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 const DEFAULT_T = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 
@@ -22,18 +23,19 @@ interface SensorRow {
   created_at?: string;
 }
 
-function timeAgo(d: string) {
+function timeAgo(d: string, t: any) {
   const s = (Date.now() - new Date(d).getTime()) / 1000;
-  if (s < 60) return `${Math.floor(s)}d lalu`;
-  if (s < 3600) return `${Math.floor(s / 60)}m lalu`;
-  if (s < 86400) return `${Math.floor(s / 3600)}j lalu`;
-  return `${Math.floor(s / 86400)} hari lalu`;
+  if (s < 60) return `${Math.floor(s)}${t('d lalu', 'd ago')}`;
+  if (s < 3600) return `${Math.floor(s / 60)}${t('m lalu', 'm ago')}`;
+  if (s < 86400) return `${Math.floor(s / 3600)}${t('j lalu', 'h ago')}`;
+  return `${Math.floor(s / 86400)} ${t('hari lalu', 'days ago')}`;
 }
 
 export default function UserDetailPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params?.id as string;
+  const { lang, t } = useLanguage();
 
   const [T] = useState(DEFAULT_T);
   const [user, setUser] = useState<any>(null);
@@ -52,16 +54,16 @@ export default function UserDetailPage() {
     try {
       const res = await fetch(`/api/admin/users/${userId}?page=${p}&limit=${PER_PAGE}`);
       if (res.status === 403) { router.replace('/admin'); return; }
-      if (res.status === 404) { setError('User tidak ditemukan'); return; }
+      if (res.status === 404) { setError(t('User tidak ditemukan', 'User not found')); return; }
       const data = await res.json();
       setUser(data.user);
       setSensor(data.sensor || []);
       setStats(data.stats);
       setTotal(data.total || 0);
       setPage(p);
-    } catch { setError('Gagal memuat data.'); }
+    } catch { setError(t('Gagal memuat data.', 'Failed to load data.')); }
     finally { setLoading(false); }
-  }, [userId, router]);
+  }, [userId, router, t]);
 
   useEffect(() => { fetchData(1); }, [fetchData]);
 
@@ -72,7 +74,7 @@ export default function UserDetailPage() {
   if (loading && !user) return (
     <div className="p-8 flex items-center justify-center min-h-[50vh] gap-3">
       <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat...', 'Loading...')}</p>
     </div>
   );
 
@@ -81,8 +83,8 @@ export default function UserDetailPage() {
       <AlertTriangle size={30} className="text-red-600 dark:text-red-400" />
       <p className="text-red-600 dark:text-red-400 font-bold text-sm">{error}</p>
       <button onClick={() => router.push('/admin/users')}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-300 text-sm font-bold border border-slate-300 dark:border-white/10">
-        <ArrowLeft size={14} /> Kembali
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-350 dark:text-slate-300 text-sm font-bold border border-slate-300 dark:border-white/10 hover:text-slate-900 dark:hover:text-white transition-all">
+        <ArrowLeft size={14} /> {t('Kembali', 'Back')}
       </button>
     </div>
   );
@@ -102,14 +104,14 @@ export default function UserDetailPage() {
             </div>
             <div>
               <h1 className="text-xl font-black text-slate-900 dark:text-white capitalize">{user?.name}</h1>
-              <p className="text-slate-500 text-xs font-mono">{user?.email}</p>
+              <p className="text-slate-555 dark:text-slate-500 text-xs font-mono">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
                 {user?.role === 'admin'
-                  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/25"><Crown size={9} /> Admin</span>
-                  : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 border border-slate-300 dark:border-white/10"><UserCircle size={9} /> User</span>}
+                  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/25"><Crown size={9} /> {t('Admin', 'Admin')}</span>
+                  : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-450 dark:text-slate-450 border border-slate-300 dark:border-white/10"><UserCircle size={9} /> {t('User', 'User')}</span>}
                 {user?.created_at && (
                   <span className="text-[9px] text-slate-600 font-mono flex items-center gap-1">
-                    <Calendar size={9} /> {new Date(user.created_at).toLocaleDateString('id-ID')}
+                    <Calendar size={9} /> {new Date(user.created_at).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US')}
                   </span>
                 )}
               </div>
@@ -118,17 +120,17 @@ export default function UserDetailPage() {
         </div>
         <button onClick={() => fetchData(page)} disabled={loading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-wider disabled:opacity-50 transition-all">
-          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> {t('Refresh', 'Refresh')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Rekaman', value: stats?.total ?? 0, color: '#8b5cf6', icon: Database },
-          { label: 'Event Bahaya', value: dangerCount, color: '#ef4444', icon: ShieldAlert },
-          { label: 'Event Aman', value: safeCount, color: '#22c55e', icon: ShieldCheck },
-          { label: 'Rasio Aman', value: stats?.total ? `${((safeCount / stats.total) * 100).toFixed(1)}%` : '—', color: '#f59e0b', icon: Activity },
+          { label: t('Total Rekaman', 'Total Records'), value: stats?.total ?? 0, color: '#8b5cf6', icon: Database },
+          { label: t('Event Bahaya', 'Danger Events'), value: dangerCount, color: '#ef4444', icon: ShieldAlert },
+          { label: t('Event Aman', 'Safe Events'), value: safeCount, color: '#22c55e', icon: ShieldCheck },
+          { label: t('Rasio Aman', 'Safety Ratio'), value: stats?.total ? `${((safeCount / stats.total) * 100).toFixed(1)}%` : '—', color: '#f59e0b', icon: Activity },
         ].map(s => (
           <div key={s.label} className="relative rounded-2xl border border-slate-300 dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-4 overflow-hidden">
             <div className="absolute -top-4 -right-4 w-14 h-14 rounded-full blur-xl opacity-20 pointer-events-none" style={{ background: s.color }} />
@@ -149,8 +151,8 @@ export default function UserDetailPage() {
             { label: 'Avg CO₂', val: Number(stats.avg_co2).toFixed(0), max: Number(stats.max_co2).toFixed(0), unit: 'PPM', icon: Zap, color: '#3b82f6' },
             { label: 'Avg NH₃', val: Number(stats.avg_nh3).toFixed(2), max: Number(stats.max_nh3).toFixed(2), unit: 'PPM', icon: Wind, color: '#a78bfa' },
             { label: 'Avg VOC', val: Number(stats.avg_voc || 0).toFixed(2), max: Number(stats.max_voc || 0).toFixed(2), unit: 'PPM', icon: Activity, color: '#ec4899' },
-            { label: 'Avg Suhu', val: Number(stats.avg_temp).toFixed(1), max: Number(stats.max_temp).toFixed(1), unit: '°C', icon: Thermometer, color: '#f97316' },
-            { label: 'Avg Hum', val: Number(stats.avg_hum).toFixed(0), max: '—', unit: '%', icon: Droplets, color: '#38bdf8' },
+            { label: t('Avg Suhu', 'Avg Temp'), val: Number(stats.avg_temp).toFixed(1), max: Number(stats.max_temp).toFixed(1), unit: '°C', icon: Thermometer, color: '#f97316' },
+            { label: t('Avg Hum', 'Avg Hum'), val: Number(stats.avg_hum).toFixed(0), max: '—', unit: '%', icon: Droplets, color: '#38bdf8' },
           ].map(s => (
             <div key={s.label} className="p-4 rounded-2xl border border-slate-300 dark:border-white/[0.07] bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02]">
               <div className="flex items-center gap-2 mb-2">
@@ -160,7 +162,7 @@ export default function UserDetailPage() {
                 <p className="text-[9px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">{s.label}</p>
               </div>
               <p className="text-base font-black text-slate-900 dark:text-white font-mono">{s.val} <span className="text-slate-500 text-xs font-normal">{s.unit}</span></p>
-              <p className="text-[10px] text-slate-600 font-mono">Maks: {s.max} {s.unit}</p>
+              <p className="text-[10px] text-slate-600 font-mono">{t('Maks:', 'Max:')} {s.max} {s.unit}</p>
             </div>
           ))}
         </div>
@@ -169,8 +171,8 @@ export default function UserDetailPage() {
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-slate-200 dark:border-white/[0.06]">
         {[
-          { key: 'sensor', label: 'Data Sensor', icon: Database, count: total },
-          { key: 'logs', label: 'Aktivitas Log', icon: Activity, count: total },
+          { key: 'sensor', label: t('Data Sensor', 'Sensor Data'), icon: Database, count: total },
+          { key: 'logs', label: t('Aktivitas Log', 'Activity Log'), icon: Activity, count: total },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as any)}
             className={`flex items-center gap-2 px-5 py-3 text-[11px] font-black uppercase tracking-wider transition-all border-b-2 -mb-[1px] ${
@@ -189,7 +191,7 @@ export default function UserDetailPage() {
             <Database size={24} className="text-slate-600" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest">Belum Ada Data Sensor</p>
+            <p className="text-sm font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-widest">{t('Belum Ada Data Sensor', 'No Sensor Data Yet')}</p>
           </div>
         </div>
       )}
@@ -198,7 +200,7 @@ export default function UserDetailPage() {
       {loading && (
         <div className="flex items-center justify-center py-16 gap-3">
           <RefreshCw size={20} className="text-purple-600 dark:text-purple-400 animate-spin" />
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat...</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat...', 'Loading...')}</p>
         </div>
       )}
 
@@ -211,8 +213,8 @@ export default function UserDetailPage() {
                 <Database size={15} className="text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Rekaman Sensor</p>
-                <p className="text-xs text-slate-600 mt-0.5">{total} total • Hal {page}/{totalPages}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{t('Rekaman Sensor', 'Sensor Records')}</p>
+                <p className="text-xs text-slate-600 mt-0.5">{total} total • {t('Hal', 'Page')} {page}/{totalPages}</p>
               </div>
             </div>
           </div>
@@ -221,31 +223,40 @@ export default function UserDetailPage() {
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-white/[0.05]">
-                  {['#', 'Waktu', 'CO₂', 'NH₃', 'VOC', 'Suhu', 'Kelembapan', 'Status'].map(h => (
+                  {[
+                    '#',
+                    t('Waktu', 'Time'),
+                    'CO₂',
+                    'NH₃',
+                    'VOC',
+                    t('Suhu', 'Temp'),
+                    t('Kelembapan', 'Humidity'),
+                    t('Status', 'Status')
+                  ].map(h => (
                     <th key={h} className="text-left px-5 py-3.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-white/[0.03]">
                 {sensor.map((row, i) => {
-                  const t = row.temp ?? row.temperature ?? 0;
-                  const h = row.hum ?? row.humidity ?? 0;
-                  const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
+                  const tVal = row.temp ?? row.temperature ?? 0;
+                  const hVal = row.hum ?? row.humidity ?? 0;
+                  const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || tVal > T.temp;
                   return (
                     <tr key={row.id ?? i} className={`hover:bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] transition-colors ${danger ? 'bg-red-500/[0.03]' : ''}`}>
                       <td className="px-5 py-3.5 text-slate-600 font-mono text-xs">{(page - 1) * PER_PAGE + i + 1}</td>
                       <td className="px-5 py-3.5 text-slate-500 text-xs font-mono whitespace-nowrap">
-                        {row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}
+                        {row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}
                       </td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.co2 > T.co2 ? '#f87171' : '#94a3b8' }}>{row.co2?.toFixed(0)}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: row.nh3 > T.nh3 ? '#f87171' : '#94a3b8' }}>{row.nh3?.toFixed(2)}</td>
                       <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: (row.voc !== undefined && row.voc > T.voc) ? '#f87171' : '#94a3b8' }}>{row.voc?.toFixed(2) ?? '—'}</td>
-                      <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: t > T.temp ? '#f87171' : '#94a3b8' }}>{t.toFixed(1)}</td>
-                      <td className="px-5 py-3.5 font-black text-sm font-mono text-slate-400">{h.toFixed(0)}</td>
+                      <td className="px-5 py-3.5 font-black text-sm font-mono" style={{ color: tVal > T.temp ? '#f87171' : '#94a3b8' }}>{tVal.toFixed(1)}</td>
+                      <td className="px-5 py-3.5 font-black text-sm font-mono text-slate-400">{hVal.toFixed(0)}</td>
                       <td className="px-5 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${danger ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${danger ? 'bg-red-500' : 'bg-emerald-500'}`} />
-                          {danger ? 'Danger' : 'Safe'}
+                          {danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                         </span>
                       </td>
                     </tr>
@@ -258,15 +269,15 @@ export default function UserDetailPage() {
           {/* Mobile cards */}
           <div className="md:hidden divide-y divide-slate-200 dark:divide-white/[0.04]">
             {sensor.map((row, i) => {
-              const t = row.temp ?? row.temperature ?? 0;
-              const h = row.hum ?? row.humidity ?? 0;
-              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
+              const tVal = row.temp ?? row.temperature ?? 0;
+              const hVal = row.hum ?? row.humidity ?? 0;
+              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || tVal > T.temp;
               return (
                 <div key={row.id ?? i} className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-slate-500 font-mono">{row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}</span>
+                    <span className="text-[10px] text-slate-500 font-mono">{row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}</span>
                     <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${danger ? 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
-                      {danger ? 'Danger' : 'Safe'}
+                      {danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                     </span>
                   </div>
                   <div className="grid grid-cols-5 gap-1.5">
@@ -274,12 +285,12 @@ export default function UserDetailPage() {
                       { l: 'CO₂', v: `${row.co2?.toFixed(0)}`, over: row.co2 > T.co2 },
                       { l: 'NH₃', v: `${row.nh3?.toFixed(2)}`, over: row.nh3 > T.nh3 },
                       { l: 'VOC', v: `${row.voc?.toFixed(2) ?? '—'}`, over: row.voc !== undefined && row.voc > T.voc },
-                      { l: 'Temp', v: `${t.toFixed(1)}°`, over: t > T.temp },
-                      { l: 'Hum', v: `${h.toFixed(0)}%`, over: false }
+                      { l: t('Suhu', 'Temp'), v: `${tVal.toFixed(1)}°`, over: tVal > T.temp },
+                      { l: t('Hum', 'Hum'), v: `${hVal.toFixed(0)}%`, over: false }
                     ].map(s => (
                       <div key={s.l} className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] border border-white/5 p-2 rounded-xl text-center">
                         <p className="text-[9px] text-slate-600 font-black mb-0.5">{s.l}</p>
-                        <p className={`text-xs font-black font-mono ${s.over ? 'text-red-600 dark:text-red-400' : 'text-slate-300'}`}>{s.v}</p>
+                        <p className={`text-xs font-black font-mono ${s.over ? 'text-red-600 dark:text-red-400' : 'text-slate-355'}`}>{s.v}</p>
                       </div>
                     ))}
                   </div>
@@ -290,12 +301,12 @@ export default function UserDetailPage() {
 
           {totalPages > 1 && (
             <div className="px-6 py-4 border-t border-slate-200 dark:border-white/[0.05] flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Hal {page} / {totalPages}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">{t('Hal', 'Page')} {page} / {totalPages}</span>
               <div className="flex gap-2">
                 <button onClick={() => fetchData(page - 1)} disabled={page === 1}
-                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← Prev</button>
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← {t('Sebelumnya', 'Prev')}</button>
                 <button onClick={() => fetchData(page + 1)} disabled={page === totalPages}
-                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
+                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">{t('Berikutnya', 'Next')} →</button>
               </div>
             </div>
           )}
@@ -310,16 +321,16 @@ export default function UserDetailPage() {
               <Activity size={15} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Timeline Aktivitas</p>
-              <p className="text-xs text-slate-600 mt-0.5">{sensor.length} event</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{t('Timeline Aktivitas', 'Activity Timeline')}</p>
+              <p className="text-xs text-slate-650 mt-0.5">{sensor.length} {t('event', 'events')}</p>
             </div>
           </div>
 
           <div className="divide-y divide-slate-200 dark:divide-white/[0.03] max-h-[600px] overflow-y-auto">
             {sensor.map((row, i) => {
-              const t = row.temp ?? row.temperature ?? 0;
-              const h = row.hum ?? row.humidity ?? 0;
-              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || t > T.temp;
+              const tVal = row.temp ?? row.temperature ?? 0;
+              const hVal = row.hum ?? row.humidity ?? 0;
+              const danger = row.co2 > T.co2 || row.nh3 > T.nh3 || (row.voc !== undefined && row.voc > T.voc) || tVal > T.temp;
               return (
                 <div key={row.id ?? i} className="px-6 py-4 hover:bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.02] transition-colors">
                   <div className="flex items-start gap-3">
@@ -330,13 +341,13 @@ export default function UserDetailPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <p className={`text-sm font-black ${danger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                            {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc !== undefined && row.voc > T.voc) ? 'VOC' : 'Suhu'}` : 'Kondisi Normal'}
+                            {danger ? `${t('Peringatan', 'Warning')} ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc !== undefined && row.voc > T.voc) ? 'VOC' : t('Suhu', 'Temp')}` : t('Kondisi Normal', 'Normal Condition')}
                           </p>
-                          <div className="flex items-center gap-1.5 text-slate-600 mt-0.5">
+                          <div className="flex items-center gap-1.5 text-slate-660 mt-0.5">
                             <Clock size={10} />
                             <span className="text-[10px] font-mono">
-                              {row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}
-                              {row.created_at && <span className="ml-2 text-slate-700">({timeAgo(row.created_at)})</span>}
+                              {row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}
+                              {row.created_at && <span className="ml-2 text-slate-700">({timeAgo(row.created_at, t)})</span>}
                             </span>
                           </div>
                         </div>
@@ -347,8 +358,8 @@ export default function UserDetailPage() {
                           { icon: Zap, label: 'CO₂', value: `${row.co2?.toFixed(0)} PPM`, over: row.co2 > T.co2 },
                           { icon: Wind, label: 'NH₃', value: `${row.nh3?.toFixed(2)} PPM`, over: row.nh3 > T.nh3 },
                           { icon: Activity, label: 'VOC', value: `${row.voc?.toFixed(2) ?? '—'} PPM`, over: row.voc !== undefined && row.voc > T.voc },
-                          { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
-                          { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
+                          { icon: Thermometer, label: t('Suhu', 'Temp'), value: `${tVal.toFixed(1)}°C`, over: tVal > T.temp },
+                          { icon: Droplets, label: t('Hum', 'Hum'), value: `${hVal.toFixed(0)}%`, over: false },
                         ].map(s => (
                           <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-[#FFFFFF]/[0.04] border-slate-200 dark:border-white/[0.06] text-slate-400'}`}>
                             <s.icon size={10} />
@@ -367,12 +378,12 @@ export default function UserDetailPage() {
 
           {totalPages > 1 && (
             <div className="px-6 py-4 border-t border-slate-200 dark:border-white/[0.05] flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Hal {page} / {totalPages}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">{t('Hal', 'Page')} {page} / {totalPages}</span>
               <div className="flex gap-2">
                 <button onClick={() => fetchData(page - 1)} disabled={page === 1}
-                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← Prev</button>
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-30 text-xs font-black uppercase">← {t('Sebelumnya', 'Prev')}</button>
                 <button onClick={() => fetchData(page + 1)} disabled={page === totalPages}
-                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">Next →</button>
+                  className="px-4 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 disabled:opacity-30 text-xs font-black uppercase">{t('Berikutnya', 'Next')} →</button>
               </div>
             </div>
           )}

@@ -8,6 +8,7 @@ import {
   Users, ChevronDown, X, LogIn, LogOut, UserPlus, Settings,
   CreditCard, Cpu, Pencil, Key, Trash2, PackagePlus, UserCheck
 } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 const T = { co2: 250, nh3: 30, voc: 70, temp: 32, hum: 80 };
 
@@ -38,12 +39,12 @@ interface ActivityLog {
 
 interface UserOption { id: number; name: string; email: string; }
 
-function timeAgo(d: string) {
+function timeAgo(d: string, t: any) {
   const s = (Date.now() - new Date(d).getTime()) / 1000;
-  if (s < 60) return `${Math.floor(s)}d lalu`;
-  if (s < 3600) return `${Math.floor(s / 60)}m lalu`;
-  if (s < 86400) return `${Math.floor(s / 3600)}j lalu`;
-  return `${Math.floor(s / 86400)} hari lalu`;
+  if (s < 60) return `${Math.floor(s)}${t('d lalu', 'd ago')}`;
+  if (s < 3600) return `${Math.floor(s / 60)}${t('m lalu', 'm ago')}`;
+  if (s < 86400) return `${Math.floor(s / 3600)}${t('j lalu', 'h ago')}`;
+  return `${Math.floor(s / 86400)} ${t('hari lalu', 'days ago')}`;
 }
 
 function getActionIcon(action: string) {
@@ -76,27 +77,28 @@ function getActionColor(action: string) {
   }
 }
 
-function getActionLabel(action: string) {
+function getActionLabel(action: string, t: any) {
   const labels: Record<string, string> = {
     login: 'Login',
     logout: 'Logout',
-    register: 'Registrasi',
-    edit_profile: 'Edit Profil',
-    change_password: 'Ubah Password',
-    add_device: 'Tambah Alat',
-    delete_device: 'Hapus Alat',
-    add_employee: 'Tambah Pegawai',
-    transaction: 'Transaksi',
-    delete_transaction: 'Hapus Transaksi',
-    delete_user: 'Hapus User',
-    update_role: 'Ubah Role',
-    activate_subscription: 'Aktifkan Langganan',
+    register: t('Registrasi', 'Register'),
+    edit_profile: t('Edit Profil', 'Edit Profile'),
+    change_password: t('Ubah Password', 'Change Password'),
+    add_device: t('Tambah Alat', 'Add Device'),
+    delete_device: t('Hapus Alat', 'Delete Device'),
+    add_employee: t('Tambah Pegawai', 'Add Employee'),
+    transaction: t('Transaksi', 'Transaction'),
+    delete_transaction: t('Hapus Transaksi', 'Delete Transaction'),
+    delete_user: t('Hapus User', 'Delete User'),
+    update_role: t('Ubah Role', 'Update Role'),
+    activate_subscription: t('Aktifkan Langganan', 'Activate Subscription'),
   };
   return labels[action] || action;
 }
 
 export default function AdminLogsPage() {
   const router = useRouter();
+  const { lang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'sensor' | 'activity'>('activity');
 
   // Sensor Log state
@@ -174,23 +176,23 @@ export default function AdminLogsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Sistem Log</h1>
-          <p className="text-slate-500 text-xs mt-1 font-mono">Riwayat aktivitas pengguna dan data sensor</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>{t('Sistem Log', 'System Logs')}</h1>
+          <p className="text-slate-500 text-xs mt-1 font-mono">{t('Riwayat aktivitas pengguna dan data sensor', 'User activity history and sensor data')}</p>
         </div>
         <button
           onClick={() => activeTab === 'sensor' ? fetchSensorData(selectedUser?.id ?? null) : fetchActivityLogs()}
           disabled={activeTab === 'sensor' ? sensorLoading : activityLoading}
           className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#E2E8F0] border-t-[1.5px] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 text-[#1E293B] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold uppercase tracking-wider disabled:opacity-50 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none"
         >
-          <RefreshCw size={12} className={(activeTab === 'sensor' ? sensorLoading : activityLoading) ? 'animate-spin' : ''} /> Refresh
+          <RefreshCw size={12} className={(activeTab === 'sensor' ? sensorLoading : activityLoading) ? 'animate-spin' : ''} /> {t('Refresh', 'Refresh')}
         </button>
       </div>
 
       {/* TABS */}
       <div className="flex items-center gap-2">
         {[
-          { key: 'activity', label: 'Aktivitas User', icon: Activity, count: activityLogs.length },
-          { key: 'sensor', label: 'Log Sensor', icon: Database, count: rows.length },
+          { key: 'activity', label: t('Aktivitas User', 'User Activity'), icon: Activity, count: activityLogs.length },
+          { key: 'sensor', label: t('Log Sensor', 'Sensor Log'), icon: Database, count: rows.length },
         ].map(tab => (
           <button
             key={tab.key}
@@ -221,7 +223,7 @@ export default function AdminLogsPage() {
                   : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-500 hover:text-slate-700'
               }`}
             >
-              Semua ({activityLogs.length})
+              {t('Semua', 'All')} ({activityLogs.length})
             </button>
             {activityActions.map(action => (
               <button
@@ -233,7 +235,7 @@ export default function AdminLogsPage() {
                     : 'bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border-[#E2E8F0] dark:border-white/10 text-slate-500 hover:text-slate-700'
                 }`}
               >
-                {getActionLabel(action)}
+                {getActionLabel(action, t)}
               </button>
             ))}
           </div>
@@ -245,21 +247,21 @@ export default function AdminLogsPage() {
                 <Activity size={15} className="text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">Timeline Aktivitas Pengguna</p>
-                <p className="text-xs text-slate-500 mt-0.5">{activityLogs.length} aktivitas tercatat</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">{t('Timeline Aktivitas Pengguna', 'User Activity Timeline')}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{activityLogs.length} {t('aktivitas tercatat', 'activities recorded')}</p>
               </div>
             </div>
 
             {activityLoading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <RefreshCw size={22} className="text-purple-600 dark:text-purple-400 animate-spin" />
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat log aktivitas...</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat log aktivitas...', 'Loading activity log...')}</p>
               </div>
             ) : activityLogs.length === 0 ? (
               <div className="text-center py-20">
                 <Activity size={28} className="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm font-semibold uppercase tracking-widest">Belum ada aktivitas tercatat</p>
-                <p className="text-slate-400 text-xs mt-1">Log akan muncul setelah ada aksi dari pengguna</p>
+                <p className="text-slate-400 text-sm font-semibold uppercase tracking-widest">{t('Belum ada aktivitas tercatat', 'No activities recorded yet')}</p>
+                <p className="text-slate-400 text-xs mt-1">{t('Log akan muncul setelah ada aksi dari pengguna', 'Logs will appear once actions are performed by users')}</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-white/[0.03] max-h-[640px] overflow-y-auto">
@@ -277,7 +279,7 @@ export default function AdminLogsPage() {
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border ${colors.bg} ${colors.border} ${colors.text}`}>
-                                  {getActionLabel(log.action)}
+                                  {getActionLabel(log.action, t)}
                                 </span>
                                 {log.user_name && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10">
@@ -291,8 +293,8 @@ export default function AdminLogsPage() {
                               <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 mt-1">
                                 <Clock size={9} />
                                 <span className="text-[9px] font-mono">
-                                  {log.created_at ? new Date(log.created_at).toLocaleString('id-ID') : '—'}
-                                  {log.created_at && <span className="ml-2 text-slate-500 dark:text-slate-700">({timeAgo(log.created_at)})</span>}
+                                  {log.created_at ? new Date(log.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}
+                                  {log.created_at && <span className="ml-2 text-slate-500 dark:text-slate-700">({timeAgo(log.created_at, t)})</span>}
                                 </span>
                                 {log.ip_address && (
                                   <span className="text-[9px] font-mono text-slate-400 ml-2">· IP: {log.ip_address}</span>
@@ -318,7 +320,7 @@ export default function AdminLogsPage() {
           {/* USER FILTER */}
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400 flex items-center gap-2">
-              <Users size={12} /> Filter Per User:
+              <Users size={12} /> {t('Filter Per User:', 'Filter By User:')}
             </p>
 
             <div className="relative">
@@ -330,7 +332,7 @@ export default function AdminLogsPage() {
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold uppercase ${selectedUser ? 'bg-purple-500/30 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-[#FFFFFF]/10 text-[#1E293B] dark:text-slate-400'}`}>
                     {selectedUser ? selectedUser.name.charAt(0) : '?'}
                   </div>
-                  <span>{selectedUser ? selectedUser.name : 'Semua Pengguna'}</span>
+                  <span>{selectedUser ? selectedUser.name : t('Semua Pengguna', 'All Users')}</span>
                 </div>
                 <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -343,8 +345,8 @@ export default function AdminLogsPage() {
                       <Users size={14} className="text-slate-500 dark:text-slate-400" />
                     </div>
                     <div className="text-left">
-                      <p className="font-bold">Semua Pengguna</p>
-                      <p className="text-[10px] text-slate-500">{users.length} akun</p>
+                      <p className="font-bold">{t('Semua Pengguna', 'All Users')}</p>
+                      <p className="text-[10px] text-slate-500">{users.length} {t('akun', 'accounts')}</p>
                     </div>
                     {!selectedUser && <div className="ml-auto w-2 h-2 rounded-full bg-purple-400" />}
                   </button>
@@ -378,7 +380,7 @@ export default function AdminLogsPage() {
 
             {!hasUserIdCol && (
               <span className="text-[10px] text-yellow-600 dark:text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-xl font-bold">
-                ⚠ Jalankan migrasi untuk filter per user
+                ⚠ {t('Jalankan migrasi untuk filter per user', 'Run migrations to filter by user')}
               </span>
             )}
           </div>
@@ -386,10 +388,10 @@ export default function AdminLogsPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Total Log', value: rows.length, color: '#8b5cf6', icon: Database },
-              { label: 'Event Bahaya', value: dangerRows.length, color: '#ef4444', icon: AlertTriangle },
-              { label: 'Event Aman', value: safeRows.length, color: '#22c55e', icon: ShieldCheck },
-              { label: 'Rasio Bahaya', value: `${dangerRate}%`, color: '#f59e0b', icon: Activity },
+              { label: t('Total Log', 'Total Logs'), value: rows.length, color: '#8b5cf6', icon: Database },
+              { label: t('Event Bahaya', 'Danger Events'), value: dangerRows.length, color: '#ef4444', icon: AlertTriangle },
+              { label: t('Event Aman', 'Safe Events'), value: safeRows.length, color: '#22c55e', icon: ShieldCheck },
+              { label: t('Rasio Bahaya', 'Danger Ratio'), value: `${dangerRate}%`, color: '#f59e0b', icon: Activity },
             ].map(s => (
               <div key={s.label} className="relative rounded-2xl border-2 border-slate-300 dark:border-slate-600 bg-[#FFFFFF] dark:bg-[#FFFFFF]/[0.03] p-4 overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] dark:shadow-none">
                 <div className="absolute -top-4 -right-4 w-14 h-14 rounded-full blur-xl opacity-20 pointer-events-none" style={{ background: s.color }} />
@@ -406,9 +408,9 @@ export default function AdminLogsPage() {
           {/* Filter Tabs */}
           <div className="flex items-center gap-2">
             {[
-              { key: 'all', label: 'Semua', count: rows.length },
-              { key: 'danger', label: 'Bahaya', count: dangerRows.length },
-              { key: 'safe', label: 'Aman', count: safeRows.length },
+              { key: 'all', label: t('Semua', 'All'), count: rows.length },
+              { key: 'danger', label: t('Bahaya', 'Danger'), count: dangerRows.length },
+              { key: 'safe', label: t('Aman', 'Safe'), count: safeRows.length },
             ].map(f => (
               <button key={f.key} onClick={() => setFilter(f.key as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${
@@ -432,25 +434,25 @@ export default function AdminLogsPage() {
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#1E293B] dark:text-slate-400">
-                  {selectedUser ? `Log: ${selectedUser.name}` : 'Timeline Sensor Semua Pengguna'}
+                  {selectedUser ? `Log: ${selectedUser.name}` : t('Timeline Sensor Semua Pengguna', 'All Users Sensor Timeline')}
                 </p>
-                <p className="text-xs text-slate-500 mt-0.5">{filtered.length} log sensor</p>
+                <p className="text-xs text-slate-500 mt-0.5">{filtered.length} {t('log sensor', 'sensor logs')}</p>
               </div>
             </div>
 
             {sensorLoading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <RefreshCw size={22} className="text-purple-600 dark:text-purple-400 animate-spin" />
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">Memuat log sensor...</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400 animate-pulse">{t('Memuat log sensor...', 'Loading sensor logs...')}</p>
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-center py-20 text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                Tidak ada log sensor
+                {t('Tidak ada log sensor', 'No sensor logs')}
               </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-white/[0.03] max-h-[640px] overflow-y-auto">
                 {filtered.map((row, i) => {
-                  const t = row.temp ?? row.temperature ?? 0;
+                  const tVal = row.temp ?? row.temperature ?? 0;
                   const h = row.hum ?? row.humidity ?? 0;
                   const danger = isDanger(row);
 
@@ -465,7 +467,7 @@ export default function AdminLogsPage() {
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <p className={`text-sm font-black ${danger ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                                  {danger ? `Peringatan ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc || 0) > T.voc ? 'VOC' : 'Suhu'}` : 'Kondisi Normal'}
+                                  {danger ? `${t('Peringatan', 'Warning')} ${row.co2 > T.co2 ? 'CO₂' : row.nh3 > T.nh3 ? 'NH₃' : (row.voc || 0) > T.voc ? 'VOC' : t('Suhu', 'Temp')}` : t('Kondisi Normal', 'Normal Condition')}
                                 </p>
                                 {hasUserIdCol && !selectedUser && row.user_name && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20 uppercase tracking-wider">
@@ -476,8 +478,8 @@ export default function AdminLogsPage() {
                               <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 mt-0.5">
                                 <Clock size={10} />
                                 <span className="text-[10px] font-mono">
-                                  {row.created_at ? new Date(row.created_at).toLocaleString('id-ID') : '—'}
-                                  {row.created_at && <span className="ml-2 text-slate-500 dark:text-slate-700">({timeAgo(row.created_at)})</span>}
+                                  {row.created_at ? new Date(row.created_at).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : '—'}
+                                  {row.created_at && <span className="ml-2 text-slate-500 dark:text-slate-700">({timeAgo(row.created_at, t)})</span>}
                                 </span>
                               </div>
                             </div>
@@ -488,8 +490,8 @@ export default function AdminLogsPage() {
                               { icon: Zap, label: 'CO₂', value: `${row.co2?.toFixed(0)} PPM`, over: row.co2 > T.co2 },
                               { icon: Wind, label: 'NH₃', value: `${row.nh3?.toFixed(2)} PPM`, over: row.nh3 > T.nh3 },
                               { icon: Activity, label: 'VOC', value: `${(row.voc || 0).toFixed(2)} PPM`, over: (row.voc || 0) > T.voc },
-                              { icon: Thermometer, label: 'Suhu', value: `${t.toFixed(1)}°C`, over: t > T.temp },
-                              { icon: Droplets, label: 'Hum', value: `${h.toFixed(0)}%`, over: false },
+                              { icon: Thermometer, label: t('Suhu', 'Temp'), value: `${tVal.toFixed(1)}°C`, over: tVal > T.temp },
+                              { icon: Droplets, label: t('Hum', 'Hum'), value: `${h.toFixed(0)}%`, over: false },
                             ].map(s => (
                               <div key={s.label} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold ${s.over ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-[#F8F9FA] dark:bg-[#FFFFFF]/[0.04] border-slate-150 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
                                 <s.icon size={10} />

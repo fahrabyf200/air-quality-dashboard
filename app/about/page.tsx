@@ -5,6 +5,7 @@ import {
   Wind, ShieldCheck, ArrowLeft, Cpu, ArrowRight,
   Zap, Lock, Target, Users, Mail, Phone, ChevronRight
 } from 'lucide-react';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 function ScrollReveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const [ref, setRef] = useState<HTMLElement | null>(null);
@@ -38,6 +39,7 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
 export default function AboutPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,13 +82,13 @@ export default function AboutPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            <Link href="/#features" className="hover:text-[#4edea3] transition-colors">Fitur Utama</Link>
+            <Link href="/#features" className="hover:text-[#4edea3] transition-colors">{t('Fitur Utama', 'Key Features')}</Link>
             <Link href="/#simulator" className="hover:text-[#4edea3] transition-colors flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-              Demo Live
+              {t('Demo Live', 'Live Demo')}
             </Link>
-            <Link href="/#pricing" className="hover:text-[#4edea3] transition-colors">Pilihan Paket</Link>
-            <Link href="/about" className="text-[#4edea3] transition-colors">Tentang Kami</Link>
+            <Link href="/#pricing" className="hover:text-[#4edea3] transition-colors">{t('Pilihan Paket', 'Pricing Plans')}</Link>
+            <Link href="/about" className="text-[#4edea3] transition-colors">{t('Tentang Kami', 'About Us')}</Link>
           </nav>
 
           {/* Desktop Right Actions */}
@@ -95,13 +97,13 @@ export default function AboutPage() {
               href="/login"
               className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95"
             >
-              Masuk
+              {t('Masuk', 'Login')}
             </Link>
             <Link
               href="/register"
               className="px-4 py-2 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/30 active:scale-95 flex items-center gap-1"
             >
-              Daftar <ArrowRight size={12} strokeWidth={2.5} />
+              {t('Daftar', 'Register')} <ArrowRight size={12} strokeWidth={2.5} />
             </Link>
           </div>
 
@@ -112,12 +114,12 @@ export default function AboutPage() {
               className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-[#070d1a] text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all active:scale-95 flex items-center justify-center h-8"
               style={{ letterSpacing: '0.05em' }}
             >
-              MASUK
+              {t('MASUK', 'LOGIN')}
             </Link>
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.05] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
-              aria-label="Buka Menu"
+              aria-label={t('Buka Menu', 'Open Menu')}
             >
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -139,14 +141,14 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h1 className="text-slate-900 dark:text-white font-black text-xs uppercase leading-none">SkyWatch</h1>
-                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Air Analytics</p>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-[0.25em] mt-0.5">Air Analytics</p>
                 </div>
               </div>
 
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                aria-label="Tutup Menu"
+                aria-label={t('Tutup Menu', 'Close Menu')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
@@ -161,14 +163,14 @@ export default function AboutPage() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
-                Fitur Utama
+                {t('Fitur Utama', 'Key Features')}
               </Link>
               <Link
                 href="/#simulator"
                 onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02] flex items-center justify-between"
               >
-                <span>Demo Live</span>
+                <span>{t('Demo Live', 'Live Demo')}</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
               </Link>
               <Link
@@ -176,14 +178,14 @@ export default function AboutPage() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
-                Pilihan Paket
+                {t('Pilihan Paket', 'Pricing Plans')}
               </Link>
               <Link
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
-                Tentang Kami
+                {t('Tentang Kami', 'About Us')}
               </Link>
             </nav>
           </div>
@@ -195,14 +197,14 @@ export default function AboutPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all block"
             >
-              Masuk
+              {t('Masuk', 'Login')}
             </Link>
             <Link
               href="/register"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-center text-xs font-black uppercase tracking-widest text-[#0a0f1a] transition-all block"
             >
-              Daftar Akun Baru
+              {t('Daftar Akun Baru', 'Register New Account')}
             </Link>
           </div>
         </div>
@@ -226,16 +228,16 @@ export default function AboutPage() {
 
             <ScrollReveal delay={100} className="space-y-6 text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
-                <Target size={12} /> Tujuan Kami
+                <Target size={12} /> {t('Tujuan Kami', 'Our Goal')}
               </div>
               <h3 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                Melindungi Dapur,<br />Menyelamatkan Nyawa
+                {t('Melindungi Dapur,', 'Protecting Kitchens,')}<br />{t('Menyelamatkan Nyawa', 'Saving Lives')}
               </h3>
               <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
-                SkyWatch berawal dari kepedulian kami terhadap tingginya angka kecelakaan akibat kebocoran gas LPG di rumah tangga dan restoran komersial. Kami percaya bahwa teknologi Internet of Things (IoT) tidak hanya untuk kemudahan, tapi juga untuk perlindungan jiwa secara aktif.
+                {t('SkyWatch berawal dari kepedulian kami terhadap tingginya angka kecelakaan akibat kebocoran gas LPG di rumah tangga dan restoran komersial. Kami percaya bahwa teknologi Internet of Things (IoT) tidak hanya untuk kemudahan, tapi juga untuk perlindungan jiwa secara aktif.', 'SkyWatch was born out of our concern over the high rate of accidents caused by LPG gas leaks in households and commercial restaurants. We believe that Internet of Things (IoT) technology is not just for convenience, but also for active life protection.')}
               </p>
               <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
-                Melalui kolaborasi rekayasa perangkat keras dan analisis cloud, kami menciptakan ekosistem keamanan paling responsif. Sensor presisi kami (ESP32) mendeteksi anomali berbahaya secara real-time untuk memperingatkan Anda sebelum bencana terjadi.
+                {t('Melalui kolaborasi rekayasa perangkat keras dan analisis cloud, kami menciptakan ekosistem keamanan paling responsif. Sensor presisi kami (ESP32) mendeteksi anomali berbahaya secara real-time untuk memperingatkan Anda sebelum bencana terjadi.', 'Through the collaboration of hardware engineering and cloud analytics, we create the most responsive safety ecosystem. Our precision sensors (ESP32) detect dangerous anomalies in real-time to warn you before a disaster happens.')}
               </p>
             </ScrollReveal>
           </div>
@@ -247,10 +249,10 @@ export default function AboutPage() {
             <ScrollReveal>
               <div className="text-center max-w-2xl mx-auto mb-16">
                 <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                  Nilai-Nilai Utama
+                  {t('Nilai-Nilai Utama', 'Core Values')}
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
-                  Tiga pilar dasar yang menjadi pondasi dalam perancangan produk dan layanan SkyWatch.
+                  {t('Tiga pilar dasar yang menjadi pondasi dalam perancangan produk dan layanan SkyWatch.', 'Three fundamental pillars that form the foundation of SkyWatch\'s product design and services.')}
                 </p>
               </div>
             </ScrollReveal>
@@ -258,16 +260,16 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
-                  icon: ShieldCheck, title: "Keamanan Terjamin", color: "text-[#4edea3]", bg: "bg-[#4edea3]/10 border-[#4edea3]/20",
-                  desc: "Prioritas utama kami adalah meminimalisir risiko kebakaran dan keracunan gas secara preventif dengan akurasi 99.9%."
+                  icon: ShieldCheck, title: t('Keamanan Terjamin', 'Guaranteed Safety'), color: "text-[#4edea3]", bg: "bg-[#4edea3]/10 border-[#4edea3]/20",
+                  desc: t('Prioritas utama kami adalah meminimalisir risiko kebakaran dan keracunan gas secara preventif dengan akurasi 99.9%.', 'Our top priority is to preventatively minimize the risk of fire and gas poisoning with 99.9% accuracy.')
                 },
                 {
-                  icon: Zap, title: "Respons Detik Pertama", color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20",
-                  desc: "Peringatan darurat dikirim seketika dalam hitungan milidetik. Kami tak membiarkan Anda terlambat bereaksi."
+                  icon: Zap, title: t('Respons Detik Pertama', 'First-Second Response'), color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20",
+                  desc: t('Peringatan darurat dikirim seketika dalam hitungan milidetik. Kami tak membiarkan Anda terlambat bereaksi.', 'Emergency alerts are sent instantly within milliseconds. We don\'t let you react too late.')
                 },
                 {
-                  icon: Users, title: "Mudah & Transparan", color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20",
-                  desc: "Dashboard interaktif kami dirancang agar dapat digunakan oleh siapapun, dari teknisi industri hingga ibu rumah tangga."
+                  icon: Users, title: t('Mudah & Transparan', 'Simple & Transparent'), color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20",
+                  desc: t('Dashboard interaktif kami dirancang agar dapat digunakan oleh siapapun, dari teknisi industri hingga ibu rumah tangga.', 'Our interactive dashboard is designed to be usable by anyone, from industrial technicians to homemakers.')
                 }
               ].map((val, i) => (
                 <ScrollReveal key={i} delay={i * 100}>
@@ -289,10 +291,10 @@ export default function AboutPage() {
           <ScrollReveal>
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                Tim di Balik Layar
+                {t('Tim di Balik Layar', 'The Team Behind the Scenes')}
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm">
-                Project Mahasiswa Politeknik Negeri Malang
+                {t('Project Mahasiswa Politeknik Negeri Malang', 'Malang State Polytechnic Student Project')}
               </p>
             </div>
           </ScrollReveal>
@@ -317,8 +319,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-
-
       </main>
 
       {/* FOOTER */}
@@ -328,7 +328,7 @@ export default function AboutPage() {
             <Wind className="text-[#4edea3]" size={16} strokeWidth={2.8} />
             <span className="font-bold tracking-widest uppercase text-slate-800 dark:text-slate-200">SkyWatch</span>
           </div>
-          <p>© {new Date().getFullYear()} PBL Kelompok 4 Polinema. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {t('PBL Kelompok 4 Polinema. All rights reserved.', 'PBL Group 4 Polinema. All rights reserved.')}</p>
         </div>
       </footer>
     </div>
