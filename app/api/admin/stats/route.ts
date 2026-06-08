@@ -55,7 +55,7 @@ export async function GET() {
       const [[complaintStats]]: any = await db.query(
         `SELECT 
           COUNT(*) as totalComplaints,
-          SUM(CASE WHEN status = 'open' OR status IS NULL THEN 1 ELSE 0 END) as openComplaints
+          SUM(CASE WHEN status != 'resolved' OR status IS NULL THEN 1 ELSE 0 END) as openComplaints
          FROM complaints`
       );
       totalComplaints = Number(complaintStats.totalComplaints) || 0;

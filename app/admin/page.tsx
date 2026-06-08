@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Users, Database, Activity, RefreshCw, AlertTriangle,
   ArrowLeft, BarChart3, Cpu, Wallet, MessageSquare,
-  TrendingUp, Package, ShieldAlert, DollarSign
+  TrendingUp, Package, ShieldAlert, DollarSign, X
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -212,12 +212,6 @@ export default function AdminPage() {
                           innerRadius={45}
                           outerRadius={65}
                           paddingAngle={3}
-                          onMouseEnter={(data) => {
-                            const pkgName = data?.package_name || data?.payload?.package_name;
-                            if (pkgName) {
-                              setSelectedPackage(pkgName);
-                            }
-                          }}
                           onClick={(data) => {
                             const pkgName = data?.package_name || data?.payload?.package_name;
                             if (pkgName) {
@@ -249,7 +243,6 @@ export default function AdminPage() {
                         <button 
                           key={p.package_name} 
                           onClick={() => setSelectedPackage(isSelected ? null : p.package_name)}
-                          onMouseEnter={() => setSelectedPackage(p.package_name)}
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all text-[10px] font-bold cursor-pointer ${
                             isSelected 
                               ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white scale-[1.03]' 
@@ -263,30 +256,7 @@ export default function AdminPage() {
                     })}
                   </div>
 
-                  {/* List of subscribers of the selected package */}
-                  {selectedPackage && (
-                    <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4 w-full animate-in fade-in slide-in-from-top-2 duration-200">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                        Daftar Pengguna ({stats.subscribers?.filter(s => s.package_name === selectedPackage).length ?? 0})
-                      </p>
-                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        {(stats.subscribers?.filter(s => s.package_name === selectedPackage) || []).map((sub, idx) => (
-                          <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                            <div>
-                              <p className="font-bold text-slate-800 dark:text-white capitalize leading-tight">{sub.user_name || '—'}</p>
-                              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 leading-none">{sub.user_email}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] font-black text-[#4edea3] font-mono leading-none">{formatRupiah(sub.amount)}</p>
-                              <p className="text-[8px] text-slate-400 font-mono mt-1 leading-none">
-                                {new Date(sub.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {/* List of subscribers of the selected package has been refactored to Modal */}
                 </>
               ) : (
                 <div className="text-slate-400 text-sm font-semibold">
@@ -379,6 +349,78 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
+
+        {/* Subscribers List Modal */}
+        {selectedPackage && (
+          <div 
+            onClick={() => setSelectedPackage(null)}
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/45 backdrop-blur-md px-4"
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-xl border border-slate-200/85 dark:border-white/10 rounded-3xl p-6 max-w-md w-[calc(100%-2rem)] mx-4 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Daftar Pengguna
+                  </h3>
+                  <p className="text-[10px] font-mono text-purple-500 font-bold mt-0.5">
+                    {selectedPackage}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setSelectedPackage(null)} 
+                  className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 hover:text-slate-950 dark:hover:text-white transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="space-y-2 overflow-y-auto flex-1 pr-1">
+                {(() => {
+                  const filtered = stats?.subscribers?.filter(s => s.package_name === selectedPackage) || [];
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="text-center py-8 text-slate-400 text-xs font-mono">
+                        Tidak ada pengguna aktif pada paket ini.
+                      </div>
+                    );
+                  }
+                  return filtered.map((sub, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 gap-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-slate-800 dark:text-white capitalize leading-tight truncate">{sub.user_name || '—'}</p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 leading-none truncate">{sub.user_email}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-[10px] font-black text-[#4edea3] font-mono leading-none">{formatRupiah(sub.amount)}</p>
+                        <p className="text-[8px] text-slate-400 font-mono mt-1.5 leading-none">
+                          {new Date(sub.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                        </p>
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                <span className="text-[10px] text-slate-400 font-mono">
+                  Total: {stats?.subscribers?.filter(s => s.package_name === selectedPackage).length ?? 0} Pengguna
+                </span>
+                <button 
+                  onClick={() => setSelectedPackage(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] uppercase tracking-wider transition-colors"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
