@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from 'react';
-import { FileBarChart, RefreshCw, TrendingUp, Activity, Wind, Thermometer, Droplets, ShieldCheck, Database, AlertTriangle, CheckCircle } from 'lucide-react';
+import { FileBarChart, RefreshCw, TrendingUp, Activity, Wind, Thermometer, Droplets, ShieldCheck, Database, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react';
 
 function SummaryCard({
   label,
@@ -180,6 +180,7 @@ export default function ReportsPage() {
   const [filterDate, setFilterDate] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); });
   const [filterMonth, setFilterMonth] = useState(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); });
   const [filterWeek, setFilterWeek] = useState(() => { return getWeekStr(new Date()); });
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -295,16 +296,55 @@ export default function ReportsPage() {
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2">
-            <select
-              value={filterType}
-              onChange={e => setFilterType(e.target.value as any)}
-              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
-            >
-              <option value="all">Semua Data</option>
-              <option value="day">Harian</option>
-              <option value="week">Mingguan</option>
-              <option value="month">Bulanan</option>
-            </select>
+            <div className="relative">
+              <button
+                onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-350 outline-none hover:border-slate-300 dark:hover:border-slate-750 transition-all shadow-sm active:scale-95 cursor-pointer min-w-[125px] justify-between relative z-10"
+              >
+                <span>
+                  {filterType === 'all' && 'Semua Data'}
+                  {filterType === 'day' && 'Harian'}
+                  {filterType === 'week' && 'Mingguan'}
+                  {filterType === 'month' && 'Bulanan'}
+                </span>
+                <ChevronDown size={11} className={`text-slate-400 transition-transform duration-200 ${filterDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {filterDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setFilterDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-40 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-xl overflow-hidden py-1.5 z-20 animate-in fade-in slide-in-from-top-2 duration-150">
+                    {[
+                      { v: 'all', l: 'Semua Data' },
+                      { v: 'day', l: 'Harian' },
+                      { v: 'week', l: 'Mingguan' },
+                      { v: 'month', l: 'Bulanan' },
+                    ].map(opt => {
+                      const isSelected = filterType === opt.v;
+                      return (
+                        <button
+                          key={opt.v}
+                          onClick={() => {
+                            setFilterType(opt.v as any);
+                            setFilterDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold text-left transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'bg-slate-50 dark:bg-slate-850 text-emerald-600 dark:text-[#4edea3]'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          <span>{opt.l}</span>
+                          {isSelected && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-[#4edea3] shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
 
             {filterType === 'day' && (
               <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />

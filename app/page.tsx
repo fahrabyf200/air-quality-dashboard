@@ -263,6 +263,7 @@ export default function Dashboard() {
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   
   // Emergency state
   const [alarmAcknowledged, setAlarmAcknowledged] = useState(false);
@@ -522,23 +523,52 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center gap-2.5">
             {devices.length > 0 && (
               <div className="relative">
-                <select
-                  value={selectedDeviceId}
-                  onChange={e => setSelectedDeviceId(e.target.value)}
-                  className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)]"
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl pl-9 pr-8 py-2 text-[11px] font-black uppercase tracking-wider focus:outline-none hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-[0px_4px_20px_rgba(0,0,0,0.05)] active:scale-95 cursor-pointer min-w-[170px] justify-between z-40 relative"
                 >
-                  {devices.map((dev: any) => (
-                    <option key={dev.id} value={dev.device_id} className="bg-white dark:bg-slate-900">
-                      {dev.device_name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
-                  <Cpu size={12} />
-                </div>
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
-                  <ChevronDown size={10} />
-                </div>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Cpu size={11} className="text-slate-450 dark:text-slate-500 shrink-0" />
+                    <span className="truncate">{activeSensorLabel}</span>
+                  </div>
+                  <ChevronDown 
+                    size={10} 
+                    className={`text-slate-450 dark:text-slate-500 transition-transform duration-200 shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+                
+                {dropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setDropdownOpen(false)} />
+                    <div className="absolute right-0 mt-1.5 w-60 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-xl overflow-hidden py-1.5 z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                      {devices.map((dev: any) => {
+                        const isSelected = dev.device_id === selectedDeviceId;
+                        return (
+                          <button
+                            key={dev.id}
+                            onClick={() => {
+                              setSelectedDeviceId(dev.device_id);
+                              setDropdownOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-left transition-colors cursor-pointer ${
+                              isSelected
+                                ? 'bg-slate-50 dark:bg-slate-850 text-[#059669] dark:text-[#4edea3]'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <Cpu size={11} className={isSelected ? 'text-[#059669] dark:text-[#4edea3]' : 'text-slate-400'} />
+                              <span className="truncate">{dev.device_name}</span>
+                            </div>
+                            {isSelected && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-[#4edea3] shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

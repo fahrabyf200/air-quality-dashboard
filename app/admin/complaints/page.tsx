@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   MessageSquareWarning, RefreshCw, Check, Trash2, X,
-  Clock, AlertTriangle, CheckCircle, Search, Filter
+  Clock, AlertTriangle, CheckCircle, Search, Filter, ChevronDown
 } from 'lucide-react';
 
 interface Complaint {
@@ -37,6 +37,7 @@ export default function AdminComplaintsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [selected, setSelected] = useState<Complaint | null>(null);
   const [success, setSuccess] = useState('');
@@ -188,13 +189,55 @@ export default function AdminComplaintsPage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-[#1E293B] dark:text-slate-400">Daftar Pengaduan ({filtered.length})</p>
           </div>
           <div className="flex items-center gap-2">
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              className="bg-[#FFFFFF] dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-300 focus:outline-none">
-              <option value="all">Semua Status</option>
-              <option value="pending">Menunggu</option>
-              <option value="in_progress">Diproses</option>
-              <option value="resolved">Selesai</option>
-            </select>
+            <div className="relative">
+              <button
+                onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                className="flex items-center gap-2 bg-white dark:bg-[#FFFFFF]/5 border border-[#E2E8F0] dark:border-white/10 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 dark:text-slate-350 focus:outline-none hover:border-slate-350 dark:hover:border-white/20 transition-all shadow-sm active:scale-95 cursor-pointer min-w-[130px] justify-between relative z-10"
+              >
+                <span>
+                  {filterStatus === 'all' && 'Semua Status'}
+                  {filterStatus === 'pending' && 'Menunggu'}
+                  {filterStatus === 'in_progress' && 'Diproses'}
+                  {filterStatus === 'resolved' && 'Selesai'}
+                </span>
+                <ChevronDown size={11} className={`text-slate-400 transition-transform duration-200 ${statusDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {statusDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setStatusDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-40 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-xl overflow-hidden py-1.5 z-20 animate-in fade-in slide-in-from-top-2 duration-150">
+                    {[
+                      { v: 'all', l: 'Semua Status' },
+                      { v: 'pending', l: 'Menunggu' },
+                      { v: 'in_progress', l: 'Diproses' },
+                      { v: 'resolved', l: 'Selesai' },
+                    ].map(opt => {
+                      const isSelected = filterStatus === opt.v;
+                      return (
+                        <button
+                          key={opt.v}
+                          onClick={() => {
+                            setFilterStatus(opt.v);
+                            setStatusDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold text-left transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'bg-slate-50 dark:bg-slate-850 text-purple-650 dark:text-[#a855f7]'
+                              : 'text-slate-600 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          <span>{opt.l}</span>
+                          {isSelected && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="relative">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input type="text" placeholder="Cari..." value={search} onChange={e => setSearch(e.target.value)}
