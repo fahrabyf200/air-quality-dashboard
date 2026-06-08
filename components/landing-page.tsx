@@ -325,7 +325,7 @@ export default function LandingPage() {
               >
                 {t('Pilihan Paket', 'Packages')}
               </a>
-              <a 
+              <Link
                 href="/about" 
                 onClick={() => setMobileMenuOpen(false)} 
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
@@ -337,7 +337,7 @@ export default function LandingPage() {
 
           {/* Action buttons at bottom */}
           <div className="space-y-3 pb-8">
-            <a 
+            <Link 
               href="/login" 
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white dark:bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all block"
