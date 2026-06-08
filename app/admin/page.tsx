@@ -156,7 +156,7 @@ export default function AdminPage() {
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp size={14} className="text-[#4edea3]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Pendapatan 6 Bulan Terakhir</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">Tren Pendapatan Bulanan</span>
               </div>
               <button onClick={fetchStats} disabled={loading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all">
                 <RefreshCw size={10} className={loading ? 'animate-spin' : ''} /> Refresh
