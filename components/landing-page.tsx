@@ -413,7 +413,6 @@ export default function LandingPage() {
             
             {/* Animated Device Mockup */}
             <div className="relative rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl shadow-2xl shadow-slate-200/50 dark:shadow-2xl w-full max-w-sm hover:scale-[1.01] transition-transform duration-500 group">
-              <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse" />
               {/* Embbeded generate_image mockup */}
               <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/40 mb-6">
                 <img 
