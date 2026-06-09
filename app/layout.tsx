@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import {
   LayoutDashboard,
   Table,
@@ -34,7 +35,8 @@ import { useLanguage } from "@/app/hooks/useLanguage";
 
 import "./globals.css";
 
-
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 const monitoringMenu = [
   { name: "Dashboard Overview", icon: LayoutDashboard, path: "/" },
   { name: "Real-time Data Logs", icon: Table, path: "/monitoring" },
@@ -1143,7 +1145,7 @@ export default function RootLayout({
 
   return (
     <html lang={lang} suppressHydrationWarning>
-      <body className="bg-[#f0f4f8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased transition-colors duration-300 min-h-screen flex flex-col">
+      <body className={`bg-[#f0f4f8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased transition-colors duration-300 min-h-screen flex flex-col ${inter.variable} ${jetbrainsMono.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

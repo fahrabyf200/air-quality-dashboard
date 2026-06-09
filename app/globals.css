@@ -3,14 +3,13 @@
    SkyWatch Air Quality Dashboard
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   /* ── Typography ── */
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: var(--font-inter), sans-serif;
+  --font-display: var(--font-inter), sans-serif;
+  --font-mono: var(--font-mono), monospace;
 
   /* ── Eco-Tech Dark Surfaces ──────────────────────────────────── */
   --color-slate-955: #0b0f10;
@@ -108,7 +107,7 @@
 @layer base {
   body {
     @apply antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-optical-sizing: auto;
   }
 
@@ -116,7 +115,7 @@
   h1,
   h2,
   h3 {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -125,7 +124,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
