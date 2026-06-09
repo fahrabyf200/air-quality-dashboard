@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import {
   Wind, Flame, Droplets, Zap, ShieldCheck, Lock,
@@ -413,10 +414,12 @@ export default function LandingPage() {
             <div className="relative rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl shadow-2xl shadow-slate-200/50 dark:shadow-2xl w-full max-w-sm hover:scale-[1.01] transition-transform duration-500 group">
               {/* Embbeded generate_image mockup */}
               <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/40 mb-6">
-                <img
+                <Image
                   src="/landing_hero.png"
                   alt="SkyWatch IoT Smart Device"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
               </div>
@@ -455,6 +458,7 @@ export default function LandingPage() {
                 title="YouTube video player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                loading="lazy"
                 className="block md:hidden absolute inset-0 w-full h-full border-0 z-10"
               />
 
@@ -464,6 +468,7 @@ export default function LandingPage() {
                 title="PBL Air Quality Video"
                 allow="autoplay; fullscreen"
                 allowFullScreen
+                loading="lazy"
                 className="hidden md:block absolute inset-0 w-full h-full border-0 z-10"
               />
               {/* Overlay Gradient (Only on Desktop) - Modified to only cover left half */}

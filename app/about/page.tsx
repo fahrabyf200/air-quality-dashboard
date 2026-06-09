@@ -5,6 +5,7 @@ import {
   Wind, ShieldCheck, ArrowLeft, Cpu, ArrowRight,
   Zap, Lock, Target, Users, Mail, Phone, ChevronRight
 } from 'lucide-react';
+import Image from 'next/image';
 import { useLanguage } from '@/app/hooks/useLanguage';
 
 function ScrollReveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -224,6 +225,7 @@ export default function AboutPage() {
                 <img
                   src="/skywatch_poster.png"
                   alt="SkyWatch Poster"
+                  loading="lazy"
                   className="w-auto h-auto max-h-[500px] md:max-h-[600px] object-contain group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-[#4edea3]/20 pointer-events-none opacity-40 mix-blend-overlay group-hover:opacity-20 transition-opacity" />
@@ -313,7 +315,7 @@ export default function AboutPage() {
               <ScrollReveal key={i} delay={i * 100}>
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-6 rounded-[2rem] text-center hover:border-[#4edea3]/50 transition-colors group">
                   <div className="w-24 h-24 mx-auto rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 mb-5 border-4 border-slate-50 dark:border-slate-950 group-hover:scale-105 transition-transform duration-300">
-                    <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+                    <Image src={member.img} alt={member.name} width={96} height={96} className="w-full h-full object-cover" />
                   </div>
                   <h5 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{member.name}</h5>
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{member.role}</p>
@@ -356,6 +358,7 @@ export default function AboutPage() {
           <img 
             src="/skywatch_poster.png" 
             alt="SkyWatch Poster Full" 
+            loading="lazy"
             className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-default"
             onClick={(e) => e.stopPropagation()}
           />

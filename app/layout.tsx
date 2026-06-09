@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -347,7 +348,7 @@ function TopNavbar({
           </div>
           <div className="w-9 h-9 rounded-lg overflow-hidden bg-gradient-to-br from-[#4edea3] to-[#00a2e6] flex items-center justify-center text-[#003824] font-bold text-sm uppercase shadow-sm group-hover:scale-105 transition-transform">
             {user?.profile_pic ? (
-              <img src={user.profile_pic} alt={user.name} className="w-full h-full object-cover" />
+              <Image src={user.profile_pic} alt={user.name} width={36} height={36} className="w-full h-full object-cover" />
             ) : (
               user?.name ? user.name.charAt(0) : 'U'
             )}
@@ -473,7 +474,7 @@ function SidebarNav({
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-[#4edea3] to-[#00a2e6] flex items-center justify-center text-[#003824] font-bold text-xs uppercase shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-200">
                   {user?.profile_pic ? (
-                    <img src={user.profile_pic} alt={user.name} className="w-full h-full object-cover" />
+                    <Image src={user.profile_pic} alt={user.name} width={36} height={36} className="w-full h-full object-cover" />
                   ) : (
                     user?.name ? user.name.charAt(0) : 'A'
                   )}

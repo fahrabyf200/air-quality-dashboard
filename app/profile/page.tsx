@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from '@/app/hooks/useLanguage';
 
 export default function ProfilePage() {
@@ -498,7 +499,7 @@ export default function ProfilePage() {
               <label htmlFor="profile-upload" className="cursor-pointer block relative mb-4">
                 <div className={`w-24 h-24 rounded-2xl bg-emerald-500/10 border-2 ${uploadingPic ? 'border-[#4edea3] animate-pulse' : 'border-emerald-500/20'} flex items-center justify-center text-emerald-600 dark:text-emerald-500 shadow-sm transition-transform hover:scale-105 overflow-hidden relative`}>
                   {profilePic ? (
-                    <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                    <Image src={profilePic} alt="Profile" width={96} height={96} className="w-full h-full object-cover" />
                   ) : (
                     <UserCircle size={48} strokeWidth={1.5} />
                   )}

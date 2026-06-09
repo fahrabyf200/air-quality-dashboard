@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { BookOpen, ChevronDown, Wind, Thermometer, Droplets, Zap, Flame } from 'lucide-react';
+import Image from 'next/image';
 import { useLanguage } from '@/app/hooks/useLanguage';
 
 interface Topic {
@@ -276,7 +277,7 @@ export default function EducationPage() {
                 <div className="px-6 pb-6 space-y-4 border-t border-[#E2E8F0] dark:border-white/5 pt-5 transition-colors">
                   <div className="flex flex-col md:flex-row gap-5">
                     <div className="md:w-1/3 flex-shrink-0">
-                      <img src={topic.image} alt={t(topic.label, topic.labelEn)} className="w-full h-40 object-cover rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] border border-[#E2E8F0] dark:border-white/10" />
+                      <Image src={topic.image} alt={t(topic.label, topic.labelEn)} width={400} height={160} className="w-full h-40 object-cover rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05),0px_2px_6px_rgba(0,0,0,0.02)] border border-[#E2E8F0] dark:border-white/10" />
                     </div>
                     <div className="md:w-2/3 space-y-4">
                       <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
