@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
-import { 
-  Wind, Flame, Droplets, Zap, ShieldCheck, Lock, 
-  Activity, ArrowRight, Check, AlertTriangle, RotateCcw, 
+import {
+  Wind, Flame, Droplets, Zap, ShieldCheck, Lock,
+  Activity, ArrowRight, Check, AlertTriangle, RotateCcw,
   Cpu, Layers, Bell, ExternalLink, ChevronRight, HelpCircle,
   Play, Volume2, VolumeX, ShieldAlert, MessageCircle
 } from 'lucide-react';
@@ -31,9 +31,8 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
   return (
     <div
       ref={setRef as any}
-      className={`${className} transition-all duration-1000 ease-out transform ${
-        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-[0.98]"
-      }`}
+      className={`${className} transition-all duration-1000 ease-out transform ${visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-[0.98]"
+        }`}
     >
       {children}
     </div>
@@ -108,7 +107,7 @@ export default function LandingPage() {
           const gain = ctx.createGain();
           osc.connect(gain);
           gain.connect(ctx.destination);
-          
+
           if (isUrgentDanger) {
             // Urgent high pitch alarm
             osc.type = 'square';
@@ -127,7 +126,7 @@ export default function LandingPage() {
             osc.start();
             osc.stop(ctx.currentTime + 0.15);
           }
-        } catch (e) {}
+        } catch (e) { }
       };
       playBeep();
       interval = setInterval(playBeep, isUrgentDanger ? 400 : 1000);
@@ -193,11 +192,10 @@ export default function LandingPage() {
       </div>
 
       {/* HEADER / NAVIGATION */}
-      <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-300 ${
-        isScrolled 
-          ? 'border-b border-slate-200 dark:border-white/10 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl shadow-lg shadow-slate-200/50 dark:shadow-black/40 h-16' 
+      <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-300 ${isScrolled
+          ? 'border-b border-slate-200 dark:border-white/10 bg-white/95 dark:bg-[#070d1a]/95 backdrop-blur-xl shadow-lg shadow-slate-200/50 dark:shadow-black/40 h-16'
           : 'border-b border-transparent dark:border-white/5 bg-white/80 dark:bg-[#070d1a]/80 backdrop-blur-xl h-20'
-      }`}>
+        }`}>
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -231,14 +229,14 @@ export default function LandingPage() {
             >
               {lang}
             </button>
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95"
             >
               {t('Masuk', 'Login')}
             </Link>
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               className="px-4 py-2 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/30 active:scale-95 flex items-center gap-1"
             >
               {t('Daftar', 'Register')} <ArrowRight size={12} strokeWidth={2.5} />
@@ -254,14 +252,14 @@ export default function LandingPage() {
             >
               {lang}
             </button>
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-[#070d1a] text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all active:scale-95 flex items-center justify-center h-8"
               style={{ letterSpacing: '0.05em' }}
             >
               {t('MASUK', 'LOGIN')}
             </Link>
-            <button 
+            <button
               onClick={() => setMobileMenuOpen(true)}
               className="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/20 bg-white dark:bg-white/[0.01] hover:bg-slate-50 dark:hover:bg-white/[0.05] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
               aria-label="Buka Menu"
@@ -289,8 +287,8 @@ export default function LandingPage() {
                   <p className="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Air Analytics</p>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 aria-label="Tutup Menu"
@@ -303,31 +301,31 @@ export default function LandingPage() {
 
             {/* Links */}
             <nav className="flex flex-col gap-5 pt-8 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              <a 
-                href="#features" 
-                onClick={() => setMobileMenuOpen(false)} 
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
                 {t('Fitur Utama', 'Features')}
               </a>
-              <a 
-                href="#simulator" 
-                onClick={() => setMobileMenuOpen(false)} 
+              <a
+                href="#simulator"
+                onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02] flex items-center justify-between"
               >
                 <span>{t('Demo Live', 'Live Demo')}</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
               </a>
-              <a 
-                href="#pricing" 
-                onClick={() => setMobileMenuOpen(false)} 
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
                 {t('Pilihan Paket', 'Packages')}
               </a>
               <Link
-                href="/about" 
-                onClick={() => setMobileMenuOpen(false)} 
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
                 className="hover:text-[#4edea3] transition-colors py-2.5 border-b border-slate-100 dark:border-white/[0.02]"
               >
                 {t('Tentang Kami', 'About Us')}
@@ -337,15 +335,15 @@ export default function LandingPage() {
 
           {/* Action buttons at bottom */}
           <div className="space-y-3 pb-8">
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white dark:bg-white/[0.02] text-center text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white transition-all block"
             >
               {t('Masuk', 'Login')}
             </Link>
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3.5 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center text-xs font-black uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20"
             >
@@ -363,26 +361,26 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-wider">
               <Cpu size={12} /> IoT-Powered Smart System
             </div>
-            
+
             <h2 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.08]" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {t('Dapur Aman,', 'Safe Kitchen,')}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4edea3] to-[#89ceff]">{t('Kerja Nyaman.', 'Comfortable Work.')}</span>
             </h2>
-            
+
             <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed max-w-xl">
               {t('Sistem deteksi dini kebocoran gas LPG dan polutan dapur berbasis Internet of Things (IoT). Pantau kadar udara, terima peringatan suara seketika, dan lindungi dapur Anda dari risiko kebocoran tabung sebelum terlambat.', 'IoT-based early detection system for LPG gas leaks and kitchen pollutants. Monitor air levels, receive instant sound alerts, and protect your kitchen from gas cylinder leak risks before it is too late.')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-              <a 
-                href="/register" 
+              <a
+                href="/register"
                 className="px-8 py-4.5 rounded-2xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] font-black text-sm uppercase tracking-wider text-center transition-all shadow-lg shadow-[#4edea3]/20 hover:shadow-[#4edea3]/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
               >
                 {t('Mulai Monitoring Sekarang', 'Start Monitoring Now')}
                 <ArrowRight size={16} strokeWidth={2.8} />
               </a>
-              <a 
-                href="#simulator" 
+              <a
+                href="#simulator"
                 className="px-8 py-4.5 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.05] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-black text-sm uppercase tracking-wider text-center transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <Play size={14} fill="currentColor" />
@@ -410,15 +408,15 @@ export default function LandingPage() {
           {/* Hero Right: Floating Device Presentation */}
           <ScrollReveal className="lg:col-span-5 relative flex justify-center items-center" delay={150}>
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-[#4edea3]/10 rounded-full blur-[100px] pointer-events-none" />
-            
+
             {/* Animated Device Mockup */}
             <div className="relative rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl shadow-2xl shadow-slate-200/50 dark:shadow-2xl w-full max-w-sm hover:scale-[1.01] transition-transform duration-500 group">
               {/* Embbeded generate_image mockup */}
               <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/40 mb-6">
-                <img 
-                  src="/landing_hero.png" 
-                  alt="SkyWatch IoT Smart Device" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                <img
+                  src="/landing_hero.png"
+                  alt="SkyWatch IoT Smart Device"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
               </div>
@@ -430,7 +428,7 @@ export default function LandingPage() {
                   </div>
                   <p className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">SkyWatch IoT Node-01</p>
                 </div>
-                
+
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('Modul sensor nirkabel ESP32 presisi tinggi. Mengirimkan data kadar udara real-time ke dashboard cloud Anda setiap detik dengan enkripsi aman.', 'High-precision ESP32 wireless sensor module. Transmits real-time air data to your cloud dashboard every second with secure encryption.')}
                 </p>
@@ -452,21 +450,21 @@ export default function LandingPage() {
             {/* Video Container */}
             <div className="relative w-full aspect-video md:aspect-[21/9]">
               {/* YouTube Player (Hanya tampil di Mobile) */}
-              <iframe 
+              <iframe
                 src="https://www.youtube.com/embed/CBHcfCejU9w?rel=0&modestbranding=1&iv_load_policy=3"
                 title="YouTube video player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
-                className="block md:hidden absolute inset-0 w-full h-full border-0 z-10" 
+                className="block md:hidden absolute inset-0 w-full h-full border-0 z-10"
               />
-              
+
               {/* Google Drive Player (Hanya tampil di Desktop) */}
-              <iframe 
+              <iframe
                 src="https://drive.google.com/file/d/1NoMa_m4q9Kwa-tMB-913-XlFGT54W0gV/preview"
                 title="PBL Air Quality Video"
                 allow="autoplay; fullscreen"
                 allowFullScreen
-                className="hidden md:block absolute inset-0 w-full h-full border-0 z-10" 
+                className="hidden md:block absolute inset-0 w-full h-full border-0 z-10"
               />
               {/* Overlay Gradient (Only on Desktop) - Modified to only cover left half */}
               <div className="hidden md:block absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#070d1a] to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500 z-20" />
@@ -478,7 +476,7 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" /> New Generation
               </div>
               <h3 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-[1.1] mb-4 drop-shadow-xl" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                {t('Presisi Tinggi.', 'High Precision.')}<br/>
+                {t('Presisi Tinggi.', 'High Precision.')}<br />
                 {t('Perlindungan Maksimal.', 'Maximum Protection.')}
               </h3>
               <p className="text-slate-300 text-xs md:text-sm max-w-md drop-shadow-md">
@@ -519,7 +517,7 @@ export default function LandingPage() {
                   {isVocDanger ? t('KEBOCORAN DARURAT (SIMULASI)', 'EMERGENCY LEAK (SIMULATION)') : t('STATUS KRITIS (SIMULASI)', 'CRITICAL STATUS (SIMULATION)')}
                 </h2>
                 <p className="text-slate-700 dark:text-slate-300 mb-6 font-bold text-xs md:text-sm leading-relaxed">
-                  {t('Sensor mensimulasikan level kritis pada: ', 'Sensor simulates critical level on: ')}<span className="text-red-500 font-black">{(dangerLabels.filter(l => l !== t('KELEMBAPAN', 'HUMIDITY') && l !== 'NH3').join(', ') || t('Sensor Dapur', 'Kitchen Sensor'))}</span>.<br/>{t('Tindakan pengamanan manual harus segera dipraktikkan!', 'Manual safety actions must be practiced immediately!')}
+                  {t('Sensor mensimulasikan level kritis pada: ', 'Sensor simulates critical level on: ')}<span className="text-red-500 font-black">{(dangerLabels.filter(l => l !== t('KELEMBAPAN', 'HUMIDITY') && l !== 'NH3').join(', ') || t('Sensor Dapur', 'Kitchen Sensor'))}</span>.<br />{t('Tindakan pengamanan manual harus segera dipraktikkan!', 'Manual safety actions must be practiced immediately!')}
                 </p>
 
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 text-left">
@@ -546,15 +544,15 @@ export default function LandingPage() {
                     <li>{t('Evakuasi penghuni rumah keluar dari ruangan jika kondisi memburuk.', 'Evacuate occupants out of the room if conditions worsen.')}</li>
                   </ul>
                 </div>
-                
+
                 <div className="flex flex-col gap-3">
-                  <button 
+                  <button
                     onClick={() => setSimulatedAlarmAck(true)}
                     className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-500/35 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Check size={16} /> {t('Matikan Suara Alarm Simulasi', 'Mute Simulation Alarm Sound')}
                   </button>
-                  <button 
+                  <button
                     onClick={resetSimulator}
                     className="w-full py-3 text-slate-400 hover:text-white font-semibold text-xs transition-colors"
                   >
@@ -568,7 +566,7 @@ export default function LandingPage() {
 
           {/* SIMULATOR DASHBOARD CONTAINER */}
           <ScrollReveal delay={100} className="rounded-[2rem] border border-slate-200 dark:border-white/10 overflow-hidden bg-white/90 dark:bg-[#0a1020]/90 shadow-xl dark:shadow-2xl relative">
-            
+
             {/* Simulator Header */}
             <div className="px-6 py-4.5 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-white/5 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -583,11 +581,10 @@ export default function LandingPage() {
               <div className="flex items-center gap-3.5">
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
-                  className={`p-2 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all ${
-                    soundEnabled 
-                      ? 'bg-[#4edea3]/10 border-[#4edea3]/25 text-[#4edea3]' 
+                  className={`p-2 rounded-xl border flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition-all ${soundEnabled
+                      ? 'bg-[#4edea3]/10 border-[#4edea3]/25 text-[#4edea3]'
                       : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                    }`}
                   title={soundEnabled ? t('Nonaktifkan Alarm', 'Disable Alarm') : t('Aktifkan Alarm', 'Enable Alarm')}
                 >
                   {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
@@ -605,15 +602,14 @@ export default function LandingPage() {
 
             {/* Dashboard Alert Banner Preview */}
             <div className="px-6 pt-6">
-              <div className={`relative rounded-2xl border border-t-[1.5px] px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-500 ${
-                isAnyDanger 
-                  ? 'bg-red-500/5 border-red-500/20' 
+              <div className={`relative rounded-2xl border border-t-[1.5px] px-5 py-4 overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-500 ${isAnyDanger
+                  ? 'bg-red-500/5 border-red-500/20'
                   : 'bg-emerald-500/5 border-emerald-500/15'
-              }`}>
+                }`}>
                 <div className="flex items-center gap-4">
                   <div className={`absolute inset-y-0 left-0 w-[3px] rounded-r ${isAnyDanger ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
                   <div className={`p-2 rounded-xl flex-shrink-0 ${isAnyDanger ? 'bg-red-500/12' : 'bg-emerald-500/12'}`}>
-                    {isAnyDanger 
+                    {isAnyDanger
                       ? <AlertTriangle size={16} className="text-red-400" />
                       : <Check size={16} className="text-emerald-400" />}
                   </div>
@@ -623,8 +619,8 @@ export default function LandingPage() {
                       {isAnyDanger ? `${t('DARURAT', 'EMERGENCY')} — ${dangerLabels.join(' · ')} ${t('MELEBIHI BATAS', 'LIMIT EXCEEDED')}` : t('SISTEM STATUS — SEMUA SENSOR OPTIMAL', 'SYSTEM STATUS — ALL SENSORS OPTIMAL')}
                     </p>
                     <p className="text-slate-400 text-[10.5px] mt-0.5 font-medium">
-                      {isAnyDanger 
-                        ? t('Simulasi Bahaya Aktif: Tingkat konsentrasi gas/suhu membahayakan pernapasan & titik api.', 'Active Hazard Simulation: Gas concentration/temperature levels endanger breathing & fire hotspots.') 
+                      {isAnyDanger
+                        ? t('Simulasi Bahaya Aktif: Tingkat konsentrasi gas/suhu membahayakan pernapasan & titik api.', 'Active Hazard Simulation: Gas concentration/temperature levels endanger breathing & fire hotspots.')
                         : t('Simulasi Normal: Seluruh indikator berada dalam batas normal. Dapur aman.', 'Normal Simulation: All indicators are within normal limits. Kitchen is safe.')}
                     </p>
                   </div>
@@ -642,20 +638,18 @@ export default function LandingPage() {
 
             {/* Dashboard Cards Grid */}
             <div className="px-6 py-6 grid grid-cols-2 lg:grid-cols-5 gap-4">
-              
+
               {/* Card CO2 */}
-              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
-                isCo2Danger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]' 
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${isCo2Danger
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.03] shadow-sm dark:shadow-none'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                     <Zap size={14} className="text-blue-400" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
-                    isCo2Danger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${isCo2Danger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                    }`}>
                     {isCo2Danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                   </span>
                 </div>
@@ -671,18 +665,16 @@ export default function LandingPage() {
               </div>
 
               {/* Card NH3 */}
-              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
-                isNh3Danger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]' 
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${isNh3Danger
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.03] shadow-sm dark:shadow-none'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                     <Wind size={14} className="text-purple-400" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
-                    isNh3Danger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${isNh3Danger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                    }`}>
                     {isNh3Danger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                   </span>
                 </div>
@@ -698,18 +690,16 @@ export default function LandingPage() {
               </div>
 
               {/* Card VOC (LPG) */}
-              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
-                isVocDanger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_30px_rgba(239,68,68,0.3)] border-red-500 animate-pulse' 
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${isVocDanger
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_30px_rgba(239,68,68,0.3)] border-red-500 animate-pulse'
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.03] shadow-sm dark:shadow-none'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                     <Activity size={14} className="text-[#4edea3]" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
-                    isVocDanger ? 'bg-red-500 border-red-500/25 text-red-400 font-black animate-ping' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${isVocDanger ? 'bg-red-500 border-red-500/25 text-red-400 font-black animate-ping' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                    }`}>
                     {isVocDanger ? t('BOCOR', 'LEAK') : t('Aman', 'Safe')}
                   </span>
                 </div>
@@ -725,18 +715,16 @@ export default function LandingPage() {
               </div>
 
               {/* Card Temp */}
-              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
-                isTempDanger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]' 
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${isTempDanger
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.03] shadow-sm dark:shadow-none'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                     <Flame size={14} className="text-orange-400" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
-                    isTempDanger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${isTempDanger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                    }`}>
                     {isTempDanger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                   </span>
                 </div>
@@ -752,18 +740,16 @@ export default function LandingPage() {
               </div>
 
               {/* Card Humidity */}
-              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${
-                isHumDanger 
-                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]' 
+              <div className={`relative rounded-2xl border-2 p-4.5 text-left transition-all duration-300 overflow-hidden ${isHumDanger
+                  ? 'border-red-500/80 bg-red-950/10 shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-white dark:bg-white/[0.03] shadow-sm dark:shadow-none'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                     <Droplets size={14} className="text-sky-400" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${
-                    isHumDanger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wider border ${isHumDanger ? 'bg-red-500/10 border-red-500/25 text-red-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                    }`}>
                     {isHumDanger ? t('Bahaya', 'Danger') : t('Aman', 'Safe')}
                   </span>
                 </div>
@@ -792,13 +778,13 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={setPresetDanger}
                     className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-wider transition-colors shadow-md shadow-red-500/20"
                   >
                     🚨 {t('Pemicu Kebocoran Gas', 'Trigger Gas Leak')}
                   </button>
-                  <button 
+                  <button
                     onClick={resetSimulator}
                     className="px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-transparent font-semibold text-[10px] uppercase tracking-wider transition-colors"
                   >
@@ -815,12 +801,12 @@ export default function LandingPage() {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">LPG / VOC Gas</span>
                     <span className={`text-[10px] font-bold font-mono ${isVocDanger ? 'text-red-400' : 'text-slate-300'}`}>{voc.toFixed(2)} PPM</span>
                   </div>
-                  <input 
-                    type="range" 
-                    min="0.05" 
-                    max="5.0" 
+                  <input
+                    type="range"
+                    min="0.05"
+                    max="5.0"
                     step="0.05"
-                    value={voc} 
+                    value={voc}
                     onChange={e => {
                       setVoc(parseFloat(e.target.value));
                       if (parseFloat(e.target.value) <= thresholds.voc) setSimulatedAlarmAck(false);
@@ -839,12 +825,12 @@ export default function LandingPage() {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('CO2 (Asap Kompor)', 'CO2 (Stove Smoke)')}</span>
                     <span className={`text-[10px] font-bold font-mono ${isCo2Danger ? 'text-red-400' : 'text-slate-300'}`}>{co2.toFixed(0)} PPM</span>
                   </div>
-                  <input 
-                    type="range" 
-                    min="300" 
-                    max="2000" 
+                  <input
+                    type="range"
+                    min="300"
+                    max="2000"
                     step="10"
-                    value={co2} 
+                    value={co2}
                     onChange={e => setCo2(parseInt(e.target.value))}
                     className="w-full accent-blue-500"
                   />
@@ -860,12 +846,12 @@ export default function LandingPage() {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('Suhu (Titik Api)', 'Temp (Fire Hotspot)')}</span>
                     <span className={`text-[10px] font-bold font-mono ${isTempDanger ? 'text-red-400' : 'text-slate-300'}`}>{temp.toFixed(1)} °C</span>
                   </div>
-                  <input 
-                    type="range" 
-                    min="15" 
-                    max="80" 
+                  <input
+                    type="range"
+                    min="15"
+                    max="80"
                     step="0.5"
-                    value={temp} 
+                    value={temp}
                     onChange={e => setTemp(parseFloat(e.target.value))}
                     className="w-full accent-orange-500"
                   />
@@ -880,8 +866,8 @@ export default function LandingPage() {
           </ScrollReveal>
 
           <ScrollReveal delay={200} className="text-center mt-8">
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#4edea3]/10 hover:bg-[#4edea3]/20 border border-[#4edea3]/30 text-[#4edea3] text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('Hubungkan Alat Sensor Fisik Anda Sendiri', 'Connect Your Own Physical Sensor Device')}
@@ -980,107 +966,107 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 bg-slate-100 dark:bg-slate-950/20 border-t border-slate-200 dark:border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">
           <ScrollReveal delay={0}>
-          <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black uppercase tracking-wider">
-              {t('Pilihan Langganan', 'Subscription Options')}
-            </div>
-            <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              {t('Skema Paket Yang Fleksibel', 'Flexible Package Plans')}
-            </h3>
-            <p className="text-slate-400 text-sm">
-              {t('Mulai gratis untuk pengenalan dasar, atau upgrade ke Premium untuk mengaktifkan dashboard nirkabel real-time dan notifikasi alarm darurat.', 'Start free for a basic introduction, or upgrade to Premium to enable real-time wireless dashboard and emergency alarm notifications.')}
-            </p>
-          </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-          
-          {/* Paket 1 Bulan — Bundle Alat + Web */}
-          <ScrollReveal delay={0} className="rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a1020]/20 shadow-sm dark:shadow-none p-8 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all text-left">
-            <div className="space-y-4">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
-              <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Langganan 1 Bulan', '1 Month Subscription')}</h4>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black text-slate-900 dark:text-white">Rp 349.000</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{t('Alat + Web 1 Bln', 'Device + Web 1 Month')}</span>
+            <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black uppercase tracking-wider">
+                {t('Pilihan Langganan', 'Subscription Options')}
               </div>
-              
-              <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                <li className="flex items-center gap-2">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
-                <li className="flex items-center gap-2">✓ {t('Dashboard Web Monitoring', 'Web Monitoring Dashboard')}</li>
-                <li className="flex items-center gap-2">✓ {t('Multi-device & Invite Pegawai', 'Multi-device & Employee Invitation')}</li>
-                <li className="flex items-center gap-2">✓ {t('Notifikasi & Laporan Real-time', 'Real-time Notifications & Reports')}</li>
-              </ul>
+              <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                {t('Skema Paket Yang Fleksibel', 'Flexible Package Plans')}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {t('Mulai gratis untuk pengenalan dasar, atau upgrade ke Premium untuk mengaktifkan dashboard nirkabel real-time dan notifikasi alarm darurat.', 'Start free for a basic introduction, or upgrade to Premium to enable real-time wireless dashboard and emergency alarm notifications.')}
+              </p>
             </div>
-
-            <Link 
-              href="/register" 
-              className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
-            >
-              {t('Pilih Paket', 'Select Package')}
-            </Link>
           </ScrollReveal>
 
-          {/* Paket 1 Tahun — Bundle Best Value (Featured) */}
-          <ScrollReveal delay={100} className="rounded-3xl border-2 border-[#4edea3] bg-white dark:bg-[#4edea3]/5 p-8 flex flex-col justify-between hover:border-[#5cebb2] transition-all text-left relative shadow-xl shadow-[#4edea3]/5">
-            <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[9px] font-black uppercase tracking-widest">
-              {t('Hemat', 'Save')}
-            </div>
-            
-            <div className="space-y-4">
-              <p className="text-[10px] font-black text-[#4edea3] uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
-              <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Langganan 1 Tahun', '1 Year Subscription')}</h4>
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-500 line-through font-bold">Rp 749.000</span>
-                <span className="text-3xl font-black text-[#4edea3]">Rp 599.000</span>
-                <span className="text-[9px] text-[#4edea3]/80 font-black uppercase tracking-wider mt-1">{t('Alat + Web 12 Bln (Best Offer)', 'Device + Web 12 Months (Best Offer)')}</span>
-              </div>
-              
-              <ul className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-slate-200 dark:border-white/10">
-                <li className="flex items-center gap-2 font-bold text-[#4edea3]">✓ {t('Semua Fitur Paket Bulanan', 'All Monthly Package Features')}</li>
-                <li className="flex items-center gap-2">✓ {t('Akses 12 Bulan Penuh', 'Full 12-Month Access')}</li>
-                <li className="flex items-center gap-2">✓ {t('Harga Lebih Hemat', 'More Cost-effective Price')}</li>
-                <li className="flex items-center gap-2">✓ {t('Prioritas Dukungan CS', 'Priority CS Support')}</li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
 
-            <Link 
-              href="/register" 
-              className="mt-8 w-full py-4 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Pilih Paket
-            </Link>
-          </ScrollReveal>
+            {/* Paket 1 Bulan — Bundle Alat + Web */}
+            <ScrollReveal delay={0} className="rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a1020]/20 shadow-sm dark:shadow-none p-8 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all text-left">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Langganan 1 Bulan', '1 Month Subscription')}</h4>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">Rp 349.000</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{t('Alat + Web 1 Bln', 'Device + Web 1 Month')}</span>
+                </div>
 
-          {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
-          <ScrollReveal delay={200} className="rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a1020]/20 shadow-sm dark:shadow-none p-8 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all text-left">
-            <div className="space-y-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('Alat Saja', 'Device Only')}</p>
-              <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Hanya Beli Alat', 'Buy Device Only')}</h4>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black text-slate-900 dark:text-white">Rp 249.000</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{t('Modul Sensor ESP32 Saja', 'ESP32 Sensor Module Only')}</span>
+                <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
+                  <li className="flex items-center gap-2">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Dashboard Web Monitoring', 'Web Monitoring Dashboard')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Multi-device & Invite Pegawai', 'Multi-device & Employee Invitation')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Notifikasi & Laporan Real-time', 'Real-time Notifications & Reports')}</li>
+                </ul>
               </div>
-              
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 my-2">
-                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">{t('⚠ Tanpa Akses Dashboard Web Monitoring', '⚠ Without Web Monitoring Dashboard Access')}</p>
-              </div>
-              
-              <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
-                <li className="flex items-center gap-2">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
-                <li className="flex items-center gap-2 line-through opacity-50">✗ {t('Akses Dashboard Web', 'Web Dashboard Access')}</li>
-                <li className="flex items-center gap-2 line-through opacity-50">✗ {t('Grafik & Laporan Online', 'Online Charts & Reports')}</li>
-                <li className="flex items-center gap-2">✓ {t('Bisa Upgrade Kapan Saja', 'Can Upgrade Anytime')}</li>
-              </ul>
-            </div>
 
-            <Link 
-              href="/register" 
-              className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
-            >
-              {t('Beli Alat Saja', 'Buy Device Only')}
-            </Link>
-          </ScrollReveal>
+              <Link
+                href="/register"
+                className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
+              >
+                {t('Pilih Paket', 'Select Package')}
+              </Link>
+            </ScrollReveal>
+
+            {/* Paket 1 Tahun — Bundle Best Value (Featured) */}
+            <ScrollReveal delay={100} className="rounded-3xl border-2 border-[#4edea3] bg-white dark:bg-[#4edea3]/5 p-8 flex flex-col justify-between hover:border-[#5cebb2] transition-all text-left relative shadow-xl shadow-[#4edea3]/5">
+              <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-[#4edea3] text-[#0a0f1a] text-[9px] font-black uppercase tracking-widest">
+                {t('Hemat', 'Save')}
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-[#4edea3] uppercase tracking-widest">{t('Bundle Alat + Web', 'Device + Web Bundle')}</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Langganan 1 Tahun', '1 Year Subscription')}</h4>
+                <div className="flex flex-col">
+                  <span className="text-xs text-slate-500 line-through font-bold">Rp 749.000</span>
+                  <span className="text-3xl font-black text-[#4edea3]">Rp 599.000</span>
+                  <span className="text-[9px] text-[#4edea3]/80 font-black uppercase tracking-wider mt-1">{t('Alat + Web 12 Bln (Best Offer)', 'Device + Web 12 Months (Best Offer)')}</span>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-slate-200 dark:border-white/10">
+                  <li className="flex items-center gap-2 font-bold text-[#4edea3]">✓ {t('Semua Fitur Paket Bulanan', 'All Monthly Package Features')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Akses 12 Bulan Penuh', 'Full 12-Month Access')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Harga Lebih Hemat', 'More Cost-effective Price')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Prioritas Dukungan CS', 'Priority CS Support')}</li>
+                </ul>
+              </div>
+
+              <Link
+                href="/register"
+                className="mt-8 w-full py-4 rounded-xl bg-[#4edea3] hover:bg-[#5cebb2] text-[#0a0f1a] text-center font-black text-xs uppercase tracking-widest transition-all block shadow-lg shadow-[#4edea3]/20 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Pilih Paket
+              </Link>
+            </ScrollReveal>
+
+            {/* Hanya Beli Alat — Tanpa Akses Dashboard */}
+            <ScrollReveal delay={200} className="rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a1020]/20 shadow-sm dark:shadow-none p-8 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all text-left">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('Alat Saja', 'Device Only')}</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-white">{t('Hanya Beli Alat', 'Buy Device Only')}</h4>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">Rp 249.000</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">{t('Modul Sensor ESP32 Saja', 'ESP32 Sensor Module Only')}</span>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 my-2">
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">{t('⚠ Tanpa Akses Dashboard Web Monitoring', '⚠ Without Web Monitoring Dashboard Access')}</p>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-slate-400 pt-4 border-t border-white/5">
+                  <li className="flex items-center gap-2">✓ {t('Alat Sensor ESP32 Fisik', 'Physical ESP32 Sensor Device')}</li>
+                  <li className="flex items-center gap-2 line-through opacity-50">✗ {t('Akses Dashboard Web', 'Web Dashboard Access')}</li>
+                  <li className="flex items-center gap-2 line-through opacity-50">✗ {t('Grafik & Laporan Online', 'Online Charts & Reports')}</li>
+                  <li className="flex items-center gap-2">✓ {t('Bisa Upgrade Kapan Saja', 'Can Upgrade Anytime')}</li>
+                </ul>
+              </div>
+
+              <Link
+                href="/register"
+                className="mt-8 w-full py-3.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white text-center font-black text-[11px] uppercase tracking-wider transition-all block active:scale-95"
+              >
+                {t('Beli Alat Saja', 'Buy Device Only')}
+              </Link>
+            </ScrollReveal>
 
           </div>
         </div>
@@ -1106,15 +1092,15 @@ export default function LandingPage() {
               </p>
               {/* WhatsApp Contact Button */}
               <div className="pt-2">
-                <a 
-                  href="https://wa.me/6285792524863?text=Halo%20Admin%20SkyWatch" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  onClick={() => fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => {})}
+                <a
+                  href="https://wa.me/6285792524863?text=Halo%20Admin%20SkyWatch"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => fetch('/api/notifications/whatsapp', { method: 'POST' }).catch(() => { })}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20c45c] text-white text-xs font-bold transition-all shadow-md active:scale-95 hover:scale-[1.02] shrink-0"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                   </svg>
                   <span>WhatsApp CS</span>
                 </a>
