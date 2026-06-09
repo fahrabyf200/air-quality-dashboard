@@ -58,6 +58,9 @@ export default function LandingPage() {
   // Mobile Menu drawer state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Facade state for heavy video iframes
+  const [showVideo, setShowVideo] = useState(false);
+
   // Simulator States
   const [voc, setVoc] = useState(0.2); // VOC/LPG
   const [co2, setCo2] = useState(450); // CO2
@@ -418,6 +421,7 @@ export default function LandingPage() {
                   src="/landing_hero.png"
                   alt="SkyWatch IoT Smart Device"
                   fill
+                  priority
                   sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
@@ -452,25 +456,44 @@ export default function LandingPage() {
           <div className="flex flex-col md:block relative rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/10 bg-[#070d1a] shadow-2xl group">
             {/* Video Container */}
             <div className="relative w-full aspect-video md:aspect-[21/9]">
-              {/* YouTube Player (Hanya tampil di Mobile) */}
-              <iframe
-                src="https://www.youtube.com/embed/CBHcfCejU9w?rel=0&modestbranding=1&iv_load_policy=3"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-                className="block md:hidden absolute inset-0 w-full h-full border-0 z-10"
-              />
+              {!showVideo ? (
+                <div 
+                  className="absolute inset-0 w-full h-full cursor-pointer group flex items-center justify-center z-10 bg-slate-900 overflow-hidden"
+                  onClick={() => setShowVideo(true)}
+                >
+                  <Image 
+                    src="/skywatch_poster.png" 
+                    alt="Video Thumbnail" 
+                    fill 
+                    className="object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-300" 
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-[#4edea3]/80 hover:bg-[#4edea3] rounded-full flex items-center justify-center backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 shadow-[0_0_30px_rgba(78,222,163,0.5)]">
+                      <Play className="text-[#0a0f1a] ml-1.5" size={32} fill="currentColor" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* YouTube Player (Hanya tampil di Mobile) */}
+                  <iframe
+                    src="https://www.youtube.com/embed/CBHcfCejU9w?rel=0&modestbranding=1&iv_load_policy=3&autoplay=1"
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="block md:hidden absolute inset-0 w-full h-full border-0 z-10"
+                  />
 
-              {/* Google Drive Player (Hanya tampil di Desktop) */}
-              <iframe
-                src="https://drive.google.com/file/d/1NoMa_m4q9Kwa-tMB-913-XlFGT54W0gV/preview"
-                title="PBL Air Quality Video"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-                loading="lazy"
-                className="hidden md:block absolute inset-0 w-full h-full border-0 z-10"
-              />
+                  {/* Google Drive Player (Hanya tampil di Desktop) */}
+                  <iframe
+                    src="https://drive.google.com/file/d/1NoMa_m4q9Kwa-tMB-913-XlFGT54W0gV/preview"
+                    title="PBL Air Quality Video"
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                    className="hidden md:block absolute inset-0 w-full h-full border-0 z-10"
+                  />
+                </>
+              )}
               {/* Overlay Gradient (Only on Desktop) - Modified to only cover left half */}
               <div className="hidden md:block absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#070d1a] to-transparent pointer-events-none group-hover:opacity-0 transition-opacity duration-500 z-20" />
             </div>
