@@ -39,6 +39,7 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
 export default function AboutPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [posterModalOpen, setPosterModalOpen] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -215,14 +216,17 @@ export default function AboutPage() {
         {/* HERO SECTION */}
         <section className="pt-32 pb-20 max-w-7xl mx-auto px-6 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <ScrollReveal delay={0}>
-              <div className="relative rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/10 aspect-square md:aspect-[4/3] bg-slate-100 dark:bg-[#0a1020] shadow-2xl group z-10">
+            <ScrollReveal delay={0} className="flex justify-center">
+              <div 
+                className="relative rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#0a1020] shadow-2xl group z-10 w-fit mx-auto max-w-full cursor-pointer hover:border-[#4edea3]/50 transition-colors"
+                onClick={() => setPosterModalOpen(true)}
+              >
                 <img
                   src="/skywatch_poster.png"
                   alt="SkyWatch Poster"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
+                  className="w-auto h-auto max-h-[500px] md:max-h-[600px] object-contain group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-[#4edea3]/20 pointer-events-none opacity-40 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-[#4edea3]/20 pointer-events-none opacity-40 mix-blend-overlay group-hover:opacity-20 transition-opacity" />
               </div>
             </ScrollReveal>
 
@@ -331,6 +335,32 @@ export default function AboutPage() {
           <p>© {new Date().getFullYear()} {t('PBL Kelompok 4 Polinema. All rights reserved.', 'PBL Group 4 Polinema. All rights reserved.')}</p>
         </div>
       </footer>
+      {/* POSTER MODAL */}
+      {posterModalOpen && (
+        <div 
+          className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300 cursor-zoom-out" 
+          onClick={() => setPosterModalOpen(false)}
+        >
+          <button 
+            className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors z-[301]"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPosterModalOpen(false);
+            }}
+            aria-label="Close modal"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+          <img 
+            src="/skywatch_poster.png" 
+            alt="SkyWatch Poster Full" 
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
