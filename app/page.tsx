@@ -533,12 +533,7 @@ export default function Dashboard() {
               </div>
             )}
             <p className="text-[10px] font-semibold text-[#1E293B] dark:text-slate-400 uppercase tracking-[0.25em] mb-1 flex flex-wrap items-center gap-2">
-              {isEspConnected ? (
-                <span className="flex items-center gap-1.5 bg-[#4edea3]/10 text-[#059669] dark:text-[#4edea3] px-2 py-0.5 rounded-md"><Cpu size={10} /> {t('Monitoring Aktif', 'Monitoring Active')}</span>
-              ) : (
-                <span className="flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-md"><Cpu size={10} /> {t('Monitoring Tidak Aktif', 'Monitoring Inactive')}</span>
-              )}
-              {realTimeClock && <span className="text-slate-500 font-mono select-none">• {realTimeClock}</span>}
+              {realTimeClock && <span className="text-slate-500 font-mono select-none">{realTimeClock}</span>}
             </p>
             <h1 className="text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {activeSensorLabel}

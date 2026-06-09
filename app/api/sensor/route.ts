@@ -139,42 +139,27 @@ export async function POST(req: Request) {
         });
       }
 
-      // AUTO-REGISTER: Jika device_id dikirim tapi belum terdaftar,
-      // otomatis daftarkan ke user pertama agar data tidak menyebar ke semua user.
+      // Jika alat mengirim device_id yang belum dipasangkan oleh user mana pun,
+      // simpan data sensor dengan user_id = NULL. Jangan auto-register ke firstUser
+      // agar user lain (seperti Farhan) bebas mendaftarkan device ini ke akun mereka.
       if (targetUserIds.length === 0) {
-        const [firstUser]: any = await db.execute(
-          'SELECT id FROM users ORDER BY id ASC LIMIT 1'
+        await db.execute(
+          `INSERT INTO sensor_data 
+           (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id, created_at) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)`,
+          [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', cleanId, new Date()]
         );
-        if (firstUser && firstUser.length > 0) {
-          const autoUserId = firstUser[0].id;
-          try {
-            await db.execute(
-              'INSERT INTO user_devices (user_id, device_id, device_name) VALUES (?, ?, ?)',
-              [autoUserId, cleanId, `Auto: ${cleanId}`]
-            );
-            await db.execute(
-              'UPDATE users SET device_id = ? WHERE id = ? AND (device_id IS NULL OR device_id = "")',
-              [cleanId, autoUserId]
-            );
-            console.log(`[AUTO-REGISTER] Device "${cleanId}" didaftarkan ke user_id=${autoUserId}`);
-          } catch (regErr: any) {
-            if (regErr.code !== 'ER_DUP_ENTRY') {
-              console.error('[AUTO-REGISTER] Gagal:', regErr.message);
-            }
-          }
-          targetUserIds = [autoUserId];
-        }
-      }
-
-      // Distribusikan data sensor ke semua user_id terkait
-      if (targetUserIds.length > 0) {
+        savedCount = 1; // Di-set agar tidak melakukan duplikasi data ke semua user di bawah
+        console.log(`[UNREGISTERED DEVICE] Data disimpan dengan user_id=NULL untuk device_id="${cleanId}"`);
+      } else {
+        // Distribusikan data sensor ke semua user_id terkait
         for (const uid of targetUserIds) {
           await handleNotificationForUser(uid);
           await db.execute(
             `INSERT INTO sensor_data 
-             (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', uid, cleanId]
+             (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', uid, cleanId, new Date()]
           );
           savedCount++;
         }
@@ -192,9 +177,9 @@ export async function POST(req: Request) {
           await handleNotificationForUser(u.id);
           await db.execute(
             `INSERT INTO sensor_data 
-             (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', u.id, device_id || null]
+             (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', u.id, device_id || null, new Date()]
           );
           savedCount++;
         }
@@ -202,9 +187,9 @@ export async function POST(req: Request) {
         // Fallback jika database benar-benar kosong dari user
         await db.execute(
           `INSERT INTO sensor_data 
-           (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
-          [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', device_id || null]
+           (co2, nh3, voc, temp, hum, is_unhealthy, dominant_pollutant, user_id, device_id, created_at) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)`,
+          [co2, nh3, voc, temp, hum, isDanger ? 1 : 0, dominant || 'CO2', device_id || null, new Date()]
         );
       }
     }
