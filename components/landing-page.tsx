@@ -418,7 +418,7 @@ export default function LandingPage() {
               {/* Embbeded generate_image mockup */}
               <div className="relative rounded-[2rem] overflow-hidden border border-white/5 aspect-[4/3] bg-black/40 mb-6">
                 <Image
-                  src="/landing_hero.webp"
+                  src="/Landing_hero.webp"
                   alt="SkyWatch IoT Smart Device"
                   fill
                   priority
