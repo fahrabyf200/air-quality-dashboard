@@ -223,7 +223,7 @@ export default function AboutPage() {
                 onClick={() => setPosterModalOpen(true)}
               >
                 <img
-                  src="/skywatch_poster.png"
+                  src="/skywatch_poster.webp"
                   alt="SkyWatch Poster"
                   loading="lazy"
                   className="w-auto h-auto max-h-[500px] md:max-h-[600px] object-contain group-hover:scale-105 transition-transform duration-700"
@@ -307,10 +307,10 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: "Farhan", role: "Project Manager", img: "/team/farhan.jpeg" },
-              { name: "Putra", role: "Hardware Engineer", img: "/team/putra.jpeg" },
-              { name: "Agna", role: "Software Developer", img: "/team/agna.jpeg" },
-              { name: "Fahreiza", role: "UI/UX Designer", img: "/team/fahreiza.jpg" }
+              { name: "Farhan", role: "Project Manager", img: "/team/farhan.webp" },
+              { name: "Putra", role: "Hardware Engineer", img: "/team/putra.webp" },
+              { name: "Agna", role: "Software Developer", img: "/team/agna.webp" },
+              { name: "Fahreiza", role: "UI/UX Designer", img: "/team/fahreiza.webp" }
             ].map((member, i) => (
               <ScrollReveal key={i} delay={i * 100}>
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-6 rounded-[2rem] text-center hover:border-[#4edea3]/50 transition-colors group">
