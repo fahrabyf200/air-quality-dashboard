@@ -356,7 +356,7 @@ export default function AboutPage() {
             </svg>
           </button>
           <img 
-            src="/skywatch_poster.png" 
+            src="/skywatch_poster.webp" 
             alt="SkyWatch Poster Full" 
             loading="lazy"
             className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-default"

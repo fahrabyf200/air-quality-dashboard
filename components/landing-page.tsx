@@ -462,7 +462,7 @@ export default function LandingPage() {
                   onClick={() => setShowVideo(true)}
                 >
                   <Image 
-                    src="/skywatch_poster.png" 
+                    src="/skywatch_poster.webp" 
                     alt="Video Thumbnail" 
                     fill 
                     className="object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-300" 
